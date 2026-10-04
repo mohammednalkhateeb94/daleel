@@ -46,7 +46,7 @@ def render_segment(s: dict) -> dict:
         "about_note": T("و-05"),
         "src_line": T("و-06", المصدر=s["source"]["title"], عنوان_المسألة=s["src_title"]) if s["src_title"] else "",
         "src_question": s["src_question"], "text": s["text"],
-        "source": s["source"], "location": s["location"], "reviewer": s["reviewer"],
+        "source": s["source"], "location": s["location"], "link": s.get("link") or s["source"]["url"], "reviewer": s["reviewer"],
         "footer": T("و-15"),
     }
 

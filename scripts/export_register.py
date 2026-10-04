@@ -135,7 +135,9 @@ def main(path):
             continue
         segs.append(dict(
             id=sid, need=g(r, "الحاجة"), priority=g(r, "الأولوية"), level=level, sensitive=sens == "نعم",
-            source={k: s[k] for k in ("id", "title", "org", "url")}, location=g(r, "الموضع"),
+            source={k: s[k] for k in ("id", "title", "org", "url")},
+            location=re.sub(r"\s*—?\s*https?://\S+", "", g(r, "الموضع")).strip(),
+            link=(re.search(r"https?://\S+", g(r, "الموضع")) or re.search(r".*", s["url"])).group(0),
             src_title=g(r, "عنوان المسألة"), src_question=src_q,
             similar=[x.strip() for x in g(r, "عبارات مشابهة").split("|") if x.strip()],
             gist="" if g(r, "مضمون السؤال") in ("", "—") else g(r, "مضمون السؤال"),

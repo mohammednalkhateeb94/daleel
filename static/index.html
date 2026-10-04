@@ -112,7 +112,7 @@ function render(r){
         ${s.about_note?`<p class="note">${esc(s.about_note)}</p>`:""}
         ${s.src_line?`<details><summary>${esc(s.src_line)}</summary><p>${fmt(s.src_question)}</p></details>`:""}
         <blockquote>${fmt(s.text)}</blockquote>
-        <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · ${esc(s.location)} · <a href="${esc(s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً</a><br>${esc(s.footer||"")}</p>
+        <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · ${esc(s.location)} · <a href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً</a><br>${esc(s.footer||"")}</p>
       </article>`;
     });
     h += `<div class="msg"><p>${esc((r.ask_feedback||"").replace(/\s*\[.*$/,""))}</p><div class="fb">
