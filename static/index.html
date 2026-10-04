@@ -3,102 +3,201 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>دليل — من سؤالك عن القرآن إلى المقطع الموثوق</title>
+<title>دليل — من سؤالك عن القرآن إلى المقطع المناسب</title>
+<meta name="description" content="مرشد رقمي يوصل المبتدئ من سؤاله عن القرآن إلى مقطع موثوق مع مصدره وموضعه.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&family=Amiri+Quran&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Amiri&family=Amiri+Quran&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#12183F;--brand:#6150EA;--accent:#2EF2C2;--bg:#F2F4FF;--card:#FFFFFF;--muted:#5B6075;--line:#DDE1F2;--quote:#F7F8FD;--warn:#FFF6E5}
+:root{
+  --bg:#07111b; --bg2:#0b1826;
+  --panel:rgba(255,255,255,.035); --panel2:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+  --text:#eef3f6; --muted:#97a6b4; --dim:#6b7a88;
+  --mint:#5ee0b5; --mint2:#2fbf93; --mintBg:rgba(94,224,181,.10);
+  --gold:#e8c46a; --goldBg:rgba(232,196,106,.08);
+  --ayah:#9df0d2;
+  --r:18px;
+}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Readex Pro",Tahoma,sans-serif;font-size:17px;line-height:1.8}
-.wrap{max-width:760px;margin:0 auto;padding:16px}
-header{display:flex;align-items:center;gap:12px;padding:8px 0 4px}
-.logo{width:44px;height:44px;border-radius:12px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:22px}
-h1{font-size:24px;margin:0}
-.tag{color:var(--muted);font-size:14px;margin:0}
-.disclosure{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14px;margin:12px 0 4px}
-.privacy{font-size:13px;color:var(--muted);margin:0 2px 12px}
-form{background:var(--card);border-radius:16px;padding:14px;border:1px solid var(--line)}
-label{font-weight:600;display:block;margin-bottom:6px}
-textarea{width:100%;min-height:72px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;resize:vertical;background:#fff;color:var(--ink)}
-textarea:focus,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px;flex-wrap:wrap}
-.count{font-size:13px;color:var(--muted)}
-button{font:inherit;min-height:44px;border-radius:12px;border:0;padding:8px 18px;cursor:pointer}
-.primary{background:var(--brand);color:#fff;font-weight:600}
-.ghost{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
-.chip{background:#fff;border:1.5px solid var(--line);color:var(--ink);text-align:right;width:100%;margin:4px 0}
-.chip[disabled]{opacity:.5;cursor:not-allowed}
-#result{margin:16px 0}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
-.about{font-size:19px;font-weight:600;margin:0 0 2px}
-.note{font-size:12.5px;color:var(--muted);margin:0 0 10px}
-details{background:var(--quote);border-radius:10px;padding:8px 12px;margin:8px 0;font-size:15px}
-summary{cursor:pointer;font-weight:500}
-blockquote{margin:10px 0;padding:12px 16px;border-right:5px solid var(--brand);background:var(--quote);border-radius:10px;font-family:"Amiri",serif;font-size:20px;line-height:2;white-space:pre-wrap}
-.ayah{font-family:"Amiri Quran","Amiri",serif;color:#1B2470}
-.src{font-size:14px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;margin-top:8px}
-.src a{color:var(--brand)}
-.fb{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.msg{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}
-.msg.neutral{background:#F4F5FA}
-.notice{background:var(--warn);border-radius:10px;padding:8px 12px;font-size:14px;margin-bottom:10px}
-.verse{font-family:"Amiri Quran","Amiri",serif;font-size:24px;line-height:2.2;background:var(--quote);border-radius:12px;padding:12px 16px;margin:8px 0}
-h2.sec{font-size:16px;margin:18px 0 6px;color:var(--muted)}
-.menu{background:var(--card);border-radius:16px;padding:12px 14px;border:1px solid var(--line)}
-.group{margin-bottom:8px}
-.group h3{font-size:14px;margin:6px 0 2px;color:var(--brand)}
-footer{font-size:13px;color:var(--muted);margin:22px 0 40px}
-footer a{color:var(--brand)}
-.spinner{font-size:14px;color:var(--muted)}
-@media (max-width:480px){html,body{font-size:16px}blockquote{font-size:18px}}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--text);font-family:"IBM Plex Sans Arabic","Amiri",Tahoma,sans-serif;font-size:16.5px;line-height:1.85;
+  background:var(--bg)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(900px 500px at 85% -10%,rgba(47,191,147,.16),transparent 60%),
+    radial-gradient(700px 500px at 0% 30%,rgba(40,80,140,.18),transparent 60%),
+    linear-gradient(180deg,var(--bg2),var(--bg))}
+a{color:var(--mint)}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 48px}
+
+/* شريط علوي */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.logo{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-weight:700;color:#06261c;
+  background:linear-gradient(145deg,var(--mint),var(--mint2));box-shadow:0 0 22px rgba(94,224,181,.35)}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);background:var(--mintBg);color:var(--mint);
+  border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600;white-space:nowrap}
+
+/* البطل */
+.hero h1{margin:0;font-size:clamp(40px,8vw,64px);line-height:1.1;font-weight:700;letter-spacing:-.5px}
+.hero h2{margin:6px 0 10px;font-size:clamp(22px,4.2vw,32px);line-height:1.35;color:var(--mint);font-weight:700}
+.hero p{margin:0 0 22px;color:#c9d4dc;font-size:17px;max-width:620px}
+
+/* البطاقات */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;backdrop-filter:blur(6px)}
+.accent{border-inline-start:3px solid var(--mint);background:linear-gradient(270deg,var(--mintBg),transparent 70%)}
+.limit{border-inline-start:3px solid var(--gold);background:linear-gradient(270deg,var(--goldBg),transparent 70%)}
+
+/* نموذج السؤال */
+#askForm label{display:block;font-weight:600;margin-bottom:8px}
+.field{display:flex;gap:10px;align-items:flex-end}
+textarea{flex:1;min-height:56px;max-height:180px;border:1px solid var(--line2);border-radius:14px;padding:12px 14px;font:inherit;resize:vertical;
+  background:rgba(0,0,0,.25);color:var(--text)}
+textarea::placeholder{color:var(--dim)}
+textarea:focus{outline:none;border-color:var(--mint);box-shadow:0 0 0 3px rgba(94,224,181,.18)}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;min-height:44px}
+button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+.primary{background:linear-gradient(145deg,var(--mint),var(--mint2));color:#06261c;font-weight:700;padding:10px 22px}
+.primary:hover{filter:brightness(1.07)}
+.meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--dim)}
+.examples{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.tag{background:var(--panel2);border:1px solid var(--line);color:#cfd9e0;border-radius:999px;padding:5px 14px;min-height:36px;font-size:14px}
+.tag:hover{border-color:var(--mint);color:var(--mint)}
+.disclosure{margin:12px 2px 0;font-size:13px;color:var(--muted)}
+
+/* النتيجة */
+#result{margin:22px 0;scroll-margin-top:16px}
+#result:empty{display:none}
+#result:focus{outline:none}
+.card{margin-bottom:14px}
+.kicker{font-size:12.5px;font-weight:600;color:var(--mint);margin:0 0 2px}
+.about{font-size:19px;font-weight:600;margin:0 0 4px;line-height:1.6}
+.note{font-size:12.5px;color:var(--dim);margin:0 0 12px}
+details{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:12px;padding:8px 14px;margin:10px 0;font-size:14.5px;color:#c9d4dc}
+summary{cursor:pointer;font-weight:500;color:var(--muted)}
+details p{margin:8px 0 2px}
+blockquote{margin:12px 0;padding:16px 18px;border-inline-start:3px solid var(--mint);background:rgba(255,255,255,.04);border-radius:14px;
+  font-size:17.5px;line-height:2.05;white-space:pre-wrap;color:#e6edf1}
+.ayah{font-family:"Amiri Quran","Amiri",serif;color:var(--ayah);font-size:1.12em}
+.src{font-size:13.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin:12px 0 0}
+.src b{color:#d6e0e6;font-weight:600}
+.src .link{display:inline-block;margin-top:4px;font-weight:600;text-decoration:none}
+.src .link:hover{text-decoration:underline}
+.src small{display:block;color:var(--dim);margin-top:4px}
+.msg p{margin:0 0 6px}
+.fb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.ghost{background:var(--panel2);border:1px solid var(--line2);color:var(--text);padding:6px 18px}
+.ghost:hover:not([disabled]){border-color:var(--mint);color:var(--mint)}
+.ghost[disabled]{opacity:.45;cursor:default}
+.opt{display:block;width:100%;text-align:right;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px 14px;margin:8px 0 0}
+.opt:hover{border-color:var(--mint)}
+.notice{border-inline-start:3px solid var(--gold);background:var(--goldBg);border-radius:12px;padding:8px 14px;font-size:14px;margin-bottom:12px}
+.verse{font-family:"Amiri Quran","Amiri",serif;font-size:24px;line-height:2.3;color:var(--ayah);background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:10px 0}
+#remForm{margin-top:12px}
+#remForm .field{margin-top:6px}
+.spinner{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+.spinner::before{content:"";width:16px;height:16px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--mint);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* الأسئلة */
+.sec{display:flex;align-items:center;justify-content:space-between;margin:34px 0 12px}
+.sec h3{margin:0;font-size:20px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.need{text-align:right;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--text);display:flex;flex-direction:column;gap:6px;min-height:118px;transition:border-color .15s,transform .15s}
+.need:hover{border-color:rgba(94,224,181,.5);transform:translateY(-2px)}
+.need .n{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--mint);background:var(--mintBg);border:1px solid rgba(94,224,181,.25)}
+.need .s{font-size:12px;color:var(--dim)}
+.need .t{font-weight:600;font-size:15px;line-height:1.6}
+
+/* كيف يعمل */
+.how{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:34px}
+.how h4{margin:0 0 6px;font-size:15.5px}
+.how p{margin:0;color:var(--muted);font-size:14.5px}
+footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:26px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--dim)}
+
+@media (max-width:720px){.grid{grid-template-columns:1fr 1fr}.how{grid-template-columns:1fr}}
+@media (max-width:480px){
+  body{font-size:16px}.grid{grid-template-columns:1fr}.need{min-height:0}
+  .field{flex-direction:column;align-items:stretch}.primary{width:100%}
+  blockquote{font-size:16.5px;padding:14px}.top .pill{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="logo" aria-hidden="true">د</div>
-    <div><h1>دليل</h1><p class="tag">من سؤالك عن القرآن، إلى المقطع الموثوق الذي يجيب عنه</p></div>
-  </header>
-  <p class="disclosure" id="disclosure"></p>
-  <p class="privacy" id="privacy"></p>
+  <div class="top">
+    <div class="brand"><span class="logo" aria-hidden="true">د</span>دليل</div>
+    <span class="pill">نسخة أولى · التعرّف إلى القرآن</span>
+  </div>
 
-  <form id="askForm" autocomplete="off">
-    <label for="q" id="qLabel">اكتب سؤالك عن القرآن</label>
-    <textarea id="q" maxlength="300" placeholder=""></textarea>
-    <div class="row"><span class="count" id="count">0 / 300</span><button class="primary" type="submit">اسأل</button></div>
+  <section class="hero">
+    <h1>دليل</h1>
+    <h2>من سؤالك عن القرآن إلى المقطع المناسب</h2>
+    <p>اسأل بكلماتك، ويختار لك «دليل» نصاً موثوقاً يجيب عن سؤالك، مع مصدره وموضعه.</p>
+  </section>
+
+  <form id="askForm" class="panel" autocomplete="off">
+    <label for="q">اكتب سؤالك عن القرآن</label>
+    <div class="field">
+      <textarea id="q" maxlength="300" rows="2" placeholder="مثال: كيف حُفظ القرآن؟"></textarea>
+      <button class="primary" type="submit">اسأل</button>
+    </div>
+    <div class="examples" aria-label="أمثلة">
+      <button type="button" class="tag" data-q="ما هو القرآن؟">ما هو القرآن؟</button>
+      <button type="button" class="tag" data-q="كيف حُفظ القرآن؟">كيف حُفظ القرآن؟</button>
+      <button type="button" class="tag" data-q="هل القرآن من تأليف محمد ﷺ؟">هل القرآن من تأليف محمد ﷺ؟</button>
+    </div>
+    <div class="meta"><span id="privacy"></span><span id="count">0 / 300</span></div>
   </form>
+  <p class="disclosure" id="disclosure"></p>
 
   <section id="result" aria-live="polite" tabindex="-1"></section>
 
-  <h2 class="sec">أو اختر سؤالك</h2>
-  <nav class="menu" id="menu" aria-label="الأسئلة المتاحة"></nav>
+  <div class="sec"><h3>أو اختر سؤالك</h3></div>
+  <nav class="grid" id="menu" aria-label="الأسئلة المتاحة"></nav>
+
+  <section class="how">
+    <div class="panel accent">
+      <h4>كيف يعمل؟</h4>
+      <p>يفهم سؤالك بالذكاء الاصطناعي، ثم يختار مقطعاً من مكتبة نصوص راجعها مختص، وينقله حرفياً مع مصدره وموضعه.</p>
+    </div>
+    <div class="panel limit">
+      <h4>حدود واضحة</h4>
+      <p>لا يكتب تفسيراً ولا فتوى من عنده. إن لم يجد ما يجيب عن سؤالك أخبرك بذلك ودلّك على جهة مختصة.</p>
+    </div>
+  </section>
 
   <footer>
-    <p><b>كيف يعمل دليل؟</b> يفهم سؤالك بالذكاء الاصطناعي، ثم يختار له مقطعاً من مكتبة صغيرة من النصوص المعتمدة راجعها مختص. لا يكتب إجابات من عنده، وكل نص تراه منقول حرفياً مع مصدره وموضعه.</p>
-    <p>الآيات من مصحف مجمع الملك فهد برواية حفص عبر <a href="https://quranpedia.net" target="_blank" rel="noopener">quranpedia.net</a>. نسخة المكتبة: <span id="libv"></span></p>
+    <span>الآيات من مصحف مجمع الملك فهد برواية حفص عبر <a href="https://quranpedia.net" target="_blank" rel="noopener">quranpedia.net</a></span>
+    <span id="libv"></span>
   </footer>
 </div>
 <script>
-const S = {lastQuestion:"", shown:[], lastNeed:null, lastId:null, followup:false};
+const S = {lastQuestion:"", shown:[], lastNeed:null, lastId:null};
 const $ = id => document.getElementById(id);
 const esc = s => (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = s => esc(s).replace(/﴿([^﴾]+)﴾/g, '<span class="ayah">﴿$1﴾</span>');
+const ABOUT = /^\s*يجيب هذا المقطع عن\s*:\s*/;
 
 async function post(url, body){
   const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(r.status);
   return r.json();
 }
-function menu(needs){
-  const groups = {};
-  needs.forEach(n => (groups[n.section] = groups[n.section] || []).push(n));
-  $("menu").innerHTML = Object.entries(groups).map(([sec, ns]) =>
-    `<div class="group"><h3>${esc(sec)}</h3>` + ns.map(n =>
-      `<button class="chip" data-need="${n.id}" ${n.available?"":"disabled aria-disabled=\"true\""}>${esc(n.title)}${n.available?"":" — قريباً"}</button>`).join("") + `</div>`).join("");
-  $("menu").querySelectorAll("button[data-need]").forEach(b => b.onclick = () => pickNeed(b.dataset.need, false));
+function bind(root){
+  root.querySelectorAll("[data-need]").forEach(b => b.onclick = () => pickNeed(b.dataset.need, b.dataset.keep === "1"));
 }
-function loading(){ $("result").innerHTML = '<p class="spinner">جارٍ البحث في المكتبة…</p>'; }
+function menu(needs){
+  const list = needs.filter(n => n.available);
+  $("menu").innerHTML = list.map((n,i) =>
+    `<button class="need" data-need="${n.id}"><span class="n">${i+1}</span><span class="s">${esc(n.section)}</span><span class="t">${esc(n.title)}</span></button>`).join("");
+  bind($("menu"));
+}
+function loading(){ $("result").innerHTML = '<div class="panel spinner">جارٍ البحث في المكتبة…</div>'; }
 function focusResult(){ const r=$("result"); r.focus({preventScroll:true}); r.scrollIntoView({behavior:"smooth",block:"start"}); }
+const optBtn = (o, keep) => `<button class="opt" data-need="${o.id}" data-keep="${keep?1:0}">${esc(o.title)}</button>`;
 
 function render(r){
   S.lastId = r.decision_id;
@@ -107,58 +206,67 @@ function render(r){
     S.lastNeed = r.need;
     r.segments.forEach(s => {
       if(!S.shown.includes(s.id)) S.shown.push(s.id);
-      h += `<article class="card">
-        <p class="about">${esc(s.about)}</p>
+      h += `<article class="panel card">
+        <p class="kicker">يجيب هذا المقطع عن</p>
+        <p class="about">${esc((s.about||"").replace(ABOUT,""))}</p>
         ${s.about_note?`<p class="note">${esc(s.about_note)}</p>`:""}
         ${s.src_line?`<details><summary>${esc(s.src_line)}</summary><p>${fmt(s.src_question)}</p></details>`:""}
         <blockquote>${fmt(s.text)}</blockquote>
-        <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · ${esc(s.location)} · <a href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً</a><br>${esc(s.footer||"")}</p>
+        <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · ${esc(s.location)}<br>
+          <a class="link" href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً ↖</a>
+          ${s.footer?`<small>${esc(s.footer)}</small>`:""}</p>
       </article>`;
     });
-    h += `<div class="msg"><p>${esc((r.ask_feedback||"").replace(/\s*\[.*$/,""))}</p><div class="fb">
+    h += `<div class="panel msg"><p>${esc((r.ask_feedback||"").replace(/\s*\[.*$/,""))}</p><div class="fb">
       <button class="ghost" data-fb="yes">نعم</button><button class="ghost" data-fb="partial">جزئياً</button><button class="ghost" data-fb="no">لا</button></div><div id="fbOut"></div></div>`;
   } else if(r.type === "clarify"){
-    h += `<div class="msg"><p>${esc(r.message)}</p>` + r.options.map(o => `<button class="chip" data-need="${o.id}">${esc(o.title)}</button>`).join("") + `</div>`;
+    h += `<div class="panel msg accent"><p>${esc(r.message)}</p>${r.options.map(o => optBtn(o, true)).join("")}</div>`;
   } else if(r.type === "verse"){
-    h += `<div class="msg"><p>${esc(r.message)}</p><div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}] · ${esc(r.source_note)}</p></div>`;
+    h += `<div class="panel msg"><p>${esc(r.message)}</p><div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}] · ${esc(r.source_note)}</p></div>`;
   } else {
-    h += `<div class="msg neutral"><p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}</div>`;
+    h += `<div class="panel msg limit"><p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}</div>`;
   }
   $("result").innerHTML = h;
-  $("result").querySelectorAll("button[data-need]").forEach(b => b.onclick = () => pickNeed(b.dataset.need, true));
+  bind($("result"));
   $("result").querySelectorAll("button[data-fb]").forEach(b => b.onclick = () => feedback(b.dataset.fb));
   if(r.needs) menu(r.needs);
   focusResult();
 }
+function fail(){ $("result").innerHTML = '<div class="panel msg limit"><p>تعذّر الاتصال الآن. اختر سؤالك من القائمة أدناه.</p></div>'; }
 async function ask(text, followup){
   loading();
   const body = {question:text};
   if(followup) body.context = {previous_question:S.lastQuestion, shown:S.shown};
   else { S.shown = []; S.lastQuestion = text; }
-  try { render(await post("/api/ask", body)); }
-  catch(e){ $("result").innerHTML = '<div class="msg neutral"><p>تعذّر الاتصال الآن. اختر سؤالك من القائمة.</p></div>'; }
+  try { render(await post("/api/ask", body)); } catch(e){ fail(); }
 }
 async function pickNeed(id, keepShown){
   if(!keepShown) S.shown = [];
   loading();
-  render(await post("/api/need", {need:id, shown:S.shown}));
+  try { render(await post("/api/need", {need:id, shown:S.shown})); } catch(e){ fail(); }
 }
 async function feedback(v){
-  const r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed});
-  let h = `<p>${esc(r.message)}</p>`;
-  if(v === "yes" && r.next && r.next.length) h += r.next.map(n => `<button class="chip" data-need="${n.id}">${esc(n.title)}</button>`).join("");
-  if(v === "partial") h += `<form id="remForm"><label for="rem" class="note">${esc(r.message)}</label><textarea id="rem" maxlength="300"></textarea><div class="row"><span></span><button class="primary" type="submit">أرسل</button></div></form>`;
-  $("fbOut").innerHTML = v === "partial" ? h.replace(`<p>${esc(r.message)}</p>`, "") : h;
-  $("fbOut").querySelectorAll("button[data-need]").forEach(b => b.onclick = () => pickNeed(b.dataset.need, false));
   document.querySelectorAll("button[data-fb]").forEach(b => b.disabled = true);
+  let r; try { r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed}); } catch(e){ return; }
+  let h = "";
+  if(v === "partial"){
+    h = `<form id="remForm"><label for="rem">${esc(r.message)}</label><div class="field"><textarea id="rem" maxlength="300" rows="2"></textarea><button class="primary" type="submit">أرسل</button></div></form>`;
+  } else {
+    h = `<p style="margin-top:10px">${esc(r.message)}</p>`;
+    if(v === "yes" && r.next && r.next.length) h += r.next.map(n => optBtn(n, false)).join("");
+  }
+  $("fbOut").innerHTML = h;
+  bind($("fbOut"));
   const f = $("remForm");
   if(f){ $("rem").focus(); f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true); }; }
 }
 $("q").addEventListener("input", e => $("count").textContent = `${e.target.value.length} / 300`);
+$("q").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); $("askForm").requestSubmit(); } });
 $("askForm").onsubmit = e => { e.preventDefault(); const t = $("q").value.trim(); if(t) ask(t, false); };
+document.querySelectorAll("[data-q]").forEach(b => b.onclick = () => { $("q").value = b.dataset.q; $("count").textContent = `${b.dataset.q.length} / 300`; ask(b.dataset.q, false); });
 fetch("/api/start").then(r => r.json()).then(d => {
   $("disclosure").textContent = d.disclosure; $("privacy").textContent = d.privacy;
-  $("q").placeholder = d.intro || ""; $("libv").textContent = `${d.library.library_version} · ${d.library.segments} مقطعاً معتمداً`;
+  $("libv").textContent = `المكتبة: ${d.library.segments} مقطعاً معتمداً · ${d.library.library_version}`;
   menu(d.needs);
 });
 </script>
