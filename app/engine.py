@@ -139,6 +139,8 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
     if dec.get("outage"):
         resp["notice"] = T("ام-10")
     resp["decision_id"] = did
+    resp["cost_usd"] = meta.get("cost_usd", 0)
+    resp["source"] = source
     resp["needs"] = needs_menu()
     resp["disclosure"] = T("و-01")
     _log({"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "id": did, "source": source,

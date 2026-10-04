@@ -58,6 +58,61 @@ async def selftest(_: Request):
                              "ms": int((time.time() - t0) * 1000)})
 
 
+_EVAL = {"running": False, "started": 0.0, "progress": "", "result": None, "error": None}
+
+
+def _eval_worker(name, runs, systems):
+    import json as _json
+    from . import evaluation
+    try:
+        res = evaluation.run_all(name, systems, runs, progress=lambda s, c: _EVAL.update(progress=f"{s}:{c}"))
+        _EVAL["result"] = res
+        out = Path(__file__).resolve().parent.parent / "eval" / "results"
+        out.mkdir(parents=True, exist_ok=True)
+        (out / f"latest_{name}.json").write_text(_json.dumps(res, ensure_ascii=False, indent=1), "utf-8")
+    except Exception as e:  # noqa: BLE001
+        _EVAL["error"] = f"{type(e).__name__}: {e}"[:300]
+    finally:
+        _EVAL["running"] = False
+
+
+async def eval_run(req: Request):
+    """يشغّل التقييم في الخلفية على الخادم (مرة كل 10 دقائق على الأكثر لضبط الكلفة)."""
+    import threading
+    import time
+    if _EVAL["running"]:
+        return JSONResponse({"status": "running", "progress": _EVAL["progress"]})
+    if time.time() - _EVAL["started"] < 600:
+        return JSONResponse({"status": "cooldown", "seconds_left": int(600 - (time.time() - _EVAL["started"]))})
+    name = req.query_params.get("set", "dev")
+    if name not in ("dev", "heldout"):
+        return JSONResponse({"error": "bad set"}, status_code=400)
+    runs = max(1, min(3, int(req.query_params.get("runs", "1"))))
+    systems = tuple(x for x in req.query_params.get("systems", "daleel,bm25,general").split(",") if x in ("daleel", "bm25", "general"))
+    _EVAL.update(running=True, started=time.time(), progress="", error=None)
+    threading.Thread(target=_eval_worker, args=(name, runs, systems), daemon=True).start()
+    return JSONResponse({"status": "started", "set": name, "runs": runs, "systems": systems})
+
+
+async def eval_latest(req: Request):
+    res = _EVAL["result"]
+    if _EVAL["running"]:
+        return JSONResponse({"status": "running", "progress": _EVAL["progress"]})
+    if _EVAL["error"]:
+        return JSONResponse({"status": "error", "error": _EVAL["error"]})
+    if not res:
+        return JSONResponse({"status": "none"})
+    view = req.query_params.get("view", "summary")
+    if view == "summary":
+        return JSONResponse({**{k: v for k, v in res.items() if k != "systems"},
+                             "systems": {s: {k: v for k, v in d.items() if k != "cases"} for s, d in res["systems"].items()}})
+    sysname = req.query_params.get("system", "daleel")
+    cases = res["systems"].get(sysname, {}).get("cases", [])
+    if req.query_params.get("only") == "fail":
+        cases = [c for c in cases if not c["ok"] or c.get("unsafe")]
+    return JSONResponse({"system": sysname, "cases": cases})
+
+
 async def health(_: Request):
     return JSONResponse({"ok": True, "segments": library()["meta"]["segments"], "library": library()["meta"]["library_version"]})
 
@@ -65,5 +120,6 @@ async def health(_: Request):
 app = Starlette(routes=[
     Route("/", index), Route("/api/start", api_start), Route("/api/ask", api_ask, methods=["POST"]),
     Route("/api/need", api_need, methods=["POST"]), Route("/api/feedback", api_feedback, methods=["POST"]),
-    Route("/health", health), Route("/api/selftest", selftest), Mount("/static", StaticFiles(directory=STATIC), name="static"),
+    Route("/health", health), Route("/api/selftest", selftest),
+    Route("/api/eval/run", eval_run), Route("/api/eval/latest", eval_latest), Mount("/static", StaticFiles(directory=STATIC), name="static"),
 ])

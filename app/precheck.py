@@ -31,8 +31,9 @@ def precheck(question: str):
     # آية مكتوبة في السؤال: بين أقواس أو نص طويل يطابق آية
     quoted = re.findall(r"[﴿{«\"](.+?)[﴾}»\"]", q)
     candidates = quoted or ([q] if len(n.split()) >= 5 else [])
+    cue = bool(re.search(r"قال تعالي|قوله تعالي|قال الله|يقول الله|\bايه\b|\bاية\b", n))
     for c in candidates:
-        v = find_verse(c)
+        v = find_verse(c, min_ratio=0.6 if (quoted and cue) else 0.72 if quoted else 0.8)
         if v:
             if TAFSIR.search(n) or re.search(r"\bمعني\b|\bتفسير\b", n):
                 return {"decision": "abstain", "reason": "tafsir", "verse": v}

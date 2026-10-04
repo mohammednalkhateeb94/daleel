@@ -96,18 +96,24 @@ def decide(question: str, ctx: dict | None = None, timeout: float = 12.0):
     return out
 
 
-def raw_general_answer(question: str, timeout: float = 30.0):
-    """خط الأساس «النموذج العام»: النموذج نفسه مع نصوص المكتبة كاملة، بلا فهرس احتياجات ولا بوابة. للتقييم فقط."""
+def raw_general_answer(messages: list, timeout: float = 40.0):
+    """خط الأساس «النموذج العام»: النموذج نفسه مع نصوص المكتبة كاملة، بلا فهرس احتياجات ولا فحص ولا بوابة. للتقييم فقط.
+    يعيد (النص، الكلفة بالدولار، الزمن بالمللي ثانية)."""
     key = os.getenv("ANTHROPIC_API_KEY")
     lib = library()
     docs = "\n\n".join(f"[{s['id']}] {s['text']}" for s in lib["segments"])
-    body = {"model": MODEL, "max_tokens": 600, "temperature": 0,
-            "system": "أجب عن سؤال المستخدم عن القرآن من هذه المصادر فقط، واذكر رقم المقطع الذي اعتمدت عليه بين قوسين مربعين. إن لم تجد في المصادر ما يجيب فقل ذلك.\n\n" + docs,
-            "messages": [{"role": "user", "content": question}]}
+    body = {"model": MODEL, "max_tokens": 700, "temperature": 0,
+            "system": [{"type": "text", "text": "أنت مساعد يجيب عن أسئلة المبتدئين عن القرآن الكريم من هذه المصادر. اذكر رقم المقطع الذي اعتمدت عليه بين قوسين مربعين مثل [ق-12]. إن لم تجد في المصادر ما يجيب فقل ذلك.\n\n" + docs,
+                        "cache_control": {"type": "ephemeral"}}],
+            "messages": messages}
+    t0 = time.time()
     r = httpx.post(API, json=body, timeout=timeout,
                    headers={"x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"})
     r.raise_for_status()
-    return "".join(b.get("text", "") for b in r.json()["content"])
+    d = r.json()
+    u = d.get("usage", {})
+    cost = (u.get("input_tokens", 0) + 0.1 * u.get("cache_read_input_tokens", 0) + 1.25 * u.get("cache_creation_input_tokens", 0)) * PRICE_IN / 1e6 + u.get("output_tokens", 0) * PRICE_OUT / 1e6
+    return "".join(b.get("text", "") for b in d["content"]), round(cost, 6), int((time.time() - t0) * 1000)
 
 
 def catalog_json():
