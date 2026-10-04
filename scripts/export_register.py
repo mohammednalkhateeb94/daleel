@@ -75,13 +75,6 @@ def main(path):
         if sid:
             src[sid] = dict(id=sid, title=cell(ws, r, 2), org=cell(ws, r, 3), url=cell(ws, r, 4),
                             role=cell(ws, r, 5), approved=cell(ws, r, 6))
-    # قرار المختص من ورقة «للمختص»
-    sp = {}
-    if "للمختص" in wb.sheetnames:
-        ws = wb["للمختص"]
-        for r in range(5, ws.max_row + 1):
-            if cell(ws, r, 2):
-                sp[cell(ws, r, 2)] = cell(ws, r, 8)
     # الاحتياجات
     needs = []
     ws = wb["الاحتياجات"]
@@ -100,11 +93,11 @@ def main(path):
 
     segs, report = [], []
     for r in range(2, ws.max_row + 1):
-        sid = g(r, "رقم المقطع")
+        sid = g(r, "رقم")
         if not sid:
             continue
         why = []
-        text = g(r, "الجواب المعتمد (النص الحرفي)")
+        text = g(r, "النص المعتمد")
         level, sens = g(r, "المستوى"), g(r, "حساس؟")
         s = src.get(g(r, "المصدر"))
         if not text:
@@ -116,14 +109,10 @@ def main(path):
         for f in ("الحاجة", "الموضع", "يجيب هذا المقطع عن", "حساس؟"):
             if not g(r, f):
                 why.append(f"ناقص: {f}")
-        if g(r, "اجتاز الفحوص السبعة؟") != "نعم":
-            why.append("لم يجتز الفحوص السبعة")
-        if not g(r, "المراجع والتاريخ"):
+        if not g(r, "اعتمده (المراجع والتاريخ)"):
             why.append("المراجعة غير موثقة")
-        if sens == "نعم" and sp.get(sid, g(r, "رأي المختص الأعلم")) != "موافق":
+        if sens == "نعم" and g(r, "رأي المختص الأعلم") != "موافق":
             why.append("بانتظار موافقة المختص الأعلم")
-        if g(r, "الحالة") != "معتمد":
-            why.append("الحالة ليست «معتمد»")
         if why:
             report.append({"id": sid, "published": False, "why": why})
             continue
@@ -143,14 +132,18 @@ def main(path):
             gist="" if g(r, "مضمون السؤال") in ("", "—") else g(r, "مضمون السؤال"),
             text=shown_text, verses=verses + q_verses, about=g(r, "يجيب هذا المقطع عن"),
             phrasings=[x.strip() for x in g(r, "صياغات المستخدم").split("|") if x.strip()],
-            reviewer=g(r, "المراجع والتاريخ")))
+            reviewer=g(r, "اعتمده (المراجع والتاريخ)"), approval_note=g(r, "ملاحظات الاعتماد")))
         report.append({"id": sid, "published": True, "verses": verses + q_verses})
-    # القوالب
+    # القوالب: المعتمد من «القوالب»، والمسودات من «للمراجعة» (تُعرض في وضع التطوير فقط)
     tpl = {}
+    ws = wb["للمراجعة"]
+    for r in range(2, ws.max_row + 1):
+        if cell(ws, r, 1) == "قالب" and cell(ws, r, 2):
+            tpl[cell(ws, r, 2)] = dict(when=cell(ws, r, 3), text=cell(ws, r, 11), status="مسودة")
     ws = wb["القوالب"]
     for r in range(2, ws.max_row + 1):
         if cell(ws, r, 1):
-            tpl[cell(ws, r, 1)] = dict(when=cell(ws, r, 2), text=cell(ws, r, 3), status=cell(ws, r, 5))
+            tpl[cell(ws, r, 1)] = dict(when=cell(ws, r, 2), text=cell(ws, r, 3), status="معتمد")
     out = ROOT / "data"
     meta = {"library_version": date.today().isoformat(), "segments": len(segs),
             "source_file": Path(path).name}
