@@ -22,6 +22,7 @@ TOOL = {
     "input_schema": {
         "type": "object",
         "properties": {
+            "asks_about": {"type": "string", "description": "ما الذي يسأل عنه المستخدم بالضبط، في خمس كلمات أو أقل"},
             "decision": {"type": "string", "enum": ["answer", "clarify", "abstain"]},
             "need_id": {"type": "string", "description": "رمز الحاجة مثل ح3، أو فارغ"},
             "segment_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 2},
@@ -30,7 +31,7 @@ TOOL = {
             "abstain_reason": {"type": "string", "enum": REASONS},
             "fit": {"type": "string", "enum": ["high", "medium", "low"]},
         },
-        "required": ["decision", "fit"],
+        "required": ["asks_about", "decision", "fit"],
     },
 }
 
@@ -52,6 +53,8 @@ SYSTEM = """أنت موجِّه داخل «دليل»، أداة توصل الم
 
 القواعد:
 1. answer: اختر مقطعاً أو اثنين من الفهرس يجيبان عن السؤال نفسه، لا عن موضوع قريب. الأساسي أولاً. fit=high إن كان يجيب مباشرة، medium إن أجاب عن معظمه، low إن كان قريباً فقط.
+   اكتب أولاً في asks_about ما يسأل عنه المستخدم بالضبط (متى؟ كيف؟ لماذا؟ هل؟ وعن أي شيء)، ثم قارنه بوصف «يجيب عن» لكل مقطع.
+   اشتراك الكلمات أو الحاجة نفسها لا يكفي: سؤال عن «وقت» شيء لا يجيب عنه مقطع عن «طريقة» شيء آخر، وسؤال عن المقارنة بكتاب آخر لا يجيب عنه مقطع عن موضوع غيرها.
 2. clarify: إن كان السؤال يحتمل حاجتين أو أكثر من الفهرس احتمالاً متقارباً، أو كان واسعاً جداً («أخبرني عن القرآن»). اختر 2–3 حاجات.
 3. abstain مع السبب:
    - fatwa: طلب حكم أو فتوى أو حالة شخصية.

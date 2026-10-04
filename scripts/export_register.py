@@ -34,7 +34,7 @@ def official_span(fragment: str, s: int, a: int) -> tuple[str, bool]:
     """يعيد نص الجزء المقتبس من نص المصحف المعتمد، أو الآية كاملة إن تعذّرت المحاذاة."""
     hafs, _, flat, _ = _load()
     simple_words = next(w for (ss, aa, w) in flat if ss == s and aa == a)
-    off = verse_text(s, a).split()
+    off = [w for w in verse_text(s, a).split() if w not in ("۞", "۩")]  # علامات الحزب والسجدة ليست كلمات
     frag = norm(fragment).split()
     if len(off) == len(simple_words):
         for j in range(len(simple_words) - len(frag) + 1):

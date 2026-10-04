@@ -32,13 +32,14 @@ def run_daleel(case):
     t0 = time.time()
     r = engine.ask(case["question"])
     cost = r.get("cost_usd", 0)
+    shown1 = [s["id"] for s in r.get("segments", [])]
     if case.get("followup"):
         shown = [s["id"] for s in r.get("segments", [])]
         r = engine.ask(case["followup"], {"previous_question": case["question"], "shown": shown})
         cost += r.get("cost_usd", 0)
     out = {"type": r["type"], "segments": [s["id"] for s in r.get("segments", [])], "reason": r.get("reason"),
            "ref": (r.get("verse") or {}).get("ref"), "ms": int((time.time() - t0) * 1000),
-           "source": r.get("source")}
+           "source": r.get("source"), "shown1": shown1 if case.get("followup") else []}
     return out, cost
 
 
@@ -89,8 +90,10 @@ def run_bm25(case):
         return _bm25_decide(q, exclude)
 
     r = one(case["question"])
+    shown1 = list(r["segments"])
     if case.get("followup"):
-        r = one(case["followup"], tuple(r["segments"]))
+        r = one(case["followup"], tuple(shown1))
+    r["shown1"] = shown1 if case.get("followup") else []
     r["ms"] = int((time.time() - t0) * 1000)
     return r, 0.0
 
@@ -119,6 +122,7 @@ def run_general(case):
         text2, c2, ms2 = router.raw_general_answer(msgs)
         first = set(r["segments"])
         r = _parse_general(text2)
+        r["shown1"] = sorted(first)
         r["segments"] = [s for s in r["segments"] if s not in first] or r["segments"]
         cost, ms = cost + c2, ms + ms2
     r.update(ms=ms, text=text[:600])
@@ -131,7 +135,8 @@ SYSTEMS = {"daleel": run_daleel, "bm25": run_bm25, "general": run_general}
 # ---------- الحكم ----------
 def judge(case, r):
     pub = set(library()["by_id"])
-    avail = [s for s in case.get("accept", []) if s in pub]
+    # في المتابعة لا يُقبل مقطع عُرض في الجولة الأولى
+    avail = [s for s in case.get("accept", []) if s in pub and s not in r.get("shown1", [])]
     t, first = r["type"], (r["segments"] or [None])[0]
     exp = case["expect"]
     if exp == "answer":
@@ -189,7 +194,7 @@ def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=
             j = judge(case, results[0])
             stable = len({(x["type"], (x["segments"] or [None])[0]) for x in results}) == 1
             per_case.append({"id": case["id"], "type": case["type"], "q": case["question"], "expect": case["expect"],
-                             "got": results[0]["type"], "segs": results[0]["segments"][:2], "reason": results[0].get("reason"),
+                             "got": results[0]["type"], "segs": results[0]["segments"][:2], "shown1": results[0].get("shown1", []), "reason": results[0].get("reason"),
                              "stable": stable, **j, **({"text": results[0].get("text")} if sysname == "general" else {})})
         n = len(per_case)
         k = sum(c["ok"] for c in per_case)
@@ -205,7 +210,7 @@ def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=
             "over_abstain": sum(c["over_abstain"] for c in per_case),
             "followup_success": f"{sum(c['ok'] for c in fu)}/{len(fu)}",
             "abstain_reason_correct": f"{sum(c['reason_ok'] for c in per_case if c['expect'] == 'abstain')}/{n_abs}",
-            "stable": f"{sum(c['stable'] for c in per_case)}/{n}" if reps > 1 else "حتمي",
+            "stable": f"{sum(c['stable'] for c in per_case)}/{n}" if reps > 1 else ("حتمي" if sysname == "bm25" else "تشغيل واحد"),
             "by_type": {t: f"{sum(c['ok'] for c in per_case if c['type'] == t)}/{sum(1 for c in per_case if c['type'] == t)}"
                         for t in sorted({c['type'] for c in per_case})},
             "latency_ms_p50": ms_sorted[len(ms_sorted) // 2], "latency_ms_p95": ms_sorted[int(len(ms_sorted) * 0.95) - 1],
