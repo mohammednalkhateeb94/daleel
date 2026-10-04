@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دليل — من سؤالك عن القرآن إلى المقطع الموثوق</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&family=Amiri+Quran&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12183F;--brand:#6150EA;--accent:#2EF2C2;--bg:#F2F4FF;--card:#FFFFFF;--muted:#5B6075;--line:#DDE1F2;--quote:#F7F8FD;--warn:#FFF6E5}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Readex Pro",Tahoma,sans-serif;font-size:17px;line-height:1.8}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:12px;padding:8px 0 4px}
+.logo{width:44px;height:44px;border-radius:12px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:22px}
+h1{font-size:24px;margin:0}
+.tag{color:var(--muted);font-size:14px;margin:0}
+.disclosure{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14px;margin:12px 0 4px}
+.privacy{font-size:13px;color:var(--muted);margin:0 2px 12px}
+form{background:var(--card);border-radius:16px;padding:14px;border:1px solid var(--line)}
+label{font-weight:600;display:block;margin-bottom:6px}
+textarea{width:100%;min-height:72px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;resize:vertical;background:#fff;color:var(--ink)}
+textarea:focus,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px;flex-wrap:wrap}
+.count{font-size:13px;color:var(--muted)}
+button{font:inherit;min-height:44px;border-radius:12px;border:0;padding:8px 18px;cursor:pointer}
+.primary{background:var(--brand);color:#fff;font-weight:600}
+.ghost{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.chip{background:#fff;border:1.5px solid var(--line);color:var(--ink);text-align:right;width:100%;margin:4px 0}
+.chip[disabled]{opacity:.5;cursor:not-allowed}
+#result{margin:16px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.about{font-size:19px;font-weight:600;margin:0 0 2px}
+.note{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+details{background:var(--quote);border-radius:10px;padding:8px 12px;margin:8px 0;font-size:15px}
+summary{cursor:pointer;font-weight:500}
+blockquote{margin:10px 0;padding:12px 16px;border-right:5px solid var(--brand);background:var(--quote);border-radius:10px;font-family:"Amiri",serif;font-size:20px;line-height:2;white-space:pre-wrap}
+.ayah{font-family:"Amiri Quran","Amiri",serif;color:#1B2470}
+.src{font-size:14px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;margin-top:8px}
+.src a{color:var(--brand)}
+.fb{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.msg{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.msg.neutral{background:#F4F5FA}
+.notice{background:var(--warn);border-radius:10px;padding:8px 12px;font-size:14px;margin-bottom:10px}
+.verse{font-family:"Amiri Quran","Amiri",serif;font-size:24px;line-height:2.2;background:var(--quote);border-radius:12px;padding:12px 16px;margin:8px 0}
+h2.sec{font-size:16px;margin:18px 0 6px;color:var(--muted)}
+.menu{background:var(--card);border-radius:16px;padding:12px 14px;border:1px solid var(--line)}
+.group{margin-bottom:8px}
+.group h3{font-size:14px;margin:6px 0 2px;color:var(--brand)}
+footer{font-size:13px;color:var(--muted);margin:22px 0 40px}
+footer a{color:var(--brand)}
+.spinner{font-size:14px;color:var(--muted)}
+@media (max-width:480px){html,body{font-size:16px}blockquote{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo" aria-hidden="true">د</div>
+    <div><h1>دليل</h1><p class="tag">من سؤالك عن القرآن، إلى المقطع الموثوق الذي يجيب عنه</p></div>
+  </header>
+  <p class="disclosure" id="disclosure"></p>
+  <p class="privacy" id="privacy"></p>
+
+  <form id="askForm" autocomplete="off">
+    <label for="q" id="qLabel">اكتب سؤالك عن القرآن</label>
+    <textarea id="q" maxlength="300" placeholder=""></textarea>
+    <div class="row"><span class="count" id="count">0 / 300</span><button class="primary" type="submit">اسأل</button></div>
+  </form>
+
+  <section id="result" aria-live="polite" tabindex="-1"></section>
+
+  <h2 class="sec">أو اختر سؤالك</h2>
+  <nav class="menu" id="menu" aria-label="الأسئلة المتاحة"></nav>
+
+  <footer>
+    <p><b>كيف يعمل دليل؟</b> يفهم سؤالك بالذكاء الاصطناعي، ثم يختار له مقطعاً من مكتبة صغيرة من النصوص المعتمدة راجعها مختص. لا يكتب إجابات من عنده، وكل نص تراه منقول حرفياً مع مصدره وموضعه.</p>
+    <p>الآيات من مصحف مجمع الملك فهد برواية حفص عبر <a href="https://quranpedia.net" target="_blank" rel="noopener">quranpedia.net</a>. نسخة المكتبة: <span id="libv"></span></p>
+  </footer>
+</div>
+<script>
+const S = {lastQuestion:"", shown:[], lastNeed:null, lastId:null, followup:false};
+const $ = id => document.getElementById(id);
+const esc = s => (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = s => esc(s).replace(/﴿([^﴾]+)﴾/g, '<span class="ayah">﴿$1﴾</span>');
+
+async function post(url, body){
+  const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  return r.json();
+}
+function menu(needs){
+  const groups = {};
+  needs.forEach(n => (groups[n.section] = groups[n.section] || []).push(n));
+  $("menu").innerHTML = Object.entries(groups).map(([sec, ns]) =>
+    `<div class="group"><h3>${esc(sec)}</h3>` + ns.map(n =>
+      `<button class="chip" data-need="${n.id}" ${n.available?"":"disabled aria-disabled=\"true\""}>${esc(n.title)}${n.available?"":" — قريباً"}</button>`).join("") + `</div>`).join("");
+  $("menu").querySelectorAll("button[data-need]").forEach(b => b.onclick = () => pickNeed(b.dataset.need, false));
+}
+function loading(){ $("result").innerHTML = '<p class="spinner">جارٍ البحث في المكتبة…</p>'; }
+function focusResult(){ const r=$("result"); r.focus({preventScroll:true}); r.scrollIntoView({behavior:"smooth",block:"start"}); }
+
+function render(r){
+  S.lastId = r.decision_id;
+  let h = r.notice ? `<div class="notice">${esc(r.notice)}</div>` : "";
+  if(r.type === "answer"){
+    S.lastNeed = r.need;
+    r.segments.forEach(s => {
+      if(!S.shown.includes(s.id)) S.shown.push(s.id);
+      h += `<article class="card">
+        <p class="about">${esc(s.about)}</p>
+        ${s.about_note?`<p class="note">${esc(s.about_note)}</p>`:""}
+        ${s.src_line?`<details><summary>${esc(s.src_line)}</summary><p>${fmt(s.src_question)}</p></details>`:""}
+        <blockquote>${fmt(s.text)}</blockquote>
+        <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · ${esc(s.location)} · <a href="${esc(s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً</a><br>${esc(s.footer||"")}</p>
+      </article>`;
+    });
+    h += `<div class="msg"><p>${esc((r.ask_feedback||"").replace(/\s*\[.*$/,""))}</p><div class="fb">
+      <button class="ghost" data-fb="yes">نعم</button><button class="ghost" data-fb="partial">جزئياً</button><button class="ghost" data-fb="no">لا</button></div><div id="fbOut"></div></div>`;
+  } else if(r.type === "clarify"){
+    h += `<div class="msg"><p>${esc(r.message)}</p>` + r.options.map(o => `<button class="chip" data-need="${o.id}">${esc(o.title)}</button>`).join("") + `</div>`;
+  } else if(r.type === "verse"){
+    h += `<div class="msg"><p>${esc(r.message)}</p><div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}] · ${esc(r.source_note)}</p></div>`;
+  } else {
+    h += `<div class="msg neutral"><p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}</div>`;
+  }
+  $("result").innerHTML = h;
+  $("result").querySelectorAll("button[data-need]").forEach(b => b.onclick = () => pickNeed(b.dataset.need, true));
+  $("result").querySelectorAll("button[data-fb]").forEach(b => b.onclick = () => feedback(b.dataset.fb));
+  if(r.needs) menu(r.needs);
+  focusResult();
+}
+async function ask(text, followup){
+  loading();
+  const body = {question:text};
+  if(followup) body.context = {previous_question:S.lastQuestion, shown:S.shown};
+  else { S.shown = []; S.lastQuestion = text; }
+  try { render(await post("/api/ask", body)); }
+  catch(e){ $("result").innerHTML = '<div class="msg neutral"><p>تعذّر الاتصال الآن. اختر سؤالك من القائمة.</p></div>'; }
+}
+async function pickNeed(id, keepShown){
+  if(!keepShown) S.shown = [];
+  loading();
+  render(await post("/api/need", {need:id, shown:S.shown}));
+}
+async function feedback(v){
+  const r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed});
+  let h = `<p>${esc(r.message)}</p>`;
+  if(v === "yes" && r.next && r.next.length) h += r.next.map(n => `<button class="chip" data-need="${n.id}">${esc(n.title)}</button>`).join("");
+  if(v === "partial") h += `<form id="remForm"><label for="rem" class="note">${esc(r.message)}</label><textarea id="rem" maxlength="300"></textarea><div class="row"><span></span><button class="primary" type="submit">أرسل</button></div></form>`;
+  $("fbOut").innerHTML = v === "partial" ? h.replace(`<p>${esc(r.message)}</p>`, "") : h;
+  $("fbOut").querySelectorAll("button[data-need]").forEach(b => b.onclick = () => pickNeed(b.dataset.need, false));
+  document.querySelectorAll("button[data-fb]").forEach(b => b.disabled = true);
+  const f = $("remForm");
+  if(f){ $("rem").focus(); f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true); }; }
+}
+$("q").addEventListener("input", e => $("count").textContent = `${e.target.value.length} / 300`);
+$("askForm").onsubmit = e => { e.preventDefault(); const t = $("q").value.trim(); if(t) ask(t, false); };
+fetch("/api/start").then(r => r.json()).then(d => {
+  $("disclosure").textContent = d.disclosure; $("privacy").textContent = d.privacy;
+  $("q").placeholder = d.intro || ""; $("libv").textContent = `${d.library.library_version} · ${d.library.segments} مقطعاً معتمداً`;
+  menu(d.needs);
+});
+</script>
+</body>
+</html>
