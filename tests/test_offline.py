@@ -73,8 +73,8 @@ def main():
     assert all(menu_segments(o) for o in g.get("options", [])), g
     g = engine._gate({"decision": "clarify", "options": ["ح1", "ح2", "ح5"]})  # سؤال واسع وخياراته غير مغطّاة: تُعرض المغطّاة
     assert g["decision"] == "clarify" and len(g["options"]) >= 2 and all(menu_segments(o) for o in g["options"]), g
-    g = engine._gate({"decision": "clarify", "options": ["ح2", "ح3"]})  # سؤال محدد: لا خيارات بديلة
-    assert g["decision"] == "abstain", g
+    g = engine._gate({"decision": "clarify", "options": ["ح2", "ح3"]})  # الحاجتان مغطّاتان: يبقى الاستيضاح
+    assert g["decision"] == "clarify" and g["options"] == ["ح2", "ح3"], g
     # الفحص بعد الاختيار: «لا يجيب» يُسقط المقطع، و«جزئياً» يُعرض بعنوان «متعلق»
     from app import router
     orig_d, orig_s = router.decide, focus.select
@@ -158,6 +158,17 @@ def main():
     # «مين كتب القرآن؟» يُستوضح بين المصدر وكتّاب الوحي
     w = engine.ask("مين كتب القرآن؟", use_llm=False)
     assert w["type"] == "clarify" and [o["id"] for o in w["options"]] == ["ح7", "ح3"] and w["template"] == "ست-05", w
+    # «للتفصيل فقط»: لا يظهر ابتداءً، ويبقى في النص الكامل عند «أريد التفصيل»
+    lib = library()["by_id"]
+    for sid, hidden in (("ق-35", "منقولٌ بطريقِ التواتُرِ"), ("ق-03", "وقال ابنُ كثيرٍ"), ("ق-08", "كيف يأتيك الوحي")):
+        rs = engine.render_segment(lib[sid])
+        shown = "".join(rs["units"][i] for i in rs["focus"])
+        assert hidden not in shown and hidden in rs["text"], sid
+        rs = engine.render_segment(lib[sid], [i for i, u in enumerate(lib[sid]["units"]) if hidden in u])
+        assert hidden not in "".join(rs["units"][i] for i in rs["focus"]), sid
+    assert "الحالة الثانية" in "".join(lib["ق-08"]["units"][i] for i in lib["ق-08"]["base"])
+    assert engine.render_segment(lib["ق-16"])["note"].startswith("الراجح") and engine.render_segment(lib["ق-01"])["note"] == ""
+    assert "حرمة ترجمة القرآن ترجمة حرفية" in lib["ق-20"]["text"]
     print("\nكل الاختبارات نجحت" if not fails else f"\nفشل {fails}")
     return fails
 

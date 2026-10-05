@@ -108,6 +108,7 @@ mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px
 .ghost[disabled]{opacity:.45;cursor:default}
 .opt{display:block;width:100%;text-align:right;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px 14px;margin:8px 0 0}
 .opt:hover{border-color:var(--mint)}
+.rnote{border-inline-start:3px solid var(--gold);background:var(--goldBg);border-radius:10px;padding:6px 12px;font-size:14px;margin:8px 0}
 .notice{border-inline-start:3px solid var(--gold);background:var(--goldBg);border-radius:12px;padding:8px 14px;font-size:14px;margin-bottom:12px}
 .verse{font-family:"Amiri Quran","Amiri",serif;font-size:24px;line-height:2.3;color:var(--ayah);background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:10px 0}
 #remForm{margin-top:12px}
@@ -242,7 +243,8 @@ function quote(s){
   const cut = '<span class="cut">[…]</span>';
   const runs = [];
   f.forEach((i, k) => { if(k && i === f[k-1] + 1) runs[runs.length-1].push(i); else runs.push([i]); });
-  let ex = runs.map(r => fmt(r.map(i => u[i]).join("").trim())).join("\n" + cut + "\n");
+  const bare = t => t.trim().replace(/^\[…\]\s*/, "").replace(/\s*\[…\]$/, "");
+  let ex = runs.map(r => fmt(bare(r.map(i => u[i]).join("")))).join("\n" + cut + "\n");
   if(f[0] > 0) ex = cut + "\n" + ex;
   if(f[f.length-1] < u.length - 1) ex += "\n" + cut;
   const full = u.map((x, i) => f.includes(i) ? x.replace(/^(\s*)([\s\S]*?)(\s*)$/, (m,a,b,c) => `${a}<mark>${fmt(b)}</mark>${c}`) : fmt(x)).join("");
@@ -262,6 +264,7 @@ function render(r, label){
         <p class="kicker">${s.relation === "partial" ? "مقطع متعلق بسؤالك، ويتناول" : "يجيب هذا المقطع عن"}</p>
         <p class="about">${esc((s.about||"").replace(ABOUT,""))}</p>
         ${quote(s)}
+        ${s.note?`<p class="rnote"><b>تنبيه المراجع:</b> ${esc(s.note)}</p>`:""}
         <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · <a class="link" href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً ↖</a></p>
         <details class="more-info"><summary>عن هذا المقطع</summary><p>الموضع: ${esc(s.location)}</p>${s.about_note?`<p>${esc(s.about_note)}</p>`:""}${s.footer?`<p>${esc(s.footer)}</p>`:""}</details>
       </article>`;

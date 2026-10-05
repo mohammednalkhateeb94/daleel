@@ -51,6 +51,9 @@ def needs_menu():
 
 def render_segment(s: dict, focus_idx=None, verdict=None) -> dict:
     lib = library()
+    base = s.get("base")
+    if base:  # ما حدّده المراجع «للتفصيل فقط» لا يظهر إلا عند «أريد التفصيل»
+        focus_idx = [i for i in (focus_idx or []) if i in base] or base
     return {
         "units": s["units"], "focus": focus_idx, "relation": "partial" if verdict == "partial" else "answers",
         "id": s["id"], "need": s["need"], "need_title": lib["need_by_id"][s["need"]]["title"],
@@ -59,7 +62,7 @@ def render_segment(s: dict, focus_idx=None, verdict=None) -> dict:
         "src_line": T("و-06", المصدر=s["source"]["title"], عنوان_المسألة=s["src_title"]) if s["src_title"] else "",
         "src_question": s["src_question"], "text": s["text"],
         "source": s["source"], "location": s["location"], "link": s.get("link") or s["source"]["url"], "reviewer": s["reviewer"],
-        "footer": T("و-15"),
+        "footer": T("و-15"), "note": s.get("note", ""),
     }
 
 

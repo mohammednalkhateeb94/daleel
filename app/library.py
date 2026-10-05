@@ -4,9 +4,21 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
-from .units import split_units
+from .units import is_cut_marker, split_units
 
 DATA = Path(__file__).resolve().parent.parent / "data"
+
+
+def base_units(s: dict):
+    """الجمل التي تُعرض ابتداءً حين حدّد المراجع جزءاً «للتفصيل فقط». None = لا حدّ."""
+    detail = [" ".join(d.split()) for d in s.get("detail") or []]
+    if not detail:
+        return None
+    def norm(u):  # علامة القص «[…]» قد تلتصق بالجملة قبلها
+        return " ".join(u.replace("[…]", " ").split())
+    base = [i for i, u in enumerate(s["units"]) if norm(u) and not is_cut_marker(u)
+            and not any(norm(u) in d for d in detail)]
+    return base or None
 
 
 @lru_cache(maxsize=1)
@@ -16,6 +28,7 @@ def library():
     tpl = json.loads((DATA / "templates.json").read_text("utf-8"))
     for s in seg["segments"]:
         s["units"] = split_units(s["text"])
+        s["base"] = base_units(s)
     by_id = {s["id"]: s for s in seg["segments"]}
     need_by_id = {n["id"]: n for n in needs}
     return {"meta": seg["meta"], "segments": seg["segments"], "by_id": by_id,

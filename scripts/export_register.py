@@ -121,6 +121,11 @@ def main(path):
         issues = []
         shown_text, verses = replace_verses(text, issues)
         src_q, q_verses = replace_verses(g(r, "السؤال في المصدر"), issues)
+        # «للتفصيل فقط»: عبارات حرفية من النص لا تظهر إلا عند «أريد التفصيل»
+        detail = [x.strip() for x in g(r, "للتفصيل فقط").split("|") if x.strip()] if "للتفصيل فقط" in hdr else []
+        detail_shown = [replace_verses(x, [])[0] for x in detail]
+        issues += [f"«للتفصيل فقط» ليس في النص: {x[:40]}…" for x, y in zip(detail, detail_shown) if y not in shown_text]
+        detail = detail_shown
         if issues:
             report.append({"id": sid, "published": False, "why": issues})
             continue
@@ -137,7 +142,8 @@ def main(path):
             reviewer=g(r, "اعتمده (المراجع والتاريخ)"), approval_note=g(r, "ملاحظات الاعتماد"),
             no_cut=hdr.get("لا يُجتزأ") is not None and g(r, "لا يُجتزأ") == "نعم",
             not_for=[x.strip() for x in g(r, "أسئلة قريبة لا يجيب عنها").split("|") if x.strip()]
-            if "أسئلة قريبة لا يجيب عنها" in hdr else []))
+            if "أسئلة قريبة لا يجيب عنها" in hdr else [],
+            detail=detail, note=g(r, "تنبيه المراجع") if "تنبيه المراجع" in hdr else ""))
         report.append({"id": sid, "published": True, "verses": verses + q_verses})
     # القوالب: المعتمد من «القوالب»، والمسودات من «للمراجعة» (تُعرض في وضع التطوير فقط)
     tpl = {}
