@@ -94,7 +94,7 @@ def main():
     try:
         router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح2", "segment_ids": ["ق-11"], "fit": "high", "_meta": {}}
         focus.select = lambda q, segs: ({}, {"ق-11": "partial"}, {})
-        r = engine.ask("متى نزل القرآن؟")
+        r = engine.ask("هل نزل القرآن على دفعات؟")
         assert r["type"] == "abstain" and r.get("gate") == "verify", r
         router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح3", "segment_ids": ["ق-11"], "fit": "medium", "_meta": {}}
         assert engine.ask("هل كان الصحابة يحفظون القرآن؟")["type"] == "answer"
