@@ -171,6 +171,23 @@ def main():
     nx = engine.feedback("x", "yes", "ح7", ["ق-23"])["next"]
     assert nx and all(n.get("segment") in ("ق-24", "ق-27", "ق-01") for n in nx), nx
     assert engine.by_need("ح1", (), "ق-34")["segments"][0]["id"] == "ق-34"
+    # المتابعة: «غير واضح» تفصيل ← مرتبط ← رسالة صادقة؛ والمختص REFER؛ وكل خيار بنوعه
+    assert engine.followup("UNCLEAR", "x", ["ق-35"], True) == {"action": "expand"}
+    u = engine.followup("UNCLEAR", "x", ["ق-35"], False)
+    assert u["type"] == "answer" and u["segments"][0]["id"] in ("ق-01", "ق-32") and u["method"]["via"] == "related_content", u
+    saved = {k: dict(v.get("method") or {}) for k, v in lib.items()}
+    try:
+        for v in lib.values():
+            (v.setdefault("method", {}))["RELATED_CONTENT"] = ""
+        n = engine.followup("UNCLEAR", "x", ["ق-35"], False)
+        assert n["template"] == "ام-15" and "شرحًا أبسط" in n["message"] and n["method"]["decision"] == "NOT_COVERED", n
+    finally:
+        for k, m in saved.items():
+            lib[k]["method"] = m
+    assert engine.followup("SPECIALIST", "x")["method"]["decision"] == "REFER"
+    assert engine.followup("SOURCE", "x") == {"action": "source"} and engine.followup("EXPAND", "x") == {"action": "expand"}
+    k = engine.ask("هل يجوز للحائض قراءة القرآن؟", {"previous_question": "س", "shown": ["ق-36"], "kind": "OBJECTION"}, use_llm=False)
+    assert k["method"]["followup_kind"] == "OBJECTION"
     try:
         router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح4", "segment_ids": ["ق-15"], "fit": "high",
                                               "task": "استدلال", "issue": "x", "sensitivity": "B", "_meta": {}}

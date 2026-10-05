@@ -108,6 +108,9 @@ mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px
 .ghost[disabled]{opacity:.45;cursor:default}
 .opt{display:block;width:100%;text-align:right;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px 14px;margin:8px 0 0}
 .opt:hover{border-color:var(--mint)}
+.nav-sep{display:flex;align-items:center;gap:8px;margin:10px 0 2px;color:var(--muted,#8a97ad);font-size:12px}
+.nav-sep::before,.nav-sep::after{content:"";flex:1;border-top:1px solid rgba(255,255,255,.12)}
+.next.nav .ghost{opacity:.85}
 .rnote{border-inline-start:3px solid var(--gold);background:var(--goldBg);border-radius:10px;padding:6px 12px;font-size:14px;margin:8px 0}
 .notice{border-inline-start:3px solid var(--gold);background:var(--goldBg);border-radius:12px;padding:8px 14px;font-size:14px;margin-bottom:12px}
 .verse{font-family:"Amiri Quran","Amiri",serif;font-size:24px;line-height:2.3;color:var(--ayah);background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:10px 0}
@@ -315,9 +318,9 @@ async function run(url, body, label){
   try { const r = await post(url, body); if(my === seq) render(r, label); }
   catch(e){ if(my === seq) fail(e); }
 }
-function ask(text, followup){
+function ask(text, followup, kind){
   const body = {question:text};
-  if(followup) body.context = {previous_question:S.lastQuestion, shown:[...S.shown]};
+  if(followup) body.context = {previous_question:S.lastQuestion, shown:[...S.shown], kind};
   else { S.shown = []; S.lastQuestion = text; }
   run("/api/ask", body, `${followup ? "ما بقي من سؤالك" : "سؤالك"}: <b>${esc(text)}</b>`);
 }
@@ -348,32 +351,45 @@ async function feedback(v){
   }
   if(v !== "yes"){
     const card = document.querySelector("#result article");
-    h += `<div class="next">${v === "no" ? '<button type="button" class="ghost" data-rem>بقي جزء من سؤالي</button>' : ""}<button type="button" class="ghost" data-unclear>المعنى غير واضح</button><button type="button" class="ghost" data-obj>لدي اعتراض</button>${card && card.querySelector("[data-more]") ? '<button type="button" class="ghost" data-expand>أريد التفصيل</button>' : ""}${card && card.querySelector("a.link") ? '<button type="button" class="ghost" data-src>أريد المصدر</button>' : ""}<button type="button" class="ghost" data-refer>أريد مختصاً</button><button type="button" class="ghost" data-go="ask">سؤال جديد</button><button type="button" class="ghost" data-go="menu">الأسئلة المتاحة</button></div>`;
+    const more = card && card.querySelector("[data-more]");
+    // ستة خيارات لتشخيص ما بقي، ثم زرّا تنقّل مفصولان عنها
+    h += `<div class="next" data-kinds>${v === "no" ? '<button type="button" class="ghost" data-rem>بقي جزء من سؤالي</button>' : ""}<button type="button" class="ghost" data-unclear>المعنى غير واضح</button><button type="button" class="ghost" data-obj>لدي اعتراض</button>${more ? '<button type="button" class="ghost" data-expand>أريد التفصيل</button>' : ""}${card && card.querySelector("a.link") ? '<button type="button" class="ghost" data-src>أريد المصدر</button>' : ""}<button type="button" class="ghost" data-refer>أريد مختصاً</button></div>
+      <div class="nav-sep"><span>أو</span></div>
+      <div class="next nav"><button type="button" class="ghost" data-go="ask">سؤال جديد</button><button type="button" class="ghost" data-go="menu">الأسئلة المتاحة</button></div>`;
   }
   $("fbOut").innerHTML = h;
   bind($("fbOut"));
+  const logKind = kind => post("/api/followup", {kind, decision_id:S.lastId, shown:[...S.shown]}).catch(() => {});
+  const expand = () => { const m = document.querySelector("#result article [data-more]"); if(!m) return; if(m.getAttribute("aria-expanded") !== "true") m.click(); m.closest("article").scrollIntoView({behavior:"smooth", block:"start"}); };
   const ex = $("fbOut").querySelector("[data-expand]");
-  if(ex) ex.onclick = () => { const m = document.querySelector("#result article [data-more]"); if(m.getAttribute("aria-expanded") !== "true") m.click(); m.closest("article").scrollIntoView({behavior:"smooth", block:"start"}); };
+  if(ex) ex.onclick = () => { logKind("EXPAND"); expand(); };
   const sr = $("fbOut").querySelector("[data-src]");
-  if(sr) sr.onclick = () => window.open(document.querySelector("#result article a.link").href, "_blank", "noopener");
-  // «بقي جزء» و«لدي اعتراض»: نص يكتبه المستخدم، ويُرسل متابعةً لا تعيد المقطع المعروض
-  const remForm = (btn, label) => {
+  if(sr) sr.onclick = () => { logKind("SOURCE"); window.open(document.querySelector("#result article a.link").href, "_blank", "noopener"); };
+  // «بقي جزء» و«لدي اعتراض»: نص يكتبه المستخدم، ويُرسل متابعةً بسياق السؤال السابق ولا تعيد المقطع المعروض
+  const remForm = (btn, label, kind) => {
     S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join("");
     const old = $("remForm"); if(old) old.remove();
     btn.closest(".next").insertAdjacentHTML("beforebegin", `<form id="remForm"><label for="rem">${esc(label)}</label><div class="field"><textarea id="rem" maxlength="300" rows="2"></textarea><button class="primary" type="submit">أرسل</button></div></form>`);
     const f = $("remForm"); $("rem").focus();
-    f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true); };
+    f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true, kind); };
   };
   const rb = $("fbOut").querySelector("[data-rem]");
-  if(rb) rb.onclick = () => { remForm(rb, T_REM); rb.remove(); };
+  if(rb) rb.onclick = () => { remForm(rb, T_REM, "PART_REMAINING"); rb.remove(); };
   const ob = $("fbOut").querySelector("[data-obj]");
-  if(ob) ob.onclick = () => remForm(ob, "اكتب اعتراضك أو ما لم يقنعك:");
+  if(ob) ob.onclick = () => remForm(ob, "اكتب اعتراضك أو ما لم يقنعك:", "OBJECTION");
+  // «المعنى غير واضح»: تفصيل المقطع إن وُجد ← وإلا محتوى مرتبط مسجّل ← وإلا رسالة صادقة. لا شرح مولَّد.
   const ub = $("fbOut").querySelector("[data-unclear]");
-  if(ub) ub.onclick = () => ask("إذا قرأت النص ولم أفهم معناه، ماذا أفعل؟", false);
+  if(ub) ub.onclick = async () => {
+    const m = document.querySelector("#result article [data-more]");
+    const hasDetail = !!m && m.getAttribute("aria-expanded") !== "true";
+    if(hasDetail){ logKind("UNCLEAR"); expand(); return; }
+    S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join("");
+    run("/api/followup", {kind:"UNCLEAR", decision_id:S.lastId, shown:[...S.shown], has_detail:false}, "المعنى غير واضح");
+  };
   const fb = $("fbOut").querySelector("[data-refer]");
-  if(fb) fb.onclick = () => run("/api/refer", {decision_id:S.lastId}, "طلبت مختصاً");
+  if(fb) fb.onclick = () => run("/api/followup", {kind:"SPECIALIST", decision_id:S.lastId, shown:[...S.shown]}, "طلبت مختصاً");
   const f = $("remForm");
-  if(f){ $("rem").focus(); f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true); }; }
+  if(f){ $("rem").focus(); f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true, "PART_REMAINING"); }; }
 }
 $("q").addEventListener("input", e => $("count").textContent = `${e.target.value.length} من 300`);
 $("q").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); $("askForm").requestSubmit(); } });

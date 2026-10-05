@@ -79,7 +79,8 @@ async def api_ask(req: Request):
     q = str(body.get("question", ""))[:MAX_Q]
     ctx = body.get("context") if isinstance(body.get("context"), dict) else {}
     shown = ctx.get("shown") if isinstance(ctx.get("shown"), list) else []
-    ctx = {"previous_question": str(ctx.get("previous_question", ""))[:MAX_Q], "shown": [str(x) for x in shown][:10]}
+    kind = ctx.get("kind") if ctx.get("kind") in engine.FOLLOW_KINDS else None
+    ctx = {"previous_question": str(ctx.get("previous_question", ""))[:MAX_Q], "shown": [str(x) for x in shown][:10], "kind": kind}
     # استدعاء النموذج متزامن: يُشغَّل في خيط منفصل حتى لا يتوقف الخادم لبقية الزوار
     return JSONResponse(await run_in_threadpool(engine.ask, q, ctx if ctx["previous_question"] else None))
 
@@ -102,6 +103,20 @@ async def api_feedback(req: Request):
         return JSONResponse({"error": "bad value"}, status_code=400)
     shown = [str(x) for x in body.get("shown", [])][:10] if isinstance(body.get("shown"), list) else []
     return JSONResponse(engine.feedback(str(body.get("decision_id", ""))[:20], v, body.get("need"), shown))
+
+
+async def api_followup(req: Request):
+    """خيارات «ما الذي بقي؟» التي لا تحتاج سؤالاً: غير واضح، تفصيل، مصدر، مختص. تُسجَّل بنوعها."""
+    if _limited(req):
+        return JSONResponse({"error": "rate_limited"}, status_code=429)
+    body = await _body(req)
+    if body is None:
+        return _bad()
+    kind = body.get("kind")
+    if kind not in ("UNCLEAR", "EXPAND", "SOURCE", "SPECIALIST"):
+        return JSONResponse({"error": "bad kind"}, status_code=400)
+    shown = [str(x) for x in body.get("shown", [])][:10] if isinstance(body.get("shown"), list) else []
+    return JSONResponse(engine.followup(kind, str(body.get("decision_id", ""))[:20], shown, bool(body.get("has_detail"))))
 
 
 async def api_refer(req: Request):
@@ -195,7 +210,7 @@ async def health(_: Request):
 app = Starlette(routes=[
     Route("/", index), Route("/api/start", api_start), Route("/api/ask", api_ask, methods=["POST"]),
     Route("/api/need", api_need, methods=["POST"]), Route("/api/feedback", api_feedback, methods=["POST"]),
-    Route("/api/refer", api_refer, methods=["POST"]),
+    Route("/api/refer", api_refer, methods=["POST"]), Route("/api/followup", api_followup, methods=["POST"]),
     Route("/health", health), Route("/api/selftest", selftest),
     Route("/api/eval/run", eval_run), Route("/api/eval/latest", eval_latest), Mount("/static", StaticFiles(directory=STATIC), name="static"),
 ])

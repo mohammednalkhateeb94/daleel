@@ -256,6 +256,8 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
     if dec.get("outage"):
         resp["notice"] = T("ام-13") if resp["type"] == "answer" else T("ام-10")
     resp["method"] = _method(resp, dec, pre)
+    if ctx.get("kind") in FOLLOW_KINDS:
+        resp["method"]["followup_kind"] = ctx["kind"]
     resp["decision_id"] = did
     resp["cost_usd"] = meta.get("cost_usd", 0)
     resp["source"] = source
@@ -294,15 +296,46 @@ def _method(resp: dict, dec: dict, pre) -> dict:
     return m
 
 
+FOLLOW_KINDS = ("PART_REMAINING", "UNCLEAR", "OBJECTION", "EXPAND", "SOURCE", "SPECIALIST")
+
+
+def followup(kind: str, decision_id: str = "", shown=(), has_detail: bool = False) -> dict:
+    """خيارات «ما الذي بقي؟» التي لا تحتاج سؤالاً جديداً. كل خيار يُسجَّل بنوعه.
+    UNCLEAR: تفصيل المقطع إن وُجد ← وإلا محتوى مرتبط مسجّل ← وإلا رسالة صادقة (ام-15). لا يولّد النموذج شرحاً."""
+    shown = [x for x in shown if x in library()["by_id"]]
+    base = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "source": "followup",
+            "after": decision_id, "library": library()["meta"]["library_version"]}
+    if kind == "SPECIALIST":
+        return refer(decision_id)
+    if kind in ("EXPAND", "SOURCE") or (kind == "UNCLEAR" and has_detail):
+        _log({**base, "id": uuid.uuid4().hex[:12], "type": "followup", "method": {"followup_kind": kind, "action": "expand" if kind != "SOURCE" else "source"}})
+        return {"action": "expand" if kind != "SOURCE" else "source"}
+    if kind == "UNCLEAR":
+        by_id = library()["by_id"]
+        rel = [x for sid in shown for x in re.findall(r"ق-\d+", (by_id[sid].get("method") or {}).get("RELATED_CONTENT", ""))
+               if x in by_id and x not in shown]
+        if rel:
+            r = by_need(by_id[rel[0]]["need"], tuple(shown), rel[0])
+            r["method"] = {"followup_kind": "UNCLEAR", "decision": "RECOMMEND", "via": "related_content"}
+            r["notice_related"] = True
+            return r
+        did = uuid.uuid4().hex[:12]
+        _log({**base, "id": did, "type": "abstain", "reason": "no_simpler",
+              "method": {"followup_kind": "UNCLEAR", "decision": "NOT_COVERED"}})
+        return {"type": "abstain", "reason": "no_simpler", "message": T("ام-15"), "template": "ام-15",
+                "decision_id": did, "method": {"followup_kind": "UNCLEAR", "decision": "NOT_COVERED"}}
+    return {"error": "bad kind"}
+
+
 def refer(decision_id: str = "") -> dict:
     """«أريد مختصاً»: قرار REFER مسجّل بنوع الإحالة، ونص الإحالة المعتمد ام-14."""
     did = uuid.uuid4().hex[:12]
     _log({"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "id": did, "source": "followup",
           "type": "abstain", "reason": "referral_requested", "after": decision_id,
-          "method": {"decision": "REFER", "referral_requested": True, "referral_category": "general_specialist"},
+          "method": {"decision": "REFER", "followup_kind": "SPECIALIST", "referral_requested": True, "referral_category": "general_specialist"},
           "library": library()["meta"]["library_version"]})
     return {"type": "abstain", "reason": "referral_requested", "message": T("ام-14"), "template": "ام-14",
-            "decision_id": did, "method": {"decision": "REFER", "referral_requested": True}}
+            "decision_id": did, "method": {"decision": "REFER", "followup_kind": "SPECIALIST", "referral_requested": True}}
 
 
 def by_need(need_id: str, exclude=(), segment: str | None = None) -> dict:
