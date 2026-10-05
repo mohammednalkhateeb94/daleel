@@ -6,9 +6,10 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import fallback, router
+from . import fallback, focus, router
 from .library import T, library, need_segments
 from .precheck import precheck
+from .quran import find_ref, tafsir_link
 
 LOG = Path(os.getenv("DALEEL_LOG", Path(__file__).resolve().parent.parent / "logs" / "decisions.jsonl"))
 
@@ -38,9 +39,10 @@ def needs_menu():
     return out
 
 
-def render_segment(s: dict) -> dict:
+def render_segment(s: dict, focus_idx=None) -> dict:
     lib = library()
     return {
+        "units": s["units"], "focus": focus_idx,
         "id": s["id"], "need": s["need"], "need_title": lib["need_by_id"][s["need"]]["title"],
         "about": T("و-04", يجيب_عن=s["about"]) or s["about"],
         "about_note": T("و-05"),
@@ -49,6 +51,12 @@ def render_segment(s: dict) -> dict:
         "source": s["source"], "location": s["location"], "link": s.get("link") or s["source"]["url"], "reviewer": s["reviewer"],
         "footer": T("و-15"),
     }
+
+
+def _tafsir(s: int, a):
+    link = tafsir_link(s, a)
+    link["label"] = T("ام-11", الموضع=link["ref"]) or f"اقرأ معنى {link['ref']} في «التفسير الميسر»"
+    return link
 
 
 def _abstain(reason: str, extra: dict | None = None):
@@ -117,16 +125,21 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
         v = dec["verse"]
         resp = {"type": "verse", "message": T("و-13" if v["exact"] else "و-14"),
                 "verse": {"text": v["text"], "ref": v["ref"], "sura": v["sura"], "aya": v["aya"]},
-                "source_note": "نص المصحف: مصحف مجمع الملك فهد برواية حفص (عبر quranpedia.net)."}
+                "source_note": "نص المصحف: مصحف مجمع الملك فهد برواية حفص (عبر quranpedia.net).",
+                "tafsir": _tafsir(v["sura"], v["aya"])}
     elif d == "abstain":
         reason = dec.get("reason") or "not_covered"
         if exclude and reason == "not_covered":
             resp = {"type": "abstain", "reason": reason, "message": T("و-12"), "template": "و-12"}
         else:
             resp = _abstain(reason)
-        if dec.get("verse") and reason == "tafsir":
-            v = dec["verse"]
-            resp["verse"] = {"text": v["text"], "ref": v["ref"]}
+        if reason == "tafsir":
+            if dec.get("verse"):
+                v = dec["verse"]
+                resp["verse"] = {"text": v["text"], "ref": v["ref"]}
+                resp["tafsir"] = _tafsir(v["sura"], v["aya"])
+            elif (ref := find_ref(question)):
+                resp["tafsir"] = _tafsir(*ref)
     elif d == "clarify":
         code = CLARIFY_PAIRS.get(frozenset(dec["options"][:2]), "ست-04") if len(dec["options"]) == 2 else "ست-04"
         nb = library()["need_by_id"]
@@ -134,7 +147,12 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
                 "options": [{"id": o, "title": nb[o]["title"]} for o in dec["options"]]}
     else:
         segs = [library()["by_id"][i] for i in dec["segments"]]
-        resp = {"type": "answer", "need": segs[0]["need"], "segments": [render_segment(s) for s in segs],
+        picks = {}
+        if source == "llm" and use_llm:
+            picks, fmeta = focus.select(question, segs)
+            meta.update(fmeta)
+            meta["cost_usd"] = round(meta.get("cost_usd", 0) + fmeta.get("focus_cost_usd", 0), 6)
+        resp = {"type": "answer", "need": segs[0]["need"], "segments": [render_segment(s, picks.get(s["id"])) for s in segs],
                 "ask_feedback": T("و-02"), "fit": dec.get("fit")}
     if dec.get("outage"):
         resp["notice"] = T("ام-10")
@@ -146,6 +164,7 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
     _log({"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "id": did, "source": source,
           "type": resp["type"], "reason": resp.get("reason"), "need": resp.get("need"),
           "segments": [s["id"] for s in resp.get("segments", [])], "followup": bool(exclude),
+          "focused": [s["id"] for s in resp.get("segments", []) if s.get("focus")],
           "q_chars": len(question or ""), "ms": int((time.time() - t0) * 1000), **meta,
           "library": library()["meta"]["library_version"]})
     return resp

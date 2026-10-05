@@ -4,6 +4,8 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
+from .units import split_units
+
 DATA = Path(__file__).resolve().parent.parent / "data"
 
 
@@ -12,6 +14,8 @@ def library():
     seg = json.loads((DATA / "segments.json").read_text("utf-8"))
     needs = json.loads((DATA / "needs.json").read_text("utf-8"))
     tpl = json.loads((DATA / "templates.json").read_text("utf-8"))
+    for s in seg["segments"]:
+        s["units"] = split_units(s["text"])
     by_id = {s["id"]: s for s in seg["segments"]}
     need_by_id = {n["id"]: n for n in needs}
     return {"meta": seg["meta"], "segments": seg["segments"], "by_id": by_id,

@@ -86,6 +86,15 @@ summary{cursor:pointer;font-weight:500;color:var(--muted)}
 details p{margin:8px 0 2px}
 blockquote{margin:12px 0;padding:16px 18px;border-inline-start:3px solid var(--mint);background:rgba(255,255,255,.04);border-radius:14px;
   font-size:17.5px;line-height:2.05;white-space:pre-wrap;color:#e6edf1}
+mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.cut{color:var(--dim)}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.qhead small{color:var(--dim);font-size:12.5px}
+.more{background:transparent;border:1px solid var(--line2);color:var(--mint);border-radius:999px;padding:4px 14px;min-height:36px;font-size:13.5px;font-weight:600}
+.more:hover{border-color:var(--mint)}
+.qhead + blockquote{margin-top:8px}
+.tafsir{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border:1px solid rgba(94,224,181,.35);background:var(--mintBg);color:var(--mint);border-radius:12px;padding:8px 14px;font-weight:600;font-size:14.5px;text-decoration:none}
+.tafsir:hover{border-color:var(--mint)}
 .ayah{font-family:"Amiri Quran","Amiri",serif;color:var(--ayah);font-size:1.12em}
 .src{font-size:13.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin:12px 0 0}
 .src b{color:#d6e0e6;font-weight:600}
@@ -206,6 +215,20 @@ function loading(){ $("result").innerHTML = '<div class="panel spinner">جارٍ
 function focusResult(){ const r=$("result"); r.focus({preventScroll:true}); r.scrollIntoView({behavior:"smooth",block:"start"}); }
 const optBtn = (o, keep) => `<button class="opt" data-need="${o.id}" data-keep="${keep?1:0}">${esc(o.title)}</button>`;
 
+const tafsirBtn = t => t ? `<a class="tafsir" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.label)} ↖</a>` : "";
+function quote(s){
+  const f = s.focus, u = s.units || [];
+  if(!f || !f.length || !u.length) return `<blockquote>${fmt(s.text)}</blockquote>`;
+  const cut = '<span class="cut">[…]</span>';
+  const runs = [];
+  f.forEach((i, k) => { if(k && i === f[k-1] + 1) runs[runs.length-1].push(i); else runs.push([i]); });
+  let ex = runs.map(r => fmt(r.map(i => u[i]).join("").trim())).join("\n" + cut + "\n");
+  if(f[0] > 0) ex = cut + "\n" + ex;
+  if(f[f.length-1] < u.length - 1) ex += "\n" + cut;
+  const full = u.map((x, i) => f.includes(i) ? x.replace(/^(\s*)([\s\S]*?)(\s*)$/, (m,a,b,c) => `${a}<mark>${fmt(b)}</mark>${c}`) : fmt(x)).join("");
+  return `<div class="qhead"><small>الجزء الذي يجيب عن سؤالك من النص المعتمد</small><button type="button" class="more" data-more>أريد التفصيل</button></div>
+    <blockquote data-ex>${ex}</blockquote><blockquote data-full hidden>${full}</blockquote>`;
+}
 function render(r){
   S.lastId = r.decision_id;
   let h = r.notice ? `<div class="notice">${esc(r.notice)}</div>` : "";
@@ -218,7 +241,7 @@ function render(r){
         <p class="about">${esc((s.about||"").replace(ABOUT,""))}</p>
         ${s.about_note?`<p class="note">${esc(s.about_note)}</p>`:""}
         ${s.src_line?`<details><summary>${esc(s.src_line)}</summary><p>${fmt(s.src_question)}</p></details>`:""}
-        <blockquote>${fmt(s.text)}</blockquote>
+        ${quote(s)}
         <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · ${esc(s.location)}<br>
           <a class="link" href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً ↖</a>
           ${s.footer?`<small>${esc(s.footer)}</small>`:""}</p>
@@ -229,13 +252,19 @@ function render(r){
   } else if(r.type === "clarify"){
     h += `<div class="panel msg accent"><p>${esc(r.message)}</p>${r.options.map(o => optBtn(o, true)).join("")}</div>`;
   } else if(r.type === "verse"){
-    h += `<div class="panel msg"><p>${esc(r.message)}</p><div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}] · ${esc(r.source_note)}</p></div>`;
+    h += `<div class="panel msg"><p>${esc(r.message)}</p><div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}] · ${esc(r.source_note)}</p>${tafsirBtn(r.tafsir)}</div>`;
   } else {
-    h += `<div class="panel msg limit"><p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}</div>`;
+    h += `<div class="panel msg limit"><p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}${tafsirBtn(r.tafsir)}</div>`;
   }
   $("result").innerHTML = h;
   bind($("result"));
   $("result").querySelectorAll("button[data-fb]").forEach(b => b.onclick = () => feedback(b.dataset.fb));
+  $("result").querySelectorAll("button[data-more]").forEach(b => b.onclick = () => {
+    const card = b.closest("article"), ex = card.querySelector("[data-ex]"), full = card.querySelector("[data-full]");
+    const open = full.hidden; full.hidden = !open; ex.hidden = open;
+    b.textContent = open ? "اعرض المختصر" : "أريد التفصيل";
+    b.previousElementSibling.textContent = open ? "النص المعتمد كاملاً، والمظلَّل هو ما يجيب عن سؤالك" : "الجزء الذي يجيب عن سؤالك من النص المعتمد";
+  });
   if(r.needs) menu(r.needs);
   focusResult();
 }

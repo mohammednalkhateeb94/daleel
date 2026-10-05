@@ -41,6 +41,19 @@ def main():
     for s in library()["segments"]:
         assert s["level"] in ("أ", "ب") and s["source"]["url"].startswith("http"), s["id"]
         assert "﴿" not in s["text"] or "ۡ" in s["text"] or "ٱ" in s["text"], f"آية بغير رسم المصحف في {s['id']}"
+    # التركيز: الوحدات تعيد النص المعتمد حرفياً، ولا يُختار إلا من النص
+    from app import focus
+    from app.quran import find_ref
+    from app.units import split_units
+    for s in library()["segments"]:
+        assert "".join(s["units"]) == s["text"], s["id"]
+    assert split_units("قال: ﴿إِنَّا نَحْنُ. نَزَّلْنَا﴾ وهذا نص طويل بما يكفي ليكون جملة كاملة. وهذه جملة ثانية طويلة بما يكفي أيضاً للاختبار.")[0].count("﴿") == 1
+    sel, _ = focus.select("سؤال", [library()["by_id"]["ق-11"]])  # بلا مفتاح: يعرض كاملاً
+    assert sel == {"ق-11": None}
+    # رابط التفسير عند الامتناع
+    assert find_ref("ما تفسير آية الكرسي؟") == (2, 255) and find_ref("ما معنى الآية 5 من سورة الفاتحة") == (1, 5)
+    t = engine.ask("فسر لي سورة الفاتحة", use_llm=False)
+    assert t["reason"] == "tafsir" and "quran.com/ar/1:1/tafsirs" in t["tafsir"]["url"], t
     print("\nكل الاختبارات نجحت" if not fails else f"\nفشل {fails}")
     return fails
 

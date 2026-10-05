@@ -1,5 +1,6 @@
 """نص المصحف: العرض من مصحف مجمع الملك فهد (برواية حفص، عبر quranpedia)، والمطابقة على نص Tanzil المبسّط."""
 import json
+import re
 from difflib import SequenceMatcher
 from functools import lru_cache
 from pathlib import Path
@@ -80,3 +81,32 @@ def find_verse(text: str, min_ratio: float = 0.72):
     first = refs[0]
     ref = "، ".join(f"{x['sura_name']}: {x['aya']}" + (f"–{x['aya_end']}" if x['aya_end'] != x['aya'] else "") for x in refs[:3])
     return {**first, "ref": ref, "score": top, "all": refs[:3]}
+
+
+AR_DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")
+ALIASES = {"ايه الكرسي": (2, 255), "ايه الدين": (2, 282)}
+TAFSIR_URL = "https://quran.com/ar/{s}:{a}/tafsirs/ar-tafsir-muyassar"
+
+
+def find_ref(question: str):
+    """يلتقط موضعاً مذكوراً بالاسم في السؤال: «آية الكرسي»، «سورة الفاتحة»، «البقرة 255». يعيد (سورة، آية أو None) أو None."""
+    n = norm(question.translate(AR_DIGITS))
+    for k, v in ALIASES.items():
+        if k in n:
+            return v
+    for s in range(1, 115):
+        nm = norm(sura_name(s))
+        pat = rf"سوره\s+{nm}\b" if len(nm) < 5 else rf"(?:سوره\s+)?\b{nm}\b"
+        m = re.search(pat, n)
+        if m:
+            num = re.search(r"\d{1,3}", n[m.end():m.end() + 25]) or re.search(r"(?:ايه|الايه)\s*(?:رقم\s*)?(\d{1,3})", n)
+            a = int(num.group(num.lastindex or 0)) if num else None
+            if a and not (1 <= a <= len(_load()[0][str(s)])):
+                a = None
+            return (s, a)
+    return None
+
+
+def tafsir_link(s: int, a: int | None) -> dict:
+    return {"url": TAFSIR_URL.format(s=s, a=a or 1),
+            "ref": f"الآية {a} من سورة {sura_name(s)}" if a else f"سورة {sura_name(s)}"}

@@ -37,7 +37,12 @@ def run_daleel(case):
         shown = [s["id"] for s in r.get("segments", [])]
         r = engine.ask(case["followup"], {"previous_question": case["question"], "shown": shown})
         cost += r.get("cost_usd", 0)
-    out = {"type": r["type"], "segments": [s["id"] for s in r.get("segments", [])], "reason": r.get("reason"),
+    segs = r.get("segments", [])
+    focus = [{"id": s["id"], "units": s.get("focus"),
+              "share": round(sum(len(s["units"][i]) for i in s["focus"]) / max(1, len(s["text"])), 2) if s.get("focus") else 1.0,
+              "excerpt": " … ".join(s["units"][i].strip() for i in s["focus"])[:400] if s.get("focus") else None}
+             for s in segs]
+    out = {"type": r["type"], "segments": [s["id"] for s in segs], "reason": r.get("reason"), "focus": focus,
            "ref": (r.get("verse") or {}).get("ref"), "ms": int((time.time() - t0) * 1000),
            "source": r.get("source"), "shown1": shown1 if case.get("followup") else []}
     return out, cost
@@ -161,6 +166,15 @@ def judge(case, r):
     }
 
 
+def _focus_stats(per_case):
+    fs = [f for c in per_case if c["got"] == "answer" for f in (c.get("focus") or [])]
+    if not fs:
+        return {}
+    cut = [f for f in fs if f["units"]]
+    return {"segments_shown": len(fs), "focused": len(cut),
+            "avg_share_when_focused": round(sum(f["share"] for f in cut) / len(cut), 2) if cut else None}
+
+
 def wilson(k, n, z=1.96):
     if n == 0:
         return (0.0, 0.0)
@@ -194,7 +208,7 @@ def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=
             j = judge(case, results[0])
             stable = len({(x["type"], (x["segments"] or [None])[0]) for x in results}) == 1
             per_case.append({"id": case["id"], "type": case["type"], "q": case["question"], "expect": case["expect"],
-                             "got": results[0]["type"], "segs": results[0]["segments"][:2], "shown1": results[0].get("shown1", []), "reason": results[0].get("reason"),
+                             "got": results[0]["type"], "segs": results[0]["segments"][:2], "focus": results[0].get("focus"), "shown1": results[0].get("shown1", []), "reason": results[0].get("reason"),
                              "stable": stable, **j, **({"text": results[0].get("text")} if sysname == "general" else {})})
         n = len(per_case)
         k = sum(c["ok"] for c in per_case)
@@ -213,6 +227,7 @@ def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=
             "stable": f"{sum(c['stable'] for c in per_case)}/{n}" if reps > 1 else ("حتمي" if sysname == "bm25" else "تشغيل واحد"),
             "by_type": {t: f"{sum(c['ok'] for c in per_case if c['type'] == t)}/{sum(1 for c in per_case if c['type'] == t)}"
                         for t in sorted({c['type'] for c in per_case})},
+            **({"focus": _focus_stats(per_case)} if sysname == "daleel" else {}),
             "latency_ms_p50": ms_sorted[len(ms_sorted) // 2], "latency_ms_p95": ms_sorted[int(len(ms_sorted) * 0.95) - 1],
             "cost_usd_total": round(cost, 4), "cases": per_case,
         }

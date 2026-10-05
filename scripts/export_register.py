@@ -132,7 +132,8 @@ def main(path):
             gist="" if g(r, "مضمون السؤال") in ("", "—") else g(r, "مضمون السؤال"),
             text=shown_text, verses=verses + q_verses, about=g(r, "يجيب هذا المقطع عن"),
             phrasings=[x.strip() for x in g(r, "صياغات المستخدم").split("|") if x.strip()],
-            reviewer=g(r, "اعتمده (المراجع والتاريخ)"), approval_note=g(r, "ملاحظات الاعتماد")))
+            reviewer=g(r, "اعتمده (المراجع والتاريخ)"), approval_note=g(r, "ملاحظات الاعتماد"),
+            no_cut=hdr.get("لا يُجتزأ") is not None and g(r, "لا يُجتزأ") == "نعم"))
         report.append({"id": sid, "published": True, "verses": verses + q_verses})
     # القوالب: المعتمد من «القوالب»، والمسودات من «للمراجعة» (تُعرض في وضع التطوير فقط)
     tpl = {}
