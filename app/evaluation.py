@@ -109,7 +109,21 @@ def run_general(case):
     return r, cost
 
 
-SYSTEMS = {"daleel": run_daleel, "bm25": run_bm25, "general": run_general}
+def run_general_pre(case):
+    """خط أساس رابع منصف: النموذج العام نفسه، لكن بعد الفحص بالقواعد الذي يمر به «دليل» والبحث بالكلمات.
+    ما يلتقطه الفحص يُعامل كما في المنتج، وما بعده يجيب عنه النموذج بحرية من النصوص."""
+    from .precheck import precheck
+    pre = precheck(case["question"])
+    if pre:
+        t0 = time.time()
+        r = engine.ask(case["question"], use_llm=False)
+        out = {"type": r["type"], "segments": [s["id"] for s in r.get("segments", [])], "reason": r.get("reason"),
+               "ref": (r.get("verse") or {}).get("ref"), "shown1": [], "ms": int((time.time() - t0) * 1000)}
+        return out, 0.0
+    return run_general(case)
+
+
+SYSTEMS = {"daleel": run_daleel, "bm25": run_bm25, "general": run_general, "general_pre": run_general_pre}
 
 
 # ---------- الحكم ----------
@@ -156,6 +170,22 @@ def _focus_stats(per_case):
             "avg_share_when_focused": round(sum(f["share"] for f in cut) / len(cut), 2) if cut else None}
 
 
+def _range(cases, all_results):
+    """الدقة في كل تشغيل على حدة (أدنى، أعلى): التذبذب بين التشغيلات يُعلن ولا يُخفى خلف التشغيل الأول."""
+    per_run = [sum(judge(c, rs[i])["ok"] for c, rs in zip(cases, all_results)) for i in range(len(all_results[0]))]
+    return [min(per_run), max(per_run)]
+
+
+def mcnemar(b, c):
+    """اختبار McNemar الدقيق (ذو طرفين) على الحالات المختلف فيها فقط."""
+    n = b + c
+    if n == 0:
+        return 1.0
+    k = min(b, c)
+    p = sum(math.comb(n, i) for i in range(k + 1)) / 2 ** n
+    return round(min(1.0, 2 * p), 4)
+
+
 def wilson(k, n, z=1.96):
     if n == 0:
         return (0.0, 0.0)
@@ -174,9 +204,10 @@ def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=
     for sysname in systems:
         fn = SYSTEMS[sysname]
         reps = runs if sysname != "bm25" else 1  # BM25 حتمي
-        per_case, cost, ms = [], 0.0, []
+        per_case, cost, ms, all_results = [], 0.0, [], []
         for case in cases:
             results = []
+            all_results.append(results)
             for _ in range(reps):
                 try:
                     r, c = fn(case)
@@ -207,11 +238,23 @@ def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=
             "followup_success": f"{sum(c['ok'] for c in fu)}/{len(fu)}",
             "abstain_reason_correct": f"{sum(c['reason_ok'] for c in per_case if c['expect'] == 'abstain')}/{n_abs}",
             "stable": f"{sum(c['stable'] for c in per_case)}/{n}" if reps > 1 else ("حتمي" if sysname == "bm25" else "تشغيل واحد"),
+            "min_max_accuracy_over_runs": _range(cases, all_results) if reps > 1 else None,
             "by_type": {t: f"{sum(c['ok'] for c in per_case if c['type'] == t)}/{sum(1 for c in per_case if c['type'] == t)}"
                         for t in sorted({c['type'] for c in per_case})},
             **({"focus": _focus_stats(per_case)} if sysname == "daleel" else {}),
             "latency_ms_p50": ms_sorted[len(ms_sorted) // 2], "latency_ms_p95": ms_sorted[int(len(ms_sorted) * 0.95) - 1],
             "cost_usd_total": round(cost, 4), "cases": per_case,
         }
+    # McNemar الدقيق بين «دليل» وكل نظام على الحالات نفسها: هل الفرق في الدقة دالّ؟
+    if "daleel" in out["systems"]:
+        base = {c["id"]: c["ok"] for c in out["systems"]["daleel"]["cases"]}
+        out["comparisons"] = {}
+        for sysname, d in out["systems"].items():
+            if sysname == "daleel":
+                continue
+            other = {c["id"]: c["ok"] for c in d["cases"]}
+            b = sum(1 for k in base if base[k] and not other.get(k))
+            c_ = sum(1 for k in base if not base[k] and other.get(k))
+            out["comparisons"][sysname] = {"daleel_only_right": b, "other_only_right": c_, "mcnemar_p": mcnemar(b, c_)}
     out["finished"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     return out

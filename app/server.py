@@ -151,7 +151,7 @@ async def eval_run(req: Request):
         runs = max(1, min(3, int(req.query_params.get("runs", "1"))))
     except ValueError:
         return _bad()
-    systems = tuple(x for x in req.query_params.get("systems", "daleel,bm25,general").split(",") if x in ("daleel", "bm25", "general"))
+    systems = tuple(x for x in req.query_params.get("systems", "daleel,bm25,general").split(",") if x in ("daleel", "bm25", "general", "general_pre"))
     _EVAL.update(running=True, started=time.time(), progress="", error=None)
     threading.Thread(target=_eval_worker, args=(name, runs, systems), daemon=True).start()
     return JSONResponse({"status": "started", "set": name, "runs": runs, "systems": systems})
