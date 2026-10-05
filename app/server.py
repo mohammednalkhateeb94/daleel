@@ -89,7 +89,8 @@ async def api_need(req: Request):
     if body is None:
         return _bad()
     shown = body.get("shown") if isinstance(body.get("shown"), list) else []
-    return JSONResponse(engine.by_need(str(body.get("need", "")), tuple(str(x) for x in shown)[:10]))
+    seg = body.get("segment") if isinstance(body.get("segment"), str) else None
+    return JSONResponse(engine.by_need(str(body.get("need", "")), tuple(str(x) for x in shown)[:10], seg))
 
 
 async def api_feedback(req: Request):
@@ -99,7 +100,18 @@ async def api_feedback(req: Request):
     v = body.get("value")
     if v not in ("yes", "partial", "no"):
         return JSONResponse({"error": "bad value"}, status_code=400)
-    return JSONResponse(engine.feedback(str(body.get("decision_id", ""))[:20], v, body.get("need")))
+    shown = [str(x) for x in body.get("shown", [])][:10] if isinstance(body.get("shown"), list) else []
+    return JSONResponse(engine.feedback(str(body.get("decision_id", ""))[:20], v, body.get("need"), shown))
+
+
+async def api_refer(req: Request):
+    """«أريد مختصاً» بعد «لا» أو «جزئياً»: قرار REFER مسجّل."""
+    if _limited(req):
+        return JSONResponse({"error": "rate_limited"}, status_code=429)
+    body = await _body(req)
+    if body is None:
+        return _bad()
+    return JSONResponse(engine.refer(str(body.get("decision_id", ""))[:20]))
 
 
 async def selftest(req: Request):
@@ -183,6 +195,7 @@ async def health(_: Request):
 app = Starlette(routes=[
     Route("/", index), Route("/api/start", api_start), Route("/api/ask", api_ask, methods=["POST"]),
     Route("/api/need", api_need, methods=["POST"]), Route("/api/feedback", api_feedback, methods=["POST"]),
+    Route("/api/refer", api_refer, methods=["POST"]),
     Route("/health", health), Route("/api/selftest", selftest),
     Route("/api/eval/run", eval_run), Route("/api/eval/latest", eval_latest), Mount("/static", StaticFiles(directory=STATIC), name="static"),
 ])

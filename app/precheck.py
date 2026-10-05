@@ -46,7 +46,9 @@ def precheck(question: str):
         return {"decision": "abstain", "reason": "verse_not_found"}
     # «مين كتب القرآن؟» يحتمل المصدر (ح7) أو كتّاب الوحي (ح3): استيضاح ثابت بدل التخمين
     if WHO_WROTE.search(n):
-        return {"decision": "clarify", "options": ["ح7", "ح3"], "template": "ست-05"}
+        # ثلاثة مقاصد (القسم 18 من المنهجية): كل خيار سؤال كامل يُرسل إلى «دليل» عند اختياره
+        return {"decision": "clarify", "options": ["ح7", "ح3"], "template": "ست-06",
+                "ask_options": [("ست-06-1", "ح7"), ("ست-06-2", "ح3"), ("ست-06-3", "ح3")]}
     # موضع مذكور بالاسم والرقم («البقرة 255»، «آية الكرسي»): يُعرض نص الآية من المصحف، أو يُحال لتفسيرها
     ref = find_ref(q)
     if ref and ref[1]:

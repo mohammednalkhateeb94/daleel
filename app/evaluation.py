@@ -56,8 +56,19 @@ def run_daleel(case):
              for s in segs]
     out = {"type": r["type"], "segments": [s["id"] for s in segs], "reason": r.get("reason"), "focus": focus,
            "ref": (r.get("verse") or {}).get("ref"), "ms": int((time.time() - t0) * 1000),
-           "source": r.get("source"), "gate": r.get("gate"), "shown1": shown1 if case.get("followup") else []}
+           "source": r.get("source"), "gate": r.get("gate"), "shown1": shown1 if case.get("followup") else [],
+           "method": r.get("method")}
     return out, cost
+
+
+def shadow_result(r):
+    """النتيجة التي كانت ستظهر لو فُعّلت بوابة G2-المهمة (من سجل الظل)، لتُحكم بالمعيار نفسه."""
+    m = r.get("method") or {}
+    if r.get("type") != "answer" or "shadow_segments" not in m:
+        return r
+    if m.get("proposed") == "NOT_COVERED":
+        return {**r, "type": "abstain", "segments": [], "reason": "not_covered"}
+    return {**r, "segments": m["shadow_segments"]}
 
 
 def run_bm25(case):
@@ -160,6 +171,29 @@ def judge(case, r):
     }
 
 
+def _method_stats(per_case):
+    """شروط تفعيل G2 الثلاثة: لا تراجع في الناجح، وإصلاح خطأ واحد على الأقل، وعدم زيادة غير المناسب."""
+    ms = [c for c in per_case if c.get("method")]
+    regress = [c["id"] for c in per_case if c["ok"] and not c.get("shadow_ok", c["ok"])]
+    fixes = [c["id"] for c in per_case if not c["ok"] and c.get("shadow_ok", c["ok"])]
+    inap_now = sum(c["inappropriate"] for c in per_case)
+    inap_shadow = sum(c.get("shadow_inappropriate", c["inappropriate"]) for c in per_case)
+    from collections import Counter
+    return {
+        "decisions": dict(Counter(c["method"].get("decision") for c in ms)),
+        "tasks": dict(Counter(c["method"].get("task") for c in ms if c["method"].get("task"))),
+        "sensitivity": dict(Counter(c["method"].get("sensitivity") for c in ms if c["method"].get("sensitivity"))),
+        "g2_would_block": sorted({c["id"] for c in ms if False in (c["method"].get("g2") or {}).values()}),
+        "proposed_differs": sorted(c["id"] for c in ms if c["method"].get("proposed") != c["method"].get("decision")),
+        "g4_blocked_cases": sorted(c["id"] for c in ms if c["method"].get("g4_blocked")),
+        "g2_activation": {"accuracy_now": f"{sum(c['ok'] for c in per_case)}/{len(per_case)}",
+                          "accuracy_if_enabled": f"{sum(c.get('shadow_ok', c['ok']) for c in per_case)}/{len(per_case)}",
+                          "regressions": regress, "fixes": fixes,
+                          "inappropriate_now": inap_now, "inappropriate_if_enabled": inap_shadow,
+                          "conditions_met": not regress and bool(fixes) and inap_shadow <= inap_now},
+    }
+
+
 def _focus_stats(per_case):
     fs = [f for c in per_case if c["got"] == "answer" for f in (c.get("focus") or [])]
     if not fs:
@@ -219,10 +253,13 @@ def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=
                 if progress:
                     progress(sysname, case["id"])
             j = judge(case, results[0])
+            if sysname == "daleel":
+                js = judge(case, shadow_result(results[0]))
+                j["shadow_ok"], j["shadow_inappropriate"] = js["ok"], js["inappropriate"]
             stable = len({(x["type"], (x["segments"] or [None])[0]) for x in results}) == 1
             per_case.append({"id": case["id"], "type": case["type"], "q": case["question"], "expect": case["expect"],
                              "got": results[0]["type"], "segs": results[0]["segments"][:2], "focus": results[0].get("focus"), "gate": results[0].get("gate"), "shown1": results[0].get("shown1", []), "reason": results[0].get("reason"),
-                             "stable": stable, **j, **({"text": results[0].get("text")} if sysname == "general" else {})})
+                             "stable": stable, "method": results[0].get("method"), **j, **({"text": results[0].get("text")} if sysname == "general" else {})})
         n = len(per_case)
         k = sum(c["ok"] for c in per_case)
         n_abs = sum(1 for c in cases if c["expect"] == "abstain")
@@ -241,7 +278,7 @@ def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=
             "min_max_accuracy_over_runs": _range(cases, all_results) if reps > 1 else None,
             "by_type": {t: f"{sum(c['ok'] for c in per_case if c['type'] == t)}/{sum(1 for c in per_case if c['type'] == t)}"
                         for t in sorted({c['type'] for c in per_case})},
-            **({"focus": _focus_stats(per_case)} if sysname == "daleel" else {}),
+            **({"focus": _focus_stats(per_case), "methodology": _method_stats(per_case)} if sysname == "daleel" else {}),
             "latency_ms_p50": ms_sorted[len(ms_sorted) // 2], "latency_ms_p95": ms_sorted[int(len(ms_sorted) * 0.95) - 1],
             "cost_usd_total": round(cost, 4), "cases": per_case,
         }

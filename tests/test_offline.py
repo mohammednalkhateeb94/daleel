@@ -157,7 +157,30 @@ def main():
     assert engine.ask("كم عدد آيات سورة البقرة؟", use_llm=False)["type"] != "verse"
     # «مين كتب القرآن؟» يُستوضح بين المصدر وكتّاب الوحي
     w = engine.ask("مين كتب القرآن؟", use_llm=False)
-    assert w["type"] == "clarify" and [o["id"] for o in w["options"]] == ["ح7", "ح3"] and w["template"] == "ست-05", w
+    assert w["type"] == "clarify" and w["template"] == "ست-06" and [o["id"] for o in w["options"]] == ["ح7", "ح3", "ح3"], w
+    assert all(o["q"] and o["q"] == o["title"] for o in w["options"]) and w["method"]["decision"] == "CLARIFY", w
+    # المنهجية: سجل القرار، والظل، والإحالة، والمحتوى المرتبط
+    lib = library()["by_id"]
+    assert engine.g2_task("توجيه عملي", lib["ق-19"]) is True and engine.g2_task("استدلال", lib["ق-15"]) is False
+    assert engine.g2_task("معالجة اعتراض", lib["ق-23"]) is True and engine.g2_task(None, lib["ق-23"]) is None
+    f = engine.ask("هل يجوز للحائض قراءة القرآن؟", use_llm=False)
+    assert f["method"]["decision"] == "REFER" and f["method"]["sensitivity"] == "D", f["method"]
+    assert engine.ask("كيف أطبخ الكبسة؟", use_llm=False)["method"]["decision"] == "NOT_COVERED"
+    rf = engine.refer("x")
+    assert rf["template"] == "ام-14" and rf["method"]["decision"] == "REFER" and "مختص" in rf["message"]
+    nx = engine.feedback("x", "yes", "ح7", ["ق-23"])["next"]
+    assert nx and all(n.get("segment") in ("ق-24", "ق-27", "ق-01") for n in nx), nx
+    assert engine.by_need("ح1", (), "ق-34")["segments"][0]["id"] == "ق-34"
+    try:
+        router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح4", "segment_ids": ["ق-15"], "fit": "high",
+                                              "task": "استدلال", "issue": "x", "sensitivity": "B", "_meta": {}}
+        focus.select = lambda q, segs: ({}, {"ق-15": "answers"}, {})
+        r = engine.ask("سؤال تجريبي للظل")
+        m = r["method"]
+        assert r["type"] == "answer" and m["g2"] == {"ق-15": False} and m["proposed"] == "NOT_COVERED" and m["decision"] == "RECOMMEND", m
+        assert m["task"] == "استدلال" and m["sensitivity"] == "B" and m.get("g4_blocked") == [], m
+    finally:
+        router.decide, focus.select = orig_d, orig_s
     # «للتفصيل فقط»: لا يظهر ابتداءً، ويبقى في النص الكامل عند «أريد التفصيل»
     lib = library()["by_id"]
     for sid, hidden in (("ق-35", "منقولٌ بطريقِ التواتُرِ"), ("ق-03", "وقال ابنُ كثيرٍ"), ("ق-08", "كيف يأتيك الوحي")):

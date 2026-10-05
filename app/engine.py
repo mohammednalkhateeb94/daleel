@@ -102,6 +102,8 @@ def _gate(dec: dict, exclude=(), question: str = ""):
         if need in library()["need_by_id"] and dec.get("fit") != "high" and all(by_id[i]["need"] != need for i in ids):
             return {"decision": "abstain", "reason": "not_covered", "gate": "need_mismatch"}
         dec["segments"] = ids[:2]
+    if dec.get("decision") == "clarify" and dec.get("ask_options"):
+        return dec  # خيارات مكتوبة في السجل (ست-06): أسئلة كاملة لا حاجات، فلا تُفحص تغطيتها هنا
     if dec.get("decision") == "clarify":
         asked = [o for o in dec.get("options", []) if o in library()["need_by_id"]]
         opts = [o for o in asked if menu_segments(o, exclude)]
@@ -113,6 +115,40 @@ def _gate(dec: dict, exclude=(), question: str = ""):
             return {"decision": "abstain", "reason": "not_covered", "gate": "blocked"}
         dec["options"] = opts[:3]
     return dec
+
+
+# بوابة G2-المهمة (وضع الظل): المهام المتقاربة تُقبل بعضها لبعض
+TASK_COMPAT = {"تعريف": {"شرح"}, "شرح": {"تعريف", "بحث أو تحقيق"}, "بحث أو تحقيق": {"شرح"},
+               "استدلال": {"معالجة اعتراض"}, "معالجة اعتراض": {"استدلال"},
+               "تعليم": {"توجيه عملي"}, "توجيه عملي": {"تعليم"}}
+REFER_REASONS = {"fatwa", "tafsir", "qiraat", "hadith_request", "off_topic"}
+
+
+def seg_tasks(seg: dict) -> set:
+    m = seg.get("method") or {}
+    return {t.strip() for t in re.split(r"[·/،]", m.get("PRIMARY_TASK", "") + "·" + m.get("TASK_TYPES", "")) if t.strip()}
+
+
+def g2_task(task: str | None, seg: dict):
+    """True يمر، False لا يؤدي المقطع وظيفة السؤال، None لا يمكن الحكم (لا مهمة أو لا بيانات)."""
+    tasks = seg_tasks(seg)
+    if not task or not tasks:
+        return None
+    return task in tasks or bool(TASK_COMPAT.get(task, set()) & tasks)
+
+
+def method_decision(resp: dict) -> str:
+    """اسم القرار بمصطلح المنهجية."""
+    t = resp.get("type")
+    if t == "answer":
+        return "RECOMMEND" if any(s.get("relation") == "answers" for s in resp["segments"]) else "PARTIAL"
+    if t == "verse":
+        return "RECOMMEND"
+    if t == "clarify":
+        return "CLARIFY"
+    if t == "abstain":
+        return "REFER" if resp.get("reason") in REFER_REASONS else "NOT_COVERED"
+    return "INVALID"
 
 
 def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
@@ -136,7 +172,8 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
                     meta = out.pop("_meta", {})
                     dec = {"decision": out["decision"], "need": out.get("need_id"),
                            "segments": out.get("segment_ids", []), "options": out.get("clarify_needs", []),
-                           "reason": out.get("abstain_reason"), "fit": out.get("fit")}
+                           "reason": out.get("abstain_reason"), "fit": out.get("fit"),
+                           "task": out.get("task"), "issue": out.get("issue"), "sensitivity": out.get("sensitivity")}
                     if dec["decision"] == "answer" and not all(i in library()["by_id"] for i in dec["segments"]):
                         dec = None  # رقم مقطع غير موجود: أعد المحاولة مرة
                         continue
@@ -151,7 +188,11 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
             if use_llm and meta.get("error"):
                 dec["outage"] = True
         dec["broad"] = not QWORDS.search(norm(question))
+        by_id = library()["by_id"]
+        g4 = {i: near_miss(question, by_id[i]) for i in dec.get("segments", []) if i in by_id}
+        method0 = {k: dec.get(k) for k in ("task", "issue", "sensitivity")}
         dec = _gate(dec, exclude, question)
+        dec["_g4"], dec["_m"] = g4, method0
 
     d = dec["decision"]
     if d == "invalid":
@@ -180,8 +221,13 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
     elif d == "clarify":
         code = dec.get("template") or (CLARIFY_PAIRS.get(frozenset(dec["options"][:2]), "ست-04") if len(dec["options"]) == 2 else "ست-04")
         nb = library()["need_by_id"]
-        resp = {"type": "clarify", "message": T(code), "template": code,
-                "options": [{"id": o, "title": nb[o]["title"]} for o in dec["options"]]}
+        if dec.get("ask_options") and all(T(c) for c, _ in dec["ask_options"]):
+            opts = [{"id": n, "title": T(c), "q": T(c)} for c, n in dec["ask_options"]]
+        else:
+            if dec.get("ask_options"):  # قوالب الخيارات غير متاحة: الاستيضاح القديم بين حاجتين
+                code = "ست-05"
+            opts = [{"id": o, "title": nb[o]["title"]} for o in dec["options"]]
+        resp = {"type": "clarify", "message": T(code), "template": code, "options": opts}
     else:
         segs = [library()["by_id"][i] for i in dec["segments"]]
         picks, verdicts = {}, {}
@@ -209,6 +255,7 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
                 "ask_feedback": T("و-02"), "fit": dec.get("fit")}
     if dec.get("outage"):
         resp["notice"] = T("ام-13") if resp["type"] == "answer" else T("ام-10")
+    resp["method"] = _method(resp, dec, pre)
     resp["decision_id"] = did
     resp["cost_usd"] = meta.get("cost_usd", 0)
     resp["source"] = source
@@ -218,15 +265,52 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
           "type": resp["type"], "reason": resp.get("reason"), "gate": resp.get("gate") or dec.get("gate"), "need": resp.get("need"),
           "segments": [s["id"] for s in resp.get("segments", [])], "followup": bool(exclude),
           "focused": [s["id"] for s in resp.get("segments", []) if s.get("focus")],
-          "q_chars": len(question or ""), "ms": int((time.time() - t0) * 1000), **meta,
+          "q_chars": len(question or ""), "ms": int((time.time() - t0) * 1000), **meta, "method": resp["method"],
           "library": library()["meta"]["library_version"]})
     return resp
 
 
-def by_need(need_id: str, exclude=()) -> dict:
-    """اختيار من القائمة أو من أزرار الاستيضاح: أول مقطع معتمد للحاجة لم يُعرض بعد."""
+def _method(resp: dict, dec: dict, pre) -> dict:
+    """سجل المنهجية لكل قرار: المهمة والمسألة والحساسية، والقرار الفعلي، وما كانت ستقرره G2 لو فُعّلت (الظل)، ونتيجة G4."""
+    m = dict(dec.get("_m") or {})
+    if pre and pre.get("reason") == "fatwa":
+        m["sensitivity"] = "D"
+    actual = method_decision(resp)
+    m["decision"] = actual
+    by_id = library()["by_id"]
+    if resp["type"] == "answer":
+        g2 = {s["id"]: g2_task(m.get("task"), by_id[s["id"]]) for s in resp["segments"]}
+        kept = [s for s in resp["segments"] if g2[s["id"]] is not False]
+        m["g2"] = g2
+        m["shadow_segments"] = [s["id"] for s in kept]
+        m["proposed"] = ("NOT_COVERED" if not kept else
+                         "RECOMMEND" if any(s.get("relation") == "answers" for s in kept) else "PARTIAL")
+    else:
+        m["proposed"] = actual
+    if dec.get("_g4"):
+        m["g4_blocked"] = [i for i, b in dec["_g4"].items() if b]
+    if resp.get("gate"):
+        m["gate"] = resp["gate"]
+    return m
+
+
+def refer(decision_id: str = "") -> dict:
+    """«أريد مختصاً»: قرار REFER مسجّل بنوع الإحالة، ونص الإحالة المعتمد ام-14."""
     did = uuid.uuid4().hex[:12]
-    segs = menu_segments(need_id, exclude)
+    _log({"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "id": did, "source": "followup",
+          "type": "abstain", "reason": "referral_requested", "after": decision_id,
+          "method": {"decision": "REFER", "referral_requested": True, "referral_category": "general_specialist"},
+          "library": library()["meta"]["library_version"]})
+    return {"type": "abstain", "reason": "referral_requested", "message": T("ام-14"), "template": "ام-14",
+            "decision_id": did, "method": {"decision": "REFER", "referral_requested": True}}
+
+
+def by_need(need_id: str, exclude=(), segment: str | None = None) -> dict:
+    """اختيار من القائمة أو من أزرار الاستيضاح: أول مقطع معتمد للحاجة لم يُعرض بعد.
+    segment: مقطع بعينه من «محتوى مرتبط» في السجل."""
+    did = uuid.uuid4().hex[:12]
+    seg = library()["by_id"].get(segment or "")
+    segs = [seg] if seg and seg["id"] not in exclude else menu_segments(need_id, exclude)
     if not segs:
         resp = {"type": "abstain", "reason": "not_covered", "message": T("و-12" if exclude else "ام-07")}
     else:
@@ -238,11 +322,19 @@ def by_need(need_id: str, exclude=()) -> dict:
     return resp
 
 
-def feedback(decision_id: str, value: str, need: str | None = None) -> dict:
+def feedback(decision_id: str, value: str, need: str | None = None, shown=None) -> dict:
     _log({"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "id": decision_id, "feedback": value})
     if value == "yes":
-        nxt = library()["need_by_id"].get(need or "", {}).get("next", [])
-        nb = library()["need_by_id"]
+        nb, by_id = library()["need_by_id"], library()["by_id"]
+        # «قد يهمك بعدها» من «محتوى مرتبط» للمقطع المعروض في السجل فقط، لا من تشابه جديد
+        rel = []
+        for sid in shown or []:
+            for x in re.findall(r"ق-\d+", (by_id.get(sid, {}).get("method") or {}).get("RELATED_CONTENT", "")):
+                if x in by_id and x not in (shown or []) and x not in rel:
+                    rel.append(x)
+        if rel:
+            return {"message": T("و-10"), "next": [{"id": by_id[x]["need"], "segment": x, "title": by_id[x]["about"]} for x in rel[:3]]}
+        nxt = nb.get(need or "", {}).get("next", [])
         return {"message": T("و-10"), "next": [{"id": n, "title": nb[n]["title"]} for n in nxt if n in nb and menu_segments(n)]}
     if value == "partial":
         return {"message": T("و-03")}

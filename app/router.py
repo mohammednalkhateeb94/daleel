@@ -16,6 +16,9 @@ PRICE_OUT = float(os.getenv("DALEEL_PRICE_OUT", "5.0"))
 REASONS = ["level_c", "fatwa", "hadith_request", "verse_check", "tafsir", "qiraat", "scientific",
            "off_topic", "unrelated", "not_covered", "non_arabic"]
 
+# وظائف السؤال في المنهجية (بأسمائها في السجل)
+TASKS = ["تعريف", "شرح", "تعليم", "استدلال", "معالجة اعتراض", "مقارنة", "بحث أو تحقيق", "توجيه عملي", "مساندة", "إحالة"]
+
 TOOL = {
     "name": "decide",
     "description": "سجّل قرار التوجيه لسؤال المستخدم.",
@@ -29,8 +32,13 @@ TOOL = {
                               "description": "الحاجات التي يُخيَّر بينها المستخدم عند الاستيضاح"},
             "abstain_reason": {"type": "string", "enum": REASONS},
             "fit": {"type": "string", "enum": ["high", "medium", "low"]},
+            # حقول المنهجية: تُسجَّل للقياس ولا تغيّر القرار
+            "task": {"type": "string", "enum": TASKS, "description": "وظيفة السؤال: ماذا يريد المستخدم من الموضوع"},
+            "issue": {"type": "string", "description": "المسألة الدقيقة في كلمات قليلة"},
+            "sensitivity": {"type": "string", "enum": ["A", "B", "C", "D"],
+                            "description": "A معلومة مستقرة، B شرح أو استدلال، C خلاف أو حساسية عالية، D فتوى أو حالة شخصية"},
         },
-        "required": ["decision", "fit"],
+        "required": ["decision", "fit", "task", "issue", "sensitivity"],
     },
 }
 
