@@ -90,6 +90,29 @@ def main():
         assert engine.ask("سؤال تجريبي عن الجمع")["type"] == "answer"
     finally:
         router.decide, focus.select = orig_d, orig_s
+    # ثغرة «جزئي»: مقطع من حاجة أخرى بحكم «جزئي» لا يُعرض، ومن الحاجة نفسها يُعرض
+    try:
+        router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح2", "segment_ids": ["ق-11"], "fit": "high", "_meta": {}}
+        focus.select = lambda q, segs: ({}, {"ق-11": "partial"}, {})
+        r = engine.ask("متى نزل القرآن؟")
+        assert r["type"] == "abstain" and r.get("gate") == "verify", r
+        router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح3", "segment_ids": ["ق-11"], "fit": "medium", "_meta": {}}
+        assert engine.ask("هل كان الصحابة يحفظون القرآن؟")["type"] == "answer"
+        # بوابة «لا يجيب عن»: سؤال يطابق حدود المقطع يُمتنع عنه مهما قال النموذج
+        router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح7", "segment_ids": ["ق-23"], "fit": "high", "_meta": {}}
+        focus.select = lambda q, segs: ({}, {"ق-23": "answers"}, {})
+        r = engine.ask("ليش المسلمين يعظمون القرآن؟")
+        assert r["type"] == "abstain" and r.get("gate") == "near_miss", r
+    finally:
+        router.decide, focus.select = orig_d, orig_s
+    from app.normalize import near_duplicate
+    assert near_duplicate("ليش المسلمين يعظمون القرآن؟", "لماذا يعظّم المسلمون القرآن؟")
+    assert not near_duplicate("لماذا جمع عثمان القرآن؟", "كيف جمع عثمان القرآن؟")  # أداة السؤال تفرّق
+    assert not near_duplicate("متى نزل القرآن؟", "كيف نزل القرآن؟")
+    # البوابة لا تحجب مقطعاً عن صياغاته المعتمدة أبداً
+    for s in library()["segments"]:
+        for q in s["phrasings"]:
+            assert not engine.near_miss(q, s), (s["id"], q)
     # مجموعة السجل: لكل مقطع منشور حالات وصول، وحالات تجنّب لما له «أسئلة قريبة»
     from app.evaluation import register_cases
     rc = register_cases()

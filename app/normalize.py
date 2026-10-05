@@ -36,6 +36,42 @@ def tokens(text: str, drop_stop: bool = True) -> list[str]:
     return out
 
 
+# أدوات السؤال تبقى في المقارنة لأنها تفرّق المعنى («متى نزل؟» غير «كيف نزل؟»)، وتوحَّد لهجاتها
+_QMAP = {"ليش": "لماذا", "ليه": "لماذا", "مين": "من", "شو": "ما", "ايش": "ما", "وش": "ما", "ماذا": "ما", "وين": "اين"}
+_KEEP = {"ما", "من", "متي", "كيف", "لماذا", "هل", "كم", "اين", "اي"}
+_GENERIC = {"قران", "كريم", "الله", "نبي", "محمد", "تعالي"}
+_SUF = ("ون", "ين", "ات", "ها", "هم", "ه")
+
+
+def _light(w: str) -> str:
+    for s in _SUF:
+        if len(w) - len(s) >= 3 and w.endswith(s):
+            return w[:-len(s)]
+    return w
+
+
+def question_key(text: str) -> set[str]:
+    """مفاتيح السؤال للمقارنة بـ«أسئلة قريبة لا يجيب عنها»: أداة السؤال + الكلمات الدالة، بلا الكلمات العامة في كل الأسئلة."""
+    out = set()
+    for w in norm(text).split():
+        w = _QMAP.get(w, w)
+        if w in _KEEP:
+            out.add(w)
+        elif w not in STOP:
+            w = stem(w)
+            if w not in _GENERIC and len(w) > 1:
+                out.add(_light(w))
+    return out
+
+
+def near_duplicate(a: str, b: str, threshold: float = 0.75) -> bool:
+    ka, kb = question_key(a), question_key(b)
+    content = (ka | kb) - _KEEP
+    if not content:
+        return False
+    return len(ka & kb) / len(ka | kb) >= threshold
+
+
 def arabic_ratio(text: str) -> float:
     letters = [c for c in unicodedata.normalize("NFKC", text or "") if c.isalpha()]
     if not letters:

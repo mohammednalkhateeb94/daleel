@@ -1,7 +1,7 @@
 {"type": "direct", "question": "ما هو القرآن؟", "expect": "answer", "need": "ح1", "accept": ["ق-01", "ق-34"], "note": "", "id": "d01"}
 {"type": "rephrased", "question": "ليش المسلمين يعظمون القرآن؟", "expect": "answer", "need": "ح1", "accept": ["ق-02"], "note": "", "id": "d02"}
 {"type": "direct", "question": "هل القرآن مثل الإنجيل عند المسيحيين؟", "expect": "answer", "need": "ح1", "accept": ["ق-03", "ق-25"], "note": "", "id": "d03"}
-{"type": "direct", "question": "كيف كان الوحي ينزل على النبي؟", "expect": "answer", "need": "ح2", "accept": ["ق-08", "ق-30"], "note": "", "id": "d04"}
+{"type": "direct", "question": "كيف كان الوحي ينزل على النبي؟", "expect": "answer", "need": "ح2", "accept": ["ق-08"], "note": "ق-30 أُزيل: السجل ينص أنه لا يجيب عن «كيف كان الوحي يأتي النبي؟» (5 أكتوبر)", "id": "d04"}
 {"type": "direct", "question": "متى نزل القرآن؟", "expect": "answer", "need": "ح2", "accept": ["ق-09"], "note": "", "id": "d05"}
 {"type": "rephrased", "question": "هل نزل القرآن مرة وحدة ولا على دفعات؟", "expect": "answer", "need": "ح2", "accept": ["ق-37"], "note": "", "id": "d06"}
 {"type": "direct", "question": "كيف جُمع القرآن؟", "expect": "answer", "need": "ح3", "accept": ["ق-12", "ق-33", "ق-13"], "note": "", "id": "d07"}

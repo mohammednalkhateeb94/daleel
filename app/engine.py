@@ -9,7 +9,7 @@ from pathlib import Path
 
 from . import fallback, focus, router
 from .library import T, library, menu_segments, need_segments
-from .normalize import norm
+from .normalize import near_duplicate, norm
 from .precheck import precheck
 from .quran import find_ref, tafsir_link
 
@@ -71,11 +71,20 @@ def _abstain(reason: str, extra: dict | None = None):
     return r
 
 
-def _gate(dec: dict, exclude=()):
-    """بوابة القواعد: لا يمر إلا مقطع معتمد في المكتبة، مستواه أ أو ب، وملاءمته كافية."""
+def near_miss(question: str, seg: dict) -> bool:
+    """السؤال يكاد يطابق سؤالاً كتبه المراجع في «أسئلة قريبة لا يجيب عنها» لهذا المقطع."""
+    return bool(question) and any(near_duplicate(question, n) for n in seg.get("not_for", []))
+
+
+def _gate(dec: dict, exclude=(), question: str = ""):
+    """بوابة القواعد: لا يمر إلا مقطع معتمد في المكتبة، مستواه أ أو ب، وملاءمته كافية،
+    ولا يمر مقطع نصّ السجل على أنه لا يجيب عن هذا السؤال (قاعدة ثابتة لا يتجاوزها النموذج)."""
     by_id = library()["by_id"]
     if dec.get("decision") == "answer":
         ids = [i for i in dec.get("segments", []) if i in by_id and i not in exclude and by_id[i]["level"] in ("أ", "ب")]
+        if ids and question and all(near_miss(question, by_id[i]) for i in ids):
+            return {"decision": "abstain", "reason": "not_covered", "gate": "near_miss"}
+        ids = [i for i in ids if not (question and near_miss(question, by_id[i]))]
         if not ids or dec.get("fit") == "low":
             return {"decision": "abstain", "reason": "not_covered", "gate": "blocked"}
         # المقطع يجب أن يكون من الحاجة التي يسأل عنها المستخدم: مقطع عن الإعجاز ليس جواباً لـ«ما القرآن؟»
@@ -130,7 +139,7 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
             if use_llm and meta.get("error"):
                 dec["outage"] = True
         dec["broad"] = not QWORDS.search(norm(question))
-        dec = _gate(dec, exclude)
+        dec = _gate(dec, exclude, question)
 
     d = dec["decision"]
     if d == "invalid":
@@ -147,6 +156,8 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
             resp = {"type": "abstain", "reason": reason, "message": T("و-12"), "template": "و-12"}
         else:
             resp = _abstain(reason)
+        if dec.get("gate"):
+            resp["gate"] = dec["gate"]
         if reason == "tafsir":
             if dec.get("verse"):
                 v = dec["verse"]
@@ -167,7 +178,10 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
             meta.update(fmeta)
             meta["cost_usd"] = round(meta.get("cost_usd", 0) + fmeta.get("focus_cost_usd", 0), 6)
             meta["verdicts"] = verdicts
-            segs = [s for s in segs if verdicts.get(s["id"]) != "none"]
+            # «متعلق جزئياً» يُقبل فقط من الحاجة التي يسأل عنها المستخدم: مقطع الحفظ لا يُعرض جزئياً لسؤال عن النزول
+            need = dec.get("need")
+            segs = [s for s in segs if verdicts.get(s["id"]) != "none"
+                    and not (verdicts.get(s["id"]) == "partial" and need and s["need"] != need)]
     if d == "answer" and not segs:
         # الفحص بعد الاختيار: نص المقطع لا يجيب عن السؤال → امتناع بدل عرض مقطع قريب الموضوع
         resp = {"type": "abstain", "reason": "not_covered", "gate": "verify",
