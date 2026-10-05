@@ -121,6 +121,8 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
     pre = precheck(question)
     if pre:
         dec, source = pre, "precheck"
+        if dec["decision"] == "clarify":
+            dec = _gate(dec, exclude, question)
     else:
         dec, source = None, "llm"
         if use_llm:
@@ -169,10 +171,10 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
                 v = dec["verse"]
                 resp["verse"] = {"text": v["text"], "ref": v["ref"]}
                 resp["tafsir"] = _tafsir(v["sura"], v["aya"])
-            elif (ref := find_ref(question)):
+            elif (ref := dec.get("ref") or find_ref(question)):
                 resp["tafsir"] = _tafsir(*ref)
     elif d == "clarify":
-        code = CLARIFY_PAIRS.get(frozenset(dec["options"][:2]), "ست-04") if len(dec["options"]) == 2 else "ست-04"
+        code = dec.get("template") or (CLARIFY_PAIRS.get(frozenset(dec["options"][:2]), "ست-04") if len(dec["options"]) == 2 else "ست-04")
         nb = library()["need_by_id"]
         resp = {"type": "clarify", "message": T(code), "template": code,
                 "options": [{"id": o, "title": nb[o]["title"]} for o in dec["options"]]}

@@ -2,7 +2,7 @@
 import re
 
 from .normalize import arabic_ratio, norm
-from .quran import find_verse
+from .quran import find_ref, find_verse, sura_name, verse_text
 
 def _rx(*words):
     return re.compile("|".join(words))
@@ -13,6 +13,7 @@ HADITH = _rx(r"(اعطني|هات|اذكر|ارسل|اريد|ابي|ابغى|ع�
 QIRAAT = _rx(r"\bالقراءات\b", r"\bالاحرف السبعه", r"\bقراءه (ورش|حفص|قالون)", r"\bالقراءات العشر", r"\bرواية (ورش|حفص)", r"\bروايه (ورش|حفص)")
 SCI = _rx(r"اعجاز علمي", r"الاعجاز العلمي", r"العلم الحديث", r"\bعلميا\b", r"اكتشاف(ات)? علميه")
 TAFSIR = _rx(r"\bتفسير (ايه|اية|قوله|سوره)", r"\bما معني (ايه|قوله)", r"\bفسر لي", r"\bاشرح (لي )?(ايه|قوله|سوره)", r"\bمعني قوله تعالي")
+WHO_WROTE = re.compile(r"\b(من|مين)\s+(اللي\s+|الذي\s+)?(كتب|الف|صنف)\s+(هذا\s+)?القران\b")
 # أسئلة لا علاقة لها بالدين (للمسار بلا نموذج؛ الموجِّه يلتقط غيرها)
 UNRELATED = _rx(r"\bاطبخ", r"\bطبخ", r"\bوصفه\b", r"\bكبسه\b", r"\bمباراه\b", r"كاس العالم", r"\bالدوري\b",
                 r"\bالطقس\b", r"\bسعر\b", r"\bبرمجه\b", r"\bعاصمه\b", r"\bفيلم\b", r"\bمسلسل\b")
@@ -43,6 +44,18 @@ def precheck(question: str):
             return {"decision": "verse", "verse": v}
     if quoted and re.search(r"\bايه\b|\bاية\b|قال تعالي|قوله تعالي", n):
         return {"decision": "abstain", "reason": "verse_not_found"}
+    # «مين كتب القرآن؟» يحتمل المصدر (ح7) أو كتّاب الوحي (ح3): استيضاح ثابت بدل التخمين
+    if WHO_WROTE.search(n):
+        return {"decision": "clarify", "options": ["ح7", "ح3"], "template": "ست-05"}
+    # موضع مذكور بالاسم والرقم («البقرة 255»، «آية الكرسي»): يُعرض نص الآية من المصحف، أو يُحال لتفسيرها
+    ref = find_ref(q)
+    if ref and ref[1]:
+        sura, aya = ref
+        if TAFSIR.search(n) or re.search(r"\bمعني\b|\bتفسير\b|\bفسر\b|\bاشرح\b", n):
+            return {"decision": "abstain", "reason": "tafsir", "ref": ref}
+        return {"decision": "verse", "verse": {"sura": sura, "aya": aya, "aya_end": aya, "exact": True,
+                                                "text": verse_text(sura, aya), "ref": f"{sura_name(sura)}: {aya}",
+                                                "sura_name": sura_name(sura), "lookup": True}}
     if TAFSIR.search(n):
         return {"decision": "abstain", "reason": "tafsir"}
     if QIRAAT.search(n):

@@ -148,6 +148,16 @@ def main():
         router.decide, focus.select = orig_d, orig_s
     # المقاطع الحجاجية تُعرض كاملة
     assert all(library()["by_id"][i].get("no_cut") for i in ("ق-23", "ق-24", "ق-32"))
+    # الآية بموضعها: نص المصحف ورابط تفسيرها، والسؤال عن معناها امتناع مع الرابط
+    v = engine.ask("البقرة 255", use_llm=False)
+    assert v["type"] == "verse" and v["verse"]["ref"] == "البقرة: 255" and v["verse"]["text"] == __import__("app.quran", fromlist=["x"]).verse_text(2, 255) and v["tafsir"], v
+    assert engine.ask("اعرض آية الكرسي", use_llm=False)["verse"]["aya"] == 255
+    t = engine.ask("ما معنى الآية 5 من سورة الفاتحة", use_llm=False)
+    assert t["reason"] == "tafsir" and "1:5" in t["tafsir"]["url"], t
+    assert engine.ask("كم عدد آيات سورة البقرة؟", use_llm=False)["type"] != "verse"
+    # «مين كتب القرآن؟» يُستوضح بين المصدر وكتّاب الوحي
+    w = engine.ask("مين كتب القرآن؟", use_llm=False)
+    assert w["type"] == "clarify" and [o["id"] for o in w["options"]] == ["ح7", "ح3"] and w["template"] == "ست-05", w
     print("\nكل الاختبارات نجحت" if not fails else f"\nفشل {fails}")
     return fails
 
