@@ -1,5 +1,40 @@
 [
  {
+  "id": "ق-01",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-02",
+  "published": true,
+  "verses": [
+   {
+    "sura": 2,
+    "aya": 2,
+    "sura_name": "البقرة",
+    "full": true
+   },
+   {
+    "sura": 17,
+    "aya": 9,
+    "sura_name": "الإسراء",
+    "full": false
+   }
+  ]
+ },
+ {
+  "id": "ق-03",
+  "published": true,
+  "verses": [
+   {
+    "sura": 5,
+    "aya": 48,
+    "sura_name": "المائدة",
+    "full": false
+   }
+  ]
+ },
+ {
   "id": "ق-32",
   "published": true,
   "verses": [
@@ -18,12 +53,79 @@
   ]
  },
  {
+  "id": "ق-34",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-35",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-05",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-06",
+  "published": true,
+  "verses": [
+   {
+    "sura": 21,
+    "aya": 25,
+    "sura_name": "الأنبياء",
+    "full": true
+   }
+  ]
+ },
+ {
+  "id": "ق-08",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-09",
+  "published": true,
+  "verses": [
+   {
+    "sura": 2,
+    "aya": 185,
+    "sura_name": "البقرة",
+    "full": false
+   }
+  ]
+ },
+ {
+  "id": "ق-10",
+  "published": true,
+  "verses": [
+   {
+    "sura": 4,
+    "aya": 58,
+    "sura_name": "النساء",
+    "full": false
+   },
+   {
+    "sura": 5,
+    "aya": 3,
+    "sura_name": "المائدة",
+    "full": false
+   }
+  ]
+ },
+ {
   "id": "ق-29",
   "published": true,
   "verses": []
  },
  {
   "id": "ق-30",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-37",
   "published": true,
   "verses": []
  },
@@ -38,12 +140,32 @@
   "verses": []
  },
  {
+  "id": "ق-33",
+  "published": true,
+  "verses": []
+ },
+ {
   "id": "ق-13",
   "published": true,
   "verses": []
  },
  {
   "id": "ق-14",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-38",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-15",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-16",
   "published": true,
   "verses": []
  },
@@ -58,7 +180,27 @@
   "verses": []
  },
  {
+  "id": "ق-19",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-20",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-36",
+  "published": true,
+  "verses": []
+ },
+ {
   "id": "ق-31",
+  "published": true,
+  "verses": []
+ },
+ {
+  "id": "ق-39",
   "published": true,
   "verses": []
  },
@@ -104,148 +246,6 @@
  },
  {
   "id": "ق-27",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-01",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-02",
-  "published": true,
-  "verses": [
-   {
-    "sura": 2,
-    "aya": 2,
-    "sura_name": "البقرة",
-    "full": true
-   },
-   {
-    "sura": 17,
-    "aya": 9,
-    "sura_name": "الإسراء",
-    "full": false
-   }
-  ]
- },
- {
-  "id": "ق-03",
-  "published": true,
-  "verses": [
-   {
-    "sura": 5,
-    "aya": 48,
-    "sura_name": "المائدة",
-    "full": false
-   }
-  ]
- },
- {
-  "id": "ق-34",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-35",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-08",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-09",
-  "published": true,
-  "verses": [
-   {
-    "sura": 2,
-    "aya": 185,
-    "sura_name": "البقرة",
-    "full": false
-   }
-  ]
- },
- {
-  "id": "ق-37",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-33",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-38",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-36",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-39",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-10",
-  "published": true,
-  "verses": [
-   {
-    "sura": 4,
-    "aya": 58,
-    "sura_name": "النساء",
-    "full": false
-   },
-   {
-    "sura": 5,
-    "aya": 3,
-    "sura_name": "المائدة",
-    "full": false
-   }
-  ]
- },
- {
-  "id": "ق-05",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-06",
-  "published": true,
-  "verses": [
-   {
-    "sura": 21,
-    "aya": 25,
-    "sura_name": "الأنبياء",
-    "full": true
-   }
-  ]
- },
- {
-  "id": "ق-15",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-16",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-19",
-  "published": true,
-  "verses": []
- },
- {
-  "id": "ق-20",
   "published": true,
   "verses": []
  }

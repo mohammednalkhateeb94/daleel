@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from app.normalize import norm  # noqa: E402
 from app.quran import _load, sura_name, verse_text  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+from register_io import Table  # noqa: E402
 
 VERSE_RE = re.compile(r"﴿([^﴾]+)﴾\s*\[([^\]:]+):\s*([\d٠-٩]+)(?:\s*[-–]\s*([\d٠-٩]+))?\]")
 AR_DIG = str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")
@@ -60,6 +62,10 @@ def replace_verses(text: str, issues: list) -> tuple[str, list]:
     return VERSE_RE.sub(sub, text), refs
 
 
+METH = ("PRIMARY_TASK", "TASK_TYPES", "KNOWLEDGE", "DEPTH", "EVIDENCE_FRAME", "EVIDENCE_LIMITS",
+        "DOES_NOT_ANSWER", "RELATED_CONTENT", "REFERRAL_IF")
+
+
 def cell(ws, r, c):
     v = ws.cell(r, c).value
     return "" if v is None else str(v).strip()
@@ -69,32 +75,25 @@ def main(path):
     wb = openpyxl.load_workbook(path)
     # المصادر
     src = {}
-    ws = wb["المصادر"]
-    for r in range(2, ws.max_row + 1):
-        sid = cell(ws, r, 1)
-        if sid:
-            src[sid] = dict(id=sid, title=cell(ws, r, 2), org=cell(ws, r, 3), url=cell(ws, r, 4),
-                            role=cell(ws, r, 5), approved=cell(ws, r, 6))
+    for _, d in Table(wb, "المصادر").rows():
+        if d["الرقم"]:
+            src[d["الرقم"]] = dict(id=d["الرقم"], title=d["العنوان"], org=d["الجهة"], url=d["الرابط"],
+                                   role=d["الدور"], approved=d["معتمد؟"])
     # الاحتياجات
     needs = []
-    ws = wb["الاحتياجات"]
-    hdr_n = {cell(ws, 1, c): c for c in range(1, ws.max_column + 1)}
-    for r in range(2, ws.max_row + 1):
-        if cell(ws, r, 1):
-            needs.append(dict(id=cell(ws, r, 1), section=cell(ws, r, 2), title=cell(ws, r, 3),
-                              phrasings=[p.strip(" «»") for p in cell(ws, r, 4).split("·") if p.strip()],
-                              out_of_scope=cell(ws, r, 5),
-                              next=[x.strip() for x in cell(ws, r, 6).replace("·", " ").split() if x.strip().startswith("ح")],
-                              entry=[x for x in re.findall(r"ق-\d+", cell(ws, r, hdr_n["مقطع الزر"]))] if "مقطع الزر" in hdr_n else []))
+    for _, d in Table(wb, "الاحتياجات").rows():
+        if d["الرمز"]:
+            needs.append(dict(id=d["الرمز"], section=d["القسم"], title=d["الحاجة"],
+                              phrasings=[p.strip(" «»") for p in d["صياغات المستخدم"].split("·") if p.strip()],
+                              out_of_scope=d["خارج النطاق (امتناع وإحالة)"],
+                              next=[x.strip() for x in d["الخطوة التالية"].replace("·", " ").split() if x.strip().startswith("ح")],
+                              entry=re.findall(r"ق-\d+", d.get("مقطع الزر", ""))))
     # المقاطع
-    ws = wb["المقاطع"]
-    hdr = {cell(ws, 1, c): c for c in range(1, ws.max_column + 1)}
-
-    def g(r, name):
-        return cell(ws, r, hdr[name])
-
+    st = Table(wb, "المقاطع")
+    hdr = st.cols
     segs, report = [], []
-    for r in range(2, ws.max_row + 1):
+    for r, row in st.rows():
+        g = lambda r_, name: row.get(name, "")  # noqa: E731
         sid = g(r, "رقم")
         if not sid:
             continue
@@ -144,17 +143,19 @@ def main(path):
             not_for=[x.strip() for x in g(r, "أسئلة قريبة لا يجيب عنها").split("|") if x.strip()]
             if "أسئلة قريبة لا يجيب عنها" in hdr else [],
             detail=detail, note=g(r, "تنبيه المراجع") if "تنبيه المراجع" in hdr else ""))
+        # حقول المنهجية (البنية المنهجية فقط): يقرؤها المحرك للتسجيل والبوابات، ولا تُعرض للمستخدم
+        meth = {k: g(r, k) for k in METH if k in hdr and g(r, k) not in ("", "—")}
+        if meth:
+            segs[-1]["method"] = meth
         report.append({"id": sid, "published": True, "verses": verses + q_verses})
     # القوالب: المعتمد من «القوالب»، والمسودات من «للمراجعة» (تُعرض في وضع التطوير فقط)
     tpl = {}
-    ws = wb["للمراجعة"]
-    for r in range(2, ws.max_row + 1):
-        if cell(ws, r, 1) == "قالب" and cell(ws, r, 2):
-            tpl[cell(ws, r, 2)] = dict(when=cell(ws, r, 3), text=cell(ws, r, 11), status="مسودة")
-    ws = wb["القوالب"]
-    for r in range(2, ws.max_row + 1):
-        if cell(ws, r, 1):
-            tpl[cell(ws, r, 1)] = dict(when=cell(ws, r, 2), text=cell(ws, r, 3), status="معتمد")
+    for _, d in Table(wb, "للمراجعة").rows():
+        if d["النوع"] == "قالب" and d["الرقم"]:
+            tpl[d["الرقم"]] = dict(when=d["الحاجة أو متى يُستخدم"], text=d["النص"], status="مسودة")
+    for _, d in Table(wb, "القوالب").rows():
+        if d["الرمز"]:
+            tpl[d["الرمز"]] = dict(when=d["متى يُستخدم"], text=d["النص الذي يراه المستخدم"], status="معتمد")
     out = ROOT / "data"
     meta = {"library_version": date.today().isoformat(), "segments": len(segs),
             "source_file": Path(path).name}

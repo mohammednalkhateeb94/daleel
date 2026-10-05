@@ -11,30 +11,28 @@ from pathlib import Path
 import openpyxl
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+from register_io import Table  # noqa: E402
 
 
-def rows(ws):
-    names = [ws.cell(1, c).value for c in range(1, ws.max_column + 1)]
-    for r in range(2, ws.max_row + 1):
-        d = {n: ws.cell(r, i + 1).value for i, n in enumerate(names) if n}
-        if any(v not in (None, "") for v in d.values()):
-            yield d
+def rows(wb, name):
+    return [d for _, d in Table(wb, name).rows()]
 
 
 def main(path):
     wb = openpyxl.load_workbook(path, data_only=False)
     report = [x for x in __import__("json").loads((ROOT / "data" / "export_report.json").read_text("utf-8"))]
     published = {x["id"] for x in report if x["published"]}
-    needs = [(d["الرمز"], d["الحاجة"]) for d in rows(wb["الاحتياجات"]) if d.get("الرمز")]
+    needs = [(d["الرمز"], d["الحاجة"]) for d in rows(wb, "الاحتياجات") if d.get("الرمز")]
     plan = {n: {"pub": [], "pub_extra": [], "review": [], "missing": []} for n, _ in needs}
-    for d in rows(wb["المقاطع"]):
+    for d in rows(wb, "المقاطع"):
         n, core = d.get("الحاجة"), d.get("الأولوية") == "أساسي"
         if n in plan and d.get("رقم"):
             plan[n]["pub" if core and d["رقم"] in published else "pub_extra" if d["رقم"] in published else "review"].append(d["رقم"])
-    for d in rows(wb["للمراجعة"]):
+    for d in rows(wb, "للمراجعة"):
         if d.get("النوع") == "مقطع" and d.get("الحاجة أو متى يُستخدم") in plan and d.get("الأولوية") == "أساسي":
             plan[d["الحاجة أو متى يُستخدم"]]["review"].append(d["الرقم"])
-    for d in rows(wb["الناقص"]):
+    for d in rows(wb, "الناقص"):
         if d.get("الحاجة") in plan and d.get("الأولوية") == "أساسي":
             plan[d["الحاجة"]]["missing"].append(d["رقم"])
     out = ["# جدول التغطية", "",
