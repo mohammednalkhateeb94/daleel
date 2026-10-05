@@ -85,7 +85,7 @@ async def eval_run(req: Request):
     if time.time() - _EVAL["started"] < 600:
         return JSONResponse({"status": "cooldown", "seconds_left": int(600 - (time.time() - _EVAL["started"]))})
     name = req.query_params.get("set", "dev")
-    if name not in ("dev", "heldout"):
+    if name not in ("dev", "heldout", "register"):
         return JSONResponse({"error": "bad set"}, status_code=400)
     runs = max(1, min(3, int(req.query_params.get("runs", "1"))))
     systems = tuple(x for x in req.query_params.get("systems", "daleel,bm25,general").split(",") if x in ("daleel", "bm25", "general"))

@@ -39,10 +39,10 @@ def needs_menu():
     return out
 
 
-def render_segment(s: dict, focus_idx=None) -> dict:
+def render_segment(s: dict, focus_idx=None, verdict=None) -> dict:
     lib = library()
     return {
-        "units": s["units"], "focus": focus_idx,
+        "units": s["units"], "focus": focus_idx, "relation": "partial" if verdict == "partial" else "answers",
         "id": s["id"], "need": s["need"], "need_title": lib["need_by_id"][s["need"]]["title"],
         "about": T("و-04", يجيب_عن=s["about"]) or s["about"],
         "about_note": T("و-05"),
@@ -154,12 +154,20 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
                 "options": [{"id": o, "title": nb[o]["title"]} for o in dec["options"]]}
     else:
         segs = [library()["by_id"][i] for i in dec["segments"]]
-        picks = {}
+        picks, verdicts = {}, {}
         if source == "llm" and use_llm:
-            picks, fmeta = focus.select(question, segs)
+            picks, verdicts, fmeta = focus.select(question, segs)
             meta.update(fmeta)
             meta["cost_usd"] = round(meta.get("cost_usd", 0) + fmeta.get("focus_cost_usd", 0), 6)
-        resp = {"type": "answer", "need": segs[0]["need"], "segments": [render_segment(s, picks.get(s["id"])) for s in segs],
+            meta["verdicts"] = verdicts
+            segs = [s for s in segs if verdicts.get(s["id"]) != "none"]
+    if d == "answer" and not segs:
+        # الفحص بعد الاختيار: نص المقطع لا يجيب عن السؤال → امتناع بدل عرض مقطع قريب الموضوع
+        resp = {"type": "abstain", "reason": "not_covered", "gate": "verify",
+                "message": T("و-12" if exclude else "ام-07"), "template": "و-12" if exclude else "ام-07"}
+    elif d == "answer":
+        segs.sort(key=lambda s: verdicts.get(s["id"]) == "partial")  # ما يجيب مباشرة أولاً
+        resp = {"type": "answer", "need": segs[0]["need"], "segments": [render_segment(s, picks.get(s["id"]), verdicts.get(s["id"])) for s in segs],
                 "ask_feedback": T("و-02"), "fit": dec.get("fit")}
     if dec.get("outage"):
         resp["notice"] = T("ام-10")
@@ -169,7 +177,7 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
     resp["needs"] = needs_menu()
     resp["disclosure"] = T("و-01")
     _log({"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"), "id": did, "source": source,
-          "type": resp["type"], "reason": resp.get("reason"), "need": resp.get("need"),
+          "type": resp["type"], "reason": resp.get("reason"), "gate": resp.get("gate") or dec.get("gate"), "need": resp.get("need"),
           "segments": [s["id"] for s in resp.get("segments", [])], "followup": bool(exclude),
           "focused": [s["id"] for s in resp.get("segments", []) if s.get("focus")],
           "q_chars": len(question or ""), "ms": int((time.time() - t0) * 1000), **meta,

@@ -48,7 +48,7 @@ def main():
     for s in library()["segments"]:
         assert "".join(s["units"]) == s["text"], s["id"]
     assert split_units("قال: ﴿إِنَّا نَحْنُ. نَزَّلْنَا﴾ وهذا نص طويل بما يكفي ليكون جملة كاملة. وهذه جملة ثانية طويلة بما يكفي أيضاً للاختبار.")[0].count("﴿") == 1
-    sel, _ = focus.select("سؤال", [library()["by_id"]["ق-11"]])  # بلا مفتاح: يعرض كاملاً
+    sel, _, _ = focus.select("سؤال", [library()["by_id"]["ق-11"]])  # بلا مفتاح: يعرض كاملاً
     assert sel == {"ق-11": None}
     # رابط التفسير عند الامتناع
     assert find_ref("ما تفسير آية الكرسي؟") == (2, 255) and find_ref("ما معنى الآية 5 من سورة الفاتحة") == (1, 5)
@@ -73,6 +73,25 @@ def main():
     assert all(menu_segments(o) for o in g.get("options", [])), g
     g = engine._gate({"decision": "clarify", "options": ["ح1", "ح2"]})  # كلاهما غير مغطّى: تُعرض المغطّاة
     assert g["decision"] == "clarify" and len(g["options"]) >= 2 and all(menu_segments(o) for o in g["options"]), g
+    # الفحص بعد الاختيار: «لا يجيب» يُسقط المقطع، و«جزئياً» يُعرض بعنوان «متعلق»
+    from app import router
+    orig_d, orig_s = router.decide, focus.select
+    try:
+        router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح3", "segment_ids": ["ق-11", "ق-12"], "fit": "high", "_meta": {}}
+        focus.select = lambda q, segs: ({}, {"ق-11": "none", "ق-12": "none"}, {})
+        r = engine.ask("سؤال تجريبي عن الجمع")
+        assert r["type"] == "abstain" and r.get("gate") == "verify", r
+        focus.select = lambda q, segs: ({}, {"ق-11": "partial", "ق-12": "answers"}, {})
+        r = engine.ask("سؤال تجريبي عن الجمع")
+        assert [x["id"] for x in r["segments"]] == ["ق-12", "ق-11"] and r["segments"][1]["relation"] == "partial", r
+        focus.select = lambda q, segs: ({}, {}, {"focus_error": "Timeout"})  # تعطل الفحص: يبقى اختيار الموجِّه
+        assert engine.ask("سؤال تجريبي عن الجمع")["type"] == "answer"
+    finally:
+        router.decide, focus.select = orig_d, orig_s
+    # مجموعة السجل: لكل مقطع منشور حالات وصول، وحالات تجنّب لما له «أسئلة قريبة»
+    from app.evaluation import register_cases
+    rc = register_cases()
+    assert {c["target"] for c in rc if c["type"] == "reach"} == set(library()["by_id"])
     print("\nكل الاختبارات نجحت" if not fails else f"\nفشل {fails}")
     return fails
 

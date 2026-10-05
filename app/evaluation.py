@@ -24,7 +24,23 @@ EVAL = Path(__file__).resolve().parent.parent / "eval"
 
 
 def load_cases(name="dev"):
+    if name == "register":
+        return register_cases()
     return [json.loads(l) for l in (EVAL / f"cases_{name}.jsonl").read_text("utf-8").splitlines() if l.strip()]
+
+
+def register_cases():
+    """حالات تُبنى من السجل نفسه، فكل مقطع يُضاف يأتي معه اختباره:
+    - reach: كل «صياغة مستخدم» للمقطع يجب أن تصل إليه (أول مقطعين معروضين).
+    - avoid: كل «سؤال قريب لا يجيب عنه» يجب ألا يُعرض فيه المقطع.
+    هذه حالات انحدار (الصياغات يراها الموجِّه)، لا قياس دقة؛ القياس الصادق في dev وheldout."""
+    out = []
+    for s in library()["segments"]:
+        for i, q in enumerate(s.get("phrasings", [])):
+            out.append({"id": f"{s['id']}/r{i+1}", "type": "reach", "question": q, "expect": "reach", "target": s["id"]})
+        for i, q in enumerate(s.get("not_for", [])):
+            out.append({"id": f"{s['id']}/a{i+1}", "type": "avoid", "question": q, "expect": "avoid", "target": s["id"]})
+    return out
 
 
 # ---------- الأنظمة ----------
@@ -38,13 +54,13 @@ def run_daleel(case):
         r = engine.ask(case["followup"], {"previous_question": case["question"], "shown": shown})
         cost += r.get("cost_usd", 0)
     segs = r.get("segments", [])
-    focus = [{"id": s["id"], "units": s.get("focus"),
+    focus = [{"id": s["id"], "units": s.get("focus"), "relation": s.get("relation"),
               "share": round(sum(len(s["units"][i]) for i in s["focus"]) / max(1, len(s["text"])), 2) if s.get("focus") else 1.0,
               "excerpt": " … ".join(s["units"][i].strip() for i in s["focus"])[:400] if s.get("focus") else None}
              for s in segs]
     out = {"type": r["type"], "segments": [s["id"] for s in segs], "reason": r.get("reason"), "focus": focus,
            "ref": (r.get("verse") or {}).get("ref"), "ms": int((time.time() - t0) * 1000),
-           "source": r.get("source"), "shown1": shown1 if case.get("followup") else []}
+           "source": r.get("source"), "gate": r.get("gate"), "shown1": shown1 if case.get("followup") else []}
     return out, cost
 
 
@@ -139,6 +155,11 @@ SYSTEMS = {"daleel": run_daleel, "bm25": run_bm25, "general": run_general}
 
 # ---------- الحكم ----------
 def judge(case, r):
+    if case["expect"] in ("reach", "avoid"):
+        hit = case["target"] in (r["segments"] or [])[:2]
+        ok = hit if case["expect"] == "reach" else not hit
+        return {"ok": ok, "unsafe": False, "inappropriate": case["expect"] == "avoid" and hit, "uncited": False,
+                "over_abstain": case["expect"] == "reach" and r["type"] == "abstain", "reason_ok": True}
     pub = set(library()["by_id"])
     # في المتابعة لا يُقبل مقطع عُرض في الجولة الأولى
     avail = [s for s in case.get("accept", []) if s in pub and s not in r.get("shown1", [])]
@@ -171,7 +192,8 @@ def _focus_stats(per_case):
     if not fs:
         return {}
     cut = [f for f in fs if f["units"]]
-    return {"segments_shown": len(fs), "focused": len(cut),
+    return {"segments_shown": len(fs), "focused": len(cut), "partial": sum(f.get("relation") == "partial" for f in fs),
+            "abstained_after_check": sum(c.get("gate") == "verify" for c in per_case),
             "avg_share_when_focused": round(sum(f["share"] for f in cut) / len(cut), 2) if cut else None}
 
 
@@ -208,7 +230,7 @@ def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=
             j = judge(case, results[0])
             stable = len({(x["type"], (x["segments"] or [None])[0]) for x in results}) == 1
             per_case.append({"id": case["id"], "type": case["type"], "q": case["question"], "expect": case["expect"],
-                             "got": results[0]["type"], "segs": results[0]["segments"][:2], "focus": results[0].get("focus"), "shown1": results[0].get("shown1", []), "reason": results[0].get("reason"),
+                             "got": results[0]["type"], "segs": results[0]["segments"][:2], "focus": results[0].get("focus"), "gate": results[0].get("gate"), "shown1": results[0].get("shown1", []), "reason": results[0].get("reason"),
                              "stable": stable, **j, **({"text": results[0].get("text")} if sysname == "general" else {})})
         n = len(per_case)
         k = sum(c["ok"] for c in per_case)

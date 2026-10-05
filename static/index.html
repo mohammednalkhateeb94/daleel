@@ -242,7 +242,7 @@ function render(r, label){
     r.segments.forEach((s, k) => {
       if(!S.shown.includes(s.id)) S.shown.push(s.id);
       h += `<article class="panel card">
-        <p class="kicker">يجيب هذا المقطع عن</p>
+        <p class="kicker">${s.relation === "partial" ? "مقطع متعلق بسؤالك، ويتناول" : "يجيب هذا المقطع عن"}</p>
         <p class="about">${esc((s.about||"").replace(ABOUT,""))}</p>
         ${s.about_note && k === 0?`<p class="note">${esc(s.about_note)}</p>`:""}
         ${s.src_line?`<details><summary>${esc(s.src_line)}</summary><p>${fmt(s.src_question)}</p></details>`:""}

@@ -1,6 +1,8 @@
-"""التركيز: يختار النموذج أرقام الجمل التي تجيب عن السؤال من المقطع المعتمد، ولا يكتب نصاً.
+"""الفحص والتركيز بعد اختيار المقطع، في استدعاء واحد. النموذج لا يكتب نصاً:
 
-يُعرض المختار حرفياً، وبقية النص متاحة بزر «أريد التفصيل». عند أي خطأ يُعرض المقطع كاملاً.
+1. الحكم: هل نص المقطع يجيب عن السؤال نفسه؟ يجيب / متعلق جزئياً / لا يجيب. «لا يجيب» يُسقط المقطع.
+2. التركيز: أرقام الجمل التي تجيب، فيُعرض المختار حرفياً وبقية النص بزر «أريد التفصيل».
+عند أي خطأ يبقى المقطع كما اختاره الموجِّه ويُعرض كاملاً.
 """
 import os
 import re
@@ -14,25 +16,32 @@ from .units import is_cut_marker
 MAX_SHARE = 0.75  # إن غطّى المختار أكثر من هذا من النص يُعرض كاملاً
 
 TOOL = {
-    "name": "select_units",
-    "description": "اختر أرقام الجمل التي تجيب عن سؤال المستخدم من كل مقطع.",
+    "name": "check_and_select",
+    "description": "احكم على كل مقطع هل يجيب عن سؤال المستخدم، واختر أرقام الجمل التي تجيب.",
     "input_schema": {
         "type": "object",
         "properties": {
             "segments": {"type": "array", "items": {"type": "object", "properties": {
                 "id": {"type": "string"},
+                "verdict": {"type": "string", "enum": ["answers", "partial", "none"]},
                 "whole": {"type": "boolean", "description": "true إن كان السؤال يحتاج المقطع كله"},
                 "units": {"type": "array", "items": {"type": "integer"}, "maxItems": 4},
-            }, "required": ["id", "whole", "units"]}},
+            }, "required": ["id", "verdict", "whole", "units"]}},
         },
         "required": ["segments"],
     },
 }
 
 SYSTEM = """أنت جزء من «دليل»، أداة تعرض على المبتدئ نصاً معتمداً يجيب عن سؤاله عن القرآن.
-لا تكتب أي نص. اختر فقط أرقام الجمل من كل مقطع.
+لا تكتب أي نص. احكم على كل مقطع، واختر أرقام الجمل منه.
 
-القواعد:
+الحكم (verdict) بقراءة نص المقطع نفسه، لا موضوعه العام:
+- answers: في النص جواب السؤال نفسه مباشرة.
+- partial: النص يجيب عن جزء من السؤال، أو عن سؤال قريب جداً يفيد السائل فعلاً.
+- none: موضوعه قريب لكنه لا يجيب. مثال: السؤال عن «متى» شيء والنص عن «كيف» شيء آخر، أو السؤال عن تعريف والنص عن دليل.
+الصيغة المشككة أو العدائية تُعامل كسؤال حقيقي: احكم على ما يجيب عنه النص من مضمونها.
+
+اختيار الجمل (للمقطع الذي حكمه answers أو partial):
 1. اختر أقل عدد من الجمل يجيب عن السؤال نفسه إجابة كاملة مفهومة وحدها (غالباً 1–3).
 2. إن كانت الجملة المختارة لا تُفهم دون جملة قبلها (مثل عنوان قائمة، أو «ومنها»، أو ضمير يعود على ما قبله) فاختر تلك الجملة معها.
 3. لا تختر قولاً أو اعتراضاً دون الجملة التي فيها الجواب أو الترجيح.
@@ -60,15 +69,16 @@ def _numbered(seg):
 
 
 def select(question: str, segs: list[dict], timeout: float = 8.0):
-    """يعيد ({id: [أرقام] أو None}, meta). None = اعرض المقطع كاملاً."""
+    """يعيد ({id: [أرقام] أو None}, {id: الحكم}, meta). None = اعرض المقطع كاملاً. لا حكم = لم يُفحص."""
     out = {s["id"]: None for s in segs}
-    cand = [s for s in segs if len(s.get("units", [])) >= 3 and not s.get("no_cut")]
+    verdicts = {}
+    cand = list(segs)
     key = os.getenv("ANTHROPIC_API_KEY")
     if not cand or not key or not question.strip():
-        return out, {}
+        return out, verdicts, {}
     docs = "\n\n".join(f"<مقطع id=\"{s['id']}\">\n{_numbered(s)}\n</مقطع>" for s in cand)
-    body = {"model": MODEL, "max_tokens": 200, "temperature": 0, "system": SYSTEM,
-            "tools": [TOOL], "tool_choice": {"type": "tool", "name": "select_units"},
+    body = {"model": MODEL, "max_tokens": 300, "temperature": 0, "system": SYSTEM,
+            "tools": [TOOL], "tool_choice": {"type": "tool", "name": "check_and_select"},
             "messages": [{"role": "user", "content": f"سؤال المستخدم:\n{question}\n\n{docs}"}]}
     t0 = time.time()
     try:
@@ -77,12 +87,16 @@ def select(question: str, segs: list[dict], timeout: float = 8.0):
         r.raise_for_status()
         data = r.json()
     except Exception as e:  # noqa: BLE001
-        return out, {"focus_error": type(e).__name__}
+        return out, verdicts, {"focus_error": type(e).__name__}
     picked = next((b["input"] for b in data["content"] if b["type"] == "tool_use"), {})
     by_id = {s["id"]: s for s in cand}
     for p in picked.get("segments", []):
         s = by_id.get(p.get("id"))
-        if not s or p.get("whole"):
+        if not s:
+            continue
+        if p.get("verdict") in ("answers", "partial", "none"):
+            verdicts[s["id"]] = p["verdict"]
+        if p.get("whole") or p.get("verdict") == "none" or len(s["units"]) < 3 or s.get("no_cut"):
             continue
         idx = sorted({i for i in p.get("units", []) if isinstance(i, int) and 0 <= i < len(s["units"])
                       and not is_cut_marker(s["units"][i])})
@@ -96,4 +110,4 @@ def select(question: str, segs: list[dict], timeout: float = 8.0):
             out[s["id"]] = idx
     u = data.get("usage", {})
     cost = u.get("input_tokens", 0) * PRICE_IN / 1e6 + u.get("output_tokens", 0) * PRICE_OUT / 1e6
-    return out, {"focus_ms": int((time.time() - t0) * 1000), "focus_cost_usd": round(cost, 6)}
+    return out, verdicts, {"focus_ms": int((time.time() - t0) * 1000), "focus_cost_usd": round(cost, 6)}
