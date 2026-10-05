@@ -140,6 +140,17 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin
   .field{flex-direction:column;align-items:stretch}.primary{width:100%}
   blockquote{font-size:16.5px;padding:14px}.top .pill{display:none}
 }
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+details.more-info{background:transparent;border:0;padding:0;margin:8px 0 0;font-size:13px}
+details.more-info summary{color:var(--muted);font-weight:500}
+details.more-info p{margin:6px 0 0;color:var(--muted)}
+details.prev{margin:0 0 12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 14px}
+details.prev summary{color:var(--muted)}
+details.soon{margin-top:12px;background:transparent;border:0;padding:0}
+details.soon summary{color:var(--muted);font-size:14px}
+details.soon ul{margin:8px 0 0;padding:0 18px;color:var(--dim);font-size:14px}
+.next{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.disclosure.top{margin:0 2px 12px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -156,6 +167,7 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin
     <p>اسأل بكلماتك، ويختار لك «دليل» نصاً موثوقاً يجيب عن سؤالك، مع مصدره وموضعه.</p>
   </section>
 
+  <p class="disclosure top" id="disclosure"></p>
   <form id="askForm" class="panel" autocomplete="off">
     <label for="q">اكتب سؤالك عن القرآن</label>
     <div class="field">
@@ -167,14 +179,15 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin
       <button type="button" class="tag" data-q="من رتّب سور القرآن؟">من رتّب سور القرآن؟</button>
       <button type="button" class="tag" data-q="هل القرآن من تأليف محمد ﷺ؟">هل القرآن من تأليف محمد ﷺ؟</button>
     </div>
-    <div class="meta"><span id="privacy"></span><span id="count">0 / 300</span></div>
+    <div class="meta"><span id="privacy"></span><span id="count">0 من 300</span></div>
   </form>
-  <p class="disclosure" id="disclosure"></p>
 
-  <section id="result" aria-live="polite" tabindex="-1"></section>
+  <p id="status" class="sr-only" aria-live="polite"></p>
+  <section id="result" tabindex="-1" aria-label="النتيجة"></section>
 
   <div class="sec"><h3>أو اختر سؤالك</h3></div>
   <nav class="grid" id="menu" aria-label="الأسئلة المتاحة"></nav>
+  <div id="soon"></div>
 
   <section class="how">
     <div class="panel accent">
@@ -200,19 +213,22 @@ const fmt = s => esc(s).replace(/﴿([^﴾]+)﴾/g, '<span class="ayah">﴿$1﴾
 const ABOUT = /^\s*يجيب هذا المقطع عن\s*:\s*/;
 
 async function post(url, body){
-  const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-  if(!r.ok) throw new Error(r.status);
-  return r.json();
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 25000);
+  try {
+    const r = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),signal:ctl.signal});
+    if(!r.ok) throw new Error(r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
 }
 function bind(root){
   root.querySelectorAll("[data-need]").forEach(b => b.onclick = () => pickNeed(b.dataset.need, b.dataset.keep === "1"));
 }
 function menu(needs){
   S.needs = needs;
-  const list = needs.filter(n => n.available).concat(needs.filter(n => !n.available));
-  $("menu").innerHTML = list.map((n,i) => n.available
-    ? `<button class="need" data-need="${n.id}"><span class="n">${i+1}</span><span class="s">${esc(n.section)}</span><span class="t">${esc(n.title)}</span></button>`
-    : `<button class="need off" disabled aria-disabled="true"><span class="n">${i+1}</span><span class="s">${esc(n.section)} · قيد المراجعة</span><span class="t">${esc(n.title)}</span></button>`).join("");
+  const on = needs.filter(n => n.available), off = needs.filter(n => !n.available);
+  $("menu").innerHTML = on.map((n,i) =>
+    `<button class="need" data-need="${n.id}"><span class="n">${i+1}</span><span class="s">${esc(n.section)}</span><span class="t">${esc(n.title)}</span></button>`).join("");
+  $("soon").innerHTML = off.length ? `<details class="soon"><summary>قريباً (${off.length}): أسئلة نصوصها قيد المراجعة</summary><ul>${off.map(n => `<li>${esc(n.title)}</li>`).join("")}</ul></details>` : "";
   bind($("menu"));
 }
 function loading(){ $("result").innerHTML = '<div class="panel spinner">جارٍ البحث في المكتبة…</div>'; }
@@ -230,12 +246,13 @@ function quote(s){
   if(f[0] > 0) ex = cut + "\n" + ex;
   if(f[f.length-1] < u.length - 1) ex += "\n" + cut;
   const full = u.map((x, i) => f.includes(i) ? x.replace(/^(\s*)([\s\S]*?)(\s*)$/, (m,a,b,c) => `${a}<mark>${fmt(b)}</mark>${c}`) : fmt(x)).join("");
-  return `<div class="qhead"><small>الجزء المتعلق بسؤالك من النص المعتمد</small><button type="button" class="more" data-more>أريد التفصيل</button></div>
-    <blockquote data-ex>${ex}</blockquote><blockquote data-full hidden>${full}</blockquote>`;
+  return `<div class="qhead"><small>الجزء المتعلق بسؤالك من النص المعتمد</small><button type="button" class="more" data-more aria-expanded="false" aria-controls="full-${s.id}">أريد التفصيل</button></div>
+    <blockquote data-ex>${ex}</blockquote><blockquote data-full id="full-${s.id}" hidden>${full}</blockquote>`;
 }
 function render(r, label){
   S.lastId = r.decision_id;
   let h = label ? `<p class="asked">${label}</p>` : "";
+  if(S.prevHTML){ h += `<details class="prev"><summary>المقطع الذي عُرض قبلُ</summary>${S.prevHTML}</details>`; S.prevHTML = ""; }
   h += r.notice ? `<div class="notice">${esc(r.notice)}</div>` : "";
   if(r.type === "answer"){
     S.lastNeed = r.need;
@@ -244,12 +261,9 @@ function render(r, label){
       h += `<article class="panel card">
         <p class="kicker">${s.relation === "partial" ? "مقطع متعلق بسؤالك، ويتناول" : "يجيب هذا المقطع عن"}</p>
         <p class="about">${esc((s.about||"").replace(ABOUT,""))}</p>
-        ${s.about_note && k === 0?`<p class="note">${esc(s.about_note)}</p>`:""}
-        ${s.src_line?`<details><summary>${esc(s.src_line)}</summary><p>${fmt(s.src_question)}</p></details>`:""}
         ${quote(s)}
-        <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · ${esc(s.location)}<br>
-          <a class="link" href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً ↖</a>
-          ${s.footer && k === r.segments.length - 1?`<small>${esc(s.footer)}</small>`:""}</p>
+        <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · <a class="link" href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً ↖</a></p>
+        <details class="more-info"><summary>عن هذا المقطع</summary><p>الموضع: ${esc(s.location)}</p>${s.about_note?`<p>${esc(s.about_note)}</p>`:""}${s.footer?`<p>${esc(s.footer)}</p>`:""}</details>
       </article>`;
     });
     h += `<div class="panel msg"><p>${esc((r.ask_feedback||"").replace(/\s*\[.*$/,""))}</p><div class="fb">
@@ -259,14 +273,21 @@ function render(r, label){
   } else if(r.type === "verse"){
     h += `<div class="panel msg"><p>${esc(r.message)}</p><div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}] · ${esc(r.source_note)}</p>${tafsirBtn(r.tafsir)}</div>`;
   } else {
-    h += `<div class="panel msg limit"><p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}${tafsirBtn(r.tafsir)}</div>`;
+    h += `<div class="panel msg limit"><p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}${tafsirBtn(r.tafsir)}
+      <div class="next"><button type="button" class="ghost" data-go="ask">اكتب سؤالاً آخر</button><button type="button" class="ghost" data-go="menu">الأسئلة المتاحة</button></div></div>`;
   }
   $("result").innerHTML = h;
+  $("status").textContent = {answer:"عُرض نص يتعلق بسؤالك", clarify:"نحتاج توضيحاً لسؤالك", verse:"عُرض نص الآية", abstain:"لا يوجد نص يجيب عن سؤالك", invalid:"لم نتمكن من قراءة السؤال"}[r.type] || "";
   bind($("result"));
+  $("result").querySelectorAll("[data-go]").forEach(b => b.onclick = () => {
+    if(b.dataset.go === "ask"){ $("q").focus(); $("q").scrollIntoView({behavior:"smooth", block:"center"}); }
+    else $("menu").scrollIntoView({behavior:"smooth", block:"start"});
+  });
   $("result").querySelectorAll("button[data-fb]").forEach(b => b.onclick = () => feedback(b.dataset.fb));
   $("result").querySelectorAll("button[data-more]").forEach(b => b.onclick = () => {
     const card = b.closest("article"), ex = card.querySelector("[data-ex]"), full = card.querySelector("[data-full]");
     const open = full.hidden; full.hidden = !open; ex.hidden = open;
+    b.setAttribute("aria-expanded", open ? "true" : "false");
     b.textContent = open ? "اعرض المختصر" : "أريد التفصيل";
     b.previousElementSibling.textContent = open ? "النص المعتمد كاملاً، والمظلَّل هو المتعلق بسؤالك" : "الجزء المتعلق بسؤالك من النص المعتمد";
   });
@@ -274,8 +295,10 @@ function render(r, label){
   focusResult();
 }
 let seq = 0, retry = null;
-function fail(){
-  $("result").innerHTML = '<div class="panel msg limit"><p>تعذّر الوصول إلى الخادم الآن. قد يستغرق أول فتح للموقع نصف دقيقة.</p><div class="fb"><button class="ghost" id="retry">أعد المحاولة</button></div></div>';
+function fail(e){
+  const msg = String(e && e.message) === "429" ? "أرسلت أسئلة كثيرة في وقت قصير. انتظر دقيقة ثم أعد المحاولة." : "تعذّر الوصول إلى الخادم الآن. قد يستغرق أول فتح للموقع نصف دقيقة.";
+  $("result").innerHTML = `<div class="panel msg limit"><p>${msg}</p><div class="fb"><button class="ghost" id="retry">أعد المحاولة</button></div></div>`;
+  $("status").textContent = msg;
   $("retry").onclick = () => retry && retry();
 }
 async function run(url, body, label){
@@ -283,7 +306,7 @@ async function run(url, body, label){
   retry = () => run(url, body, label);
   loading();
   try { const r = await post(url, body); if(my === seq) render(r, label); }
-  catch(e){ if(my === seq) fail(); }
+  catch(e){ if(my === seq) fail(e); }
 }
 function ask(text, followup){
   const body = {question:text};
@@ -298,7 +321,13 @@ function pickNeed(id, keepShown){
 }
 async function feedback(v){
   document.querySelectorAll("button[data-fb]").forEach(b => b.disabled = true);
-  let r; try { r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed}); } catch(e){ return; }
+  let r; try { r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed}); }
+  catch(e){
+    document.querySelectorAll("button[data-fb]").forEach(b => b.disabled = false);
+    $("fbOut").innerHTML = '<p style="margin-top:10px">لم يُرسَل ردّك. أعد المحاولة.</p>';
+    return;
+  }
+  if(v === "partial") S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join("");
   let h = "";
   if(v === "partial"){
     h = `<form id="remForm"><label for="rem">${esc(r.message)}</label><div class="field"><textarea id="rem" maxlength="300" rows="2"></textarea><button class="primary" type="submit">أرسل</button></div></form>`;
@@ -311,10 +340,10 @@ async function feedback(v){
   const f = $("remForm");
   if(f){ $("rem").focus(); f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true); }; }
 }
-$("q").addEventListener("input", e => $("count").textContent = `${e.target.value.length} / 300`);
+$("q").addEventListener("input", e => $("count").textContent = `${e.target.value.length} من 300`);
 $("q").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); $("askForm").requestSubmit(); } });
 $("askForm").onsubmit = e => { e.preventDefault(); const t = $("q").value.trim(); if(t) ask(t, false); };
-document.querySelectorAll("[data-q]").forEach(b => b.onclick = () => { $("q").value = b.dataset.q; $("count").textContent = `${b.dataset.q.length} / 300`; ask(b.dataset.q, false); });
+document.querySelectorAll("[data-q]").forEach(b => b.onclick = () => { $("q").value = b.dataset.q; $("count").textContent = `${b.dataset.q.length} من 300`; ask(b.dataset.q, false); });
 fetch("/api/start").then(r => r.json()).then(d => {
   $("disclosure").textContent = d.disclosure; $("privacy").textContent = d.privacy;
   $("libv").textContent = `المكتبة: ${d.library.segments} مقطعاً معتمداً · ${d.library.library_version}`;

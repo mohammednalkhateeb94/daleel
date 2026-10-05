@@ -1,7 +1,12 @@
 """خادم «دليل»: صفحة واحدة + أربع نقاط API. لا حسابات ولا قاعدة بيانات."""
+import hmac
+import os
+import time
+from collections import defaultdict, deque
 from pathlib import Path
 
 from starlette.applications import Starlette
+from starlette.concurrency import run_in_threadpool
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse
 from starlette.routing import Mount, Route
@@ -13,6 +18,49 @@ from .library import library
 STATIC = Path(__file__).resolve().parent.parent / "static"
 MAX_Q = 300
 
+# حد بسيط لعدد الأسئلة من العنوان نفسه (في الذاكرة؛ يكفي خادماً واحداً)
+RATE_PER_MIN = int(os.getenv("DALEEL_RATE_PER_MIN", "12"))
+RATE_PER_DAY = int(os.getenv("DALEEL_RATE_PER_DAY", "300"))
+_hits: dict[str, deque] = defaultdict(deque)
+
+
+def _client(req: Request) -> str:
+    fwd = req.headers.get("x-forwarded-for", "")
+    return (fwd.split(",")[0].strip() if fwd else "") or (req.client.host if req.client else "?")
+
+
+def _limited(req: Request) -> bool:
+    now, q = time.time(), _hits[_client(req)]
+    while q and now - q[0] > 86400:
+        q.popleft()
+    if len(q) >= RATE_PER_DAY or sum(1 for t in q if now - t < 60) >= RATE_PER_MIN:
+        return True
+    q.append(now)
+    return False
+
+
+def _admin(req: Request) -> bool:
+    """نقاط التشغيل التي تكلّف مالاً لا تعمل إلا بمفتاح الإدارة (DALEEL_ADMIN_KEY في إعدادات الخادم)."""
+    key = os.getenv("DALEEL_ADMIN_KEY", "")
+    given = req.headers.get("x-admin-key") or req.query_params.get("key") or ""
+    return bool(key) and hmac.compare_digest(key.encode(), given.encode())
+
+
+def _forbidden():
+    return JSONResponse({"error": "forbidden"}, status_code=403)
+
+
+async def _body(req: Request) -> dict | None:
+    try:
+        b = await req.json()
+    except Exception:  # noqa: BLE001
+        return None
+    return b if isinstance(b, dict) else None
+
+
+def _bad():
+    return JSONResponse({"error": "bad request"}, status_code=400)
+
 
 async def index(_: Request):
     return FileResponse(STATIC / "index.html")
@@ -23,34 +71,45 @@ async def api_start(_: Request):
 
 
 async def api_ask(req: Request):
-    body = await req.json()
+    body = await _body(req)
+    if body is None:
+        return _bad()
+    if _limited(req):
+        return JSONResponse({"error": "rate_limited"}, status_code=429)
     q = str(body.get("question", ""))[:MAX_Q]
-    ctx = body.get("context") or {}
-    ctx = {"previous_question": str(ctx.get("previous_question", ""))[:MAX_Q],
-           "shown": [str(x) for x in ctx.get("shown", [])][:10]}
-    return JSONResponse(engine.ask(q, ctx if ctx["previous_question"] else None))
+    ctx = body.get("context") if isinstance(body.get("context"), dict) else {}
+    shown = ctx.get("shown") if isinstance(ctx.get("shown"), list) else []
+    ctx = {"previous_question": str(ctx.get("previous_question", ""))[:MAX_Q], "shown": [str(x) for x in shown][:10]}
+    # استدعاء النموذج متزامن: يُشغَّل في خيط منفصل حتى لا يتوقف الخادم لبقية الزوار
+    return JSONResponse(await run_in_threadpool(engine.ask, q, ctx if ctx["previous_question"] else None))
 
 
 async def api_need(req: Request):
-    body = await req.json()
-    return JSONResponse(engine.by_need(str(body.get("need", "")), tuple(body.get("shown", []))[:10]))
+    body = await _body(req)
+    if body is None:
+        return _bad()
+    shown = body.get("shown") if isinstance(body.get("shown"), list) else []
+    return JSONResponse(engine.by_need(str(body.get("need", "")), tuple(str(x) for x in shown)[:10]))
 
 
 async def api_feedback(req: Request):
-    body = await req.json()
+    body = await _body(req)
+    if body is None:
+        return _bad()
     v = body.get("value")
     if v not in ("yes", "partial", "no"):
         return JSONResponse({"error": "bad value"}, status_code=400)
     return JSONResponse(engine.feedback(str(body.get("decision_id", ""))[:20], v, body.get("need")))
 
 
-async def selftest(_: Request):
-    """فحص سريع لاتصال النموذج دون كشف أي سر: سؤال ثابت واحد."""
-    import time
+async def selftest(req: Request):
+    """فحص سريع لاتصال النموذج دون كشف أي سر: سؤال ثابت واحد. يتطلب مفتاح الإدارة."""
+    if not _admin(req):
+        return _forbidden()
     from . import router
     t0 = time.time()
     try:
-        out = router.decide("هل القرآن من تأليف محمد؟")
+        out = await run_in_threadpool(router.decide, "هل القرآن من تأليف محمد؟")
         meta = out.pop("_meta", {})
         return JSONResponse({"llm_ok": True, "decision": out, "meta": meta})
     except Exception as e:  # noqa: BLE001
@@ -77,9 +136,10 @@ def _eval_worker(name, runs, systems):
 
 
 async def eval_run(req: Request):
-    """يشغّل التقييم في الخلفية على الخادم (مرة كل 10 دقائق على الأكثر لضبط الكلفة)."""
+    """يشغّل التقييم في الخلفية على الخادم. يتطلب مفتاح الإدارة، ومرة كل 10 دقائق على الأكثر."""
     import threading
-    import time
+    if not _admin(req):
+        return _forbidden()
     if _EVAL["running"]:
         return JSONResponse({"status": "running", "progress": _EVAL["progress"]})
     if time.time() - _EVAL["started"] < 600:
@@ -87,7 +147,10 @@ async def eval_run(req: Request):
     name = req.query_params.get("set", "dev")
     if name not in ("dev", "heldout", "register"):
         return JSONResponse({"error": "bad set"}, status_code=400)
-    runs = max(1, min(3, int(req.query_params.get("runs", "1"))))
+    try:
+        runs = max(1, min(3, int(req.query_params.get("runs", "1"))))
+    except ValueError:
+        return _bad()
     systems = tuple(x for x in req.query_params.get("systems", "daleel,bm25,general").split(",") if x in ("daleel", "bm25", "general"))
     _EVAL.update(running=True, started=time.time(), progress="", error=None)
     threading.Thread(target=_eval_worker, args=(name, runs, systems), daemon=True).start()

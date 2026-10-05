@@ -11,14 +11,10 @@ import json
 import math
 import re
 import time
-from collections import Counter
-from functools import lru_cache
 from pathlib import Path
 
-from . import engine, fallback, router
+from . import engine, router
 from .library import library
-from .normalize import tokens
-from .precheck import precheck
 
 EVAL = Path(__file__).resolve().parent.parent / "eval"
 
@@ -64,51 +60,14 @@ def run_daleel(case):
     return out, cost
 
 
-@lru_cache(maxsize=1)
-def _bm25_index():
-    lib = library()
-    docs = []
-    for s in lib["segments"]:
-        n = lib["need_by_id"][s["need"]]
-        txt = " ".join([s["about"], s["src_title"], s["src_question"], s.get("gist", ""), n["title"],
-                        " ".join(s["similar"]), " ".join(s["phrasings"]), s["text"]])
-        docs.append((s["id"], s["need"], tokens(txt)))
-    df = Counter(w for _, _, d in docs for w in set(d))
-    avg = sum(len(d) for _, _, d in docs) / max(1, len(docs))
-    return docs, df, avg
-
-
-def _bm25_decide(q, exclude=(), threshold=4.0, margin=0.1, k1=1.5, b=0.75):
-    docs, df, avg = _bm25_index()
-    qt, N = tokens(q), len(docs)
-    scored = []
-    for sid, need, d in docs:
-        if sid in exclude:
-            continue
-        tf, sc = Counter(d), 0.0
-        for w in qt:
-            if w in tf:
-                idf = math.log(1 + (N - df[w] + 0.5) / (df[w] + 0.5))
-                sc += idf * tf[w] * (k1 + 1) / (tf[w] + k1 * (1 - b + b * len(d) / avg))
-        scored.append((sc, sid, need))
-    scored.sort(reverse=True)
-    if not scored or scored[0][0] < threshold:
-        return {"type": "abstain", "segments": [], "reason": "not_covered"}
-    if len(scored) > 1 and scored[1][2] != scored[0][2] and scored[1][0] >= scored[0][0] * (1 - margin):
-        return {"type": "clarify", "segments": [], "reason": None}
-    return {"type": "answer", "segments": [scored[0][1]], "reason": None}
-
-
 def run_bm25(case):
+    """خط الأساس = مسار البديل في المنتج نفسه (فحص بالقواعد + BM25 + البوابة)، لا تطبيق منفصل."""
     t0 = time.time()
 
     def one(q, exclude=()):
-        pre = precheck(q)
-        if pre:
-            if pre["decision"] == "verse":
-                return {"type": "verse", "segments": [], "reason": None, "ref": pre["verse"]["ref"]}
-            return {"type": "abstain" if pre["decision"] != "invalid" else "invalid", "segments": [], "reason": pre.get("reason")}
-        return _bm25_decide(q, exclude)
+        r = engine.ask(q, {"previous_question": case["question"], "shown": list(exclude)} if exclude else None, use_llm=False)
+        return {"type": r["type"], "segments": [s["id"] for s in r.get("segments", [])], "reason": r.get("reason"),
+                "ref": (r.get("verse") or {}).get("ref")}
 
     r = one(case["question"])
     shown1 = list(r["segments"])
@@ -208,6 +167,7 @@ def wilson(k, n, z=1.96):
 
 
 def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=None):
+    engine.EVAL_CTX.on = True  # سجل التقييم يُوسم فلا يختلط بأسئلة الناس (في خيط التقييم وحده)
     cases = load_cases(name)
     out = {"set": name, "n": len(cases), "library": library()["meta"], "runs": runs,
            "started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "systems": {}}

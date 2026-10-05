@@ -1,5 +1,6 @@
 """منطق «دليل»: فحص مسبق ← موجِّه (أو بديل BM25) ← بوابة قواعد ← استجابة مبنية من السجل والقوالب فقط."""
 import json
+import threading
 import re
 import os
 import time
@@ -25,7 +26,12 @@ QWORDS = re.compile(r"\b(متي|كيف|لماذا|ليش|ليه|هل|من|كم|�
 CLARIFY_PAIRS = {frozenset({"ح1", "ح7"}): "ست-01", frozenset({"ح2", "ح7"}): "ست-02", frozenset({"ح3", "ح7"}): "ست-03"}
 
 
+EVAL_CTX = threading.local()  # يُضبط في خيط التقييم فقط
+
+
 def _log(rec: dict):
+    if getattr(EVAL_CTX, "on", False):
+        rec["source_kind"] = "eval"  # يُميَّز ما يولّده التقييم عن استخدام الناس
     try:
         LOG.parent.mkdir(parents=True, exist_ok=True)
         with LOG.open("a", encoding="utf-8") as f:
@@ -175,6 +181,9 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
         picks, verdicts = {}, {}
         if source == "llm" and use_llm:
             picks, verdicts, fmeta = focus.select(question, segs)
+            if fmeta.get("focus_error") or not verdicts:
+                # لم يُفحص نص المقطع (تعطل أو مهلة): لا نقدّمه جواباً مؤكداً
+                verdicts = {sg["id"]: "partial" for sg in segs}
             meta.update(fmeta)
             meta["cost_usd"] = round(meta.get("cost_usd", 0) + fmeta.get("focus_cost_usd", 0), 6)
             meta["verdicts"] = verdicts
@@ -187,11 +196,13 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
         resp = {"type": "abstain", "reason": "not_covered", "gate": "verify",
                 "message": T("و-12" if exclude else "ام-07"), "template": "و-12" if exclude else "ام-07"}
     elif d == "answer":
+        if source == "bm25":
+            verdicts = {sg["id"]: "partial" for sg in segs}  # بديل الكلمات بلا فحص للنص
         segs.sort(key=lambda s: verdicts.get(s["id"]) == "partial")  # ما يجيب مباشرة أولاً
         resp = {"type": "answer", "need": segs[0]["need"], "segments": [render_segment(s, picks.get(s["id"]), verdicts.get(s["id"])) for s in segs],
                 "ask_feedback": T("و-02"), "fit": dec.get("fit")}
     if dec.get("outage"):
-        resp["notice"] = T("ام-10")
+        resp["notice"] = T("ام-13") if resp["type"] == "answer" else T("ام-10")
     resp["decision_id"] = did
     resp["cost_usd"] = meta.get("cost_usd", 0)
     resp["source"] = source

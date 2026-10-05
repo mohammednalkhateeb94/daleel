@@ -41,7 +41,9 @@ def bm25(question: str, exclude=(), k1=1.5, b=0.75):
     return sorted(scored, reverse=True)
 
 
-def decide(question: str, exclude=(), threshold=2.5, margin=0.15):
+def decide(question: str, exclude=(), threshold=4.0, margin=0.15):
+    """العتبة 4.0 هي نفسها في المنتج وفي خط الأساس (كانت 2.5 هنا و4.0 في التقييم: نفس الدقة 26/37،
+    والمقطع غير المناسب 1 بدل 5 عند 4.0)."""
     ranked = bm25(question, exclude)
     if not ranked or ranked[0][0] < threshold:
         return {"decision": "abstain", "reason": "not_covered", "source": "bm25"}

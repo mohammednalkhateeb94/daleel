@@ -13,6 +13,9 @@ HADITH = _rx(r"(اعطني|هات|اذكر|ارسل|اريد|ابي|ابغى|ع�
 QIRAAT = _rx(r"\bالقراءات\b", r"\bالاحرف السبعه", r"\bقراءه (ورش|حفص|قالون)", r"\bالقراءات العشر", r"\bرواية (ورش|حفص)", r"\bروايه (ورش|حفص)")
 SCI = _rx(r"اعجاز علمي", r"الاعجاز العلمي", r"العلم الحديث", r"\bعلميا\b", r"اكتشاف(ات)? علميه")
 TAFSIR = _rx(r"\bتفسير (ايه|اية|قوله|سوره)", r"\bما معني (ايه|قوله)", r"\bفسر لي", r"\bاشرح (لي )?(ايه|قوله|سوره)", r"\bمعني قوله تعالي")
+# أسئلة لا علاقة لها بالدين (للمسار بلا نموذج؛ الموجِّه يلتقط غيرها)
+UNRELATED = _rx(r"\bاطبخ", r"\bطبخ", r"\bوصفه\b", r"\bكبسه\b", r"\bمباراه\b", r"كاس العالم", r"\bالدوري\b",
+                r"\bالطقس\b", r"\bسعر\b", r"\bبرمجه\b", r"\bعاصمه\b", r"\bفيلم\b", r"\bمسلسل\b")
 OFF_TOPIC = _rx(r"صلاه", r"\bاصلي\b", r"\bنصلي\b", r"صيام", r"\bاصوم\b", r"\bرمضان\b", r"زكاه", r"\bالحج\b", r"\bالعمره\b", r"وضوء", r"\bاتوضا\b",
                 r"\bالسيره\b", r"\bالطلاق\b", r"\bالميراث\b", r"\bالحجاب\b", r"\bالزواج\b")
 
@@ -46,6 +49,8 @@ def precheck(question: str):
         return {"decision": "abstain", "reason": "qiraat"}
     if SCI.search(n):
         return {"decision": "abstain", "reason": "scientific"}
+    if UNRELATED.search(n) and "قران" not in n:
+        return {"decision": "abstain", "reason": "unrelated"}
     if OFF_TOPIC.search(n) and "قران" not in n:
         return {"decision": "abstain", "reason": "off_topic"}
     return None

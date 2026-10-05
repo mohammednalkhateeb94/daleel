@@ -117,6 +117,37 @@ def main():
     from app.evaluation import register_cases
     rc = register_cases()
     assert {c["target"] for c in rc if c["type"] == "reach"} == set(library()["by_id"])
+    # الخادم: نقاط الكلفة محمية، والمدخلات الخاطئة 400، وحد الطلبات 429
+    import os
+    from starlette.testclient import TestClient
+    from app import server
+    os.environ.pop("DALEEL_ADMIN_KEY", None)
+    c = TestClient(server.app)
+    assert c.get("/api/eval/run").status_code == 403 and c.get("/api/selftest").status_code == 403
+    os.environ["DALEEL_ADMIN_KEY"] = "k-test"
+    assert c.get("/api/eval/run?key=wrong").status_code == 403
+    os.environ.pop("DALEEL_ADMIN_KEY")
+    assert c.post("/api/ask", content="not json").status_code == 400
+    assert c.post("/api/ask", json={"question": "ما", "context": "x"}).status_code == 200
+    server._hits.clear()
+    codes = [c.post("/api/ask", json={"question": "كيف جمع القرآن"}).status_code for _ in range(server.RATE_PER_MIN + 1)]
+    assert codes[-1] == 429 and codes[0] == 200, codes
+    server._hits.clear()
+    # سؤال غير ديني يُلتقط دون نموذج
+    assert engine.ask("كيف أطبخ الكبسة؟", use_llm=False)["reason"] == "unrelated"
+    # بديل الكلمات بلا فحص للنص: يُعرض «متعلقاً» لا جواباً
+    r = engine.ask("كيف حفظ الصحابة القرآن في صدورهم", use_llm=False)
+    assert r["type"] != "answer" or all(sg["relation"] == "partial" for sg in r["segments"]), r
+    # تعطل الفحص بعد اختيار الموجِّه: «متعلق» لا جواب
+    router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح3", "segment_ids": ["ق-12"], "fit": "high", "_meta": {}}
+    focus.select = lambda q, segs: ({}, {}, {"focus_error": "Timeout"})
+    try:
+        r = engine.ask("سؤال تجريبي")
+        assert r["segments"][0]["relation"] == "partial", r
+    finally:
+        router.decide, focus.select = orig_d, orig_s
+    # المقاطع الحجاجية تُعرض كاملة
+    assert all(library()["by_id"][i].get("no_cut") for i in ("ق-23", "ق-24", "ق-32"))
     print("\nكل الاختبارات نجحت" if not fails else f"\nفشل {fails}")
     return fails
 
