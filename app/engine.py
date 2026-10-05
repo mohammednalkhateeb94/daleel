@@ -1,5 +1,6 @@
 """منطق «دليل»: فحص مسبق ← موجِّه (أو بديل BM25) ← بوابة قواعد ← استجابة مبنية من السجل والقوالب فقط."""
 import json
+import re
 import os
 import time
 import uuid
@@ -19,6 +20,8 @@ REASON_TEMPLATE = {
     "verse_not_found": "ام-06", "verse_check": "ام-06", "not_covered": "ام-07", "non_arabic": "ام-08",
     "tafsir": "ام-09", "off_topic": "ام-01", "unrelated": "ام-12", "level_c": "ام-07", "outage": "ام-10",
 }
+# أدوات السؤال المحدد: «متى نزل القرآن؟» سؤال محدد، و«أخبرني عن القرآن» سؤال واسع
+QWORDS = re.compile(r"\b(متي|كيف|لماذا|ليش|ليه|هل|من|كم|اين|وين|ماذا|ما|ايش|شو|وش|اي)\b")
 CLARIFY_PAIRS = {frozenset({"ح1", "ح7"}): "ست-01", frozenset({"ح2", "ح7"}): "ست-02", frozenset({"ح3", "ح7"}): "ست-03"}
 
 
@@ -83,8 +86,8 @@ def _gate(dec: dict, exclude=()):
     if dec.get("decision") == "clarify":
         asked = [o for o in dec.get("options", []) if o in library()["need_by_id"]]
         opts = [o for o in asked if menu_segments(o, exclude)]
-        if len(opts) < 2 and (len(asked) >= 3 or dec.get("q_words", 99) <= 3):
-            # سؤال واسع («أخبرني عن القرآن»، أو كلمة أو كلمتان) وخياراته غير مغطّاة بعد: نعرض الحاجات المغطّاة بدلاً من الامتناع.
+        if len(opts) < 2 and (len(asked) >= 3 or dec.get("broad")):
+            # سؤال واسع بلا أداة سؤال («أخبرني عن القرآن»، «القرآن») وخياراته غير مغطّاة بعد: نعرض الحاجات المغطّاة بدلاً من الامتناع.
             # السؤال المحدد («متى نزل القرآن؟») لا يُعرض عليه خيارات لا علاقة لها به.
             opts += [n["id"] for n in library()["needs"] if n["id"] not in opts and menu_segments(n["id"], exclude)]
         if len(opts) < 2:
@@ -126,7 +129,7 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
             dec = fallback.decide(question, exclude)
             if use_llm and meta.get("error"):
                 dec["outage"] = True
-        dec["q_words"] = len(norm(question).split())
+        dec["broad"] = not QWORDS.search(norm(question))
         dec = _gate(dec, exclude)
 
     d = dec["decision"]
