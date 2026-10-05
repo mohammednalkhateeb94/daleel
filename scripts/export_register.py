@@ -84,7 +84,9 @@ def main(path):
     for _, d in Table(wb, "الاحتياجات").rows():
         if d["الرمز"]:
             needs.append(dict(id=d["الرمز"], section=d["القسم"], title=d["الحاجة"],
-                              phrasings=[p.strip(" «»") for p in d["صياغات المستخدم"].split("·") if p.strip()],
+                              # «[فجوة]»: حاجة حقيقية غير مغطاة؛ تبقى في التصنيف ولا تُصدَّر للموجّه أمثلةً للحاجة
+                              phrasings=[p.strip(" «»") for p in d["صياغات المستخدم"].split("·")
+                                         if p.strip() and "[فجوة]" not in p],
                               out_of_scope=d["خارج النطاق (امتناع وإحالة)"],
                               next=[x.strip() for x in d["الخطوة التالية"].replace("·", " ").split() if x.strip().startswith("ح")],
                               entry=re.findall(r"ق-\d+", d.get("مقطع الزر", ""))))
