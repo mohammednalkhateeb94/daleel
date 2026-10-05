@@ -22,8 +22,22 @@ CASES = [
 ]
 
 
+
+def test_focus_card_3a():
+    """3A: فحص الملاءمة يرى بطاقة المراجع (ANSWERS / EVIDENCE_LIMITS / DOES_NOT_ANSWER / المطابقة السلبية)."""
+    from app import focus
+    from app.library import library
+    s = library()["by_id"]["ق-08"]
+    card = focus._card(s)
+    assert s["about"] in card and s["method"]["EVIDENCE_LIMITS"] in card and s["method"]["DOES_NOT_ANSWER"] in card
+    assert all(q in card for q in s["not_for"])
+    assert "حدود الدليل" in focus.SYSTEM and "ليس سبباً لجعله partial" in focus.SYSTEM
+    print("✓ 3A: بطاقة المراجع في فحص الملاءمة")
+
+
 def main():
     fails = 0
+    test_focus_card_3a()
     for q, t, reason in CASES:
         r = engine.ask(q, use_llm=False)
         ok = r["type"] == t and (reason is None or r.get("reason") == reason)
@@ -243,3 +257,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
