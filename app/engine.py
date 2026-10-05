@@ -63,6 +63,7 @@ def render_segment(s: dict, focus_idx=None, verdict=None) -> dict:
         "src_question": s["src_question"], "text": s["text"],
         "source": s["source"], "location": s["location"], "link": s.get("link") or s["source"]["url"], "reviewer": s["reviewer"],
         "footer": T("و-15"), "note": s.get("note", ""),
+        "partial_note": T("و-16") if verdict == "partial" else "",
     }
 
 
