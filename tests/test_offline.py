@@ -209,6 +209,20 @@ def main():
     assert "الحالة الثانية" in "".join(lib["ق-08"]["units"][i] for i in lib["ق-08"]["base"])
     assert engine.render_segment(lib["ق-16"])["note"].startswith("الراجح") and engine.render_segment(lib["ق-01"])["note"] == ""
     assert "حرمة ترجمة القرآن ترجمة حرفية" in lib["ق-20"]["text"]
+    # الدفعة 2: ست-07، ست-08، ومنع عرض الآية وحدها عند «كيف أجد»
+    c7 = engine.ask("متى نزل القرآن؟", use_llm=False)
+    assert c7["type"] == "clarify" and c7["template"] == "ست-07" and len(c7["options"]) == 3, c7
+    assert engine.ask(c7["options"][0]["q"], use_llm=False)["segments"][0]["id"] == "ق-09"
+    assert all(engine.ask(o["q"], use_llm=False)["template"] == "ام-07" for o in c7["options"][1:])
+    assert engine.ask("في أي شهر نزل القرآن؟", use_llm=False)["type"] == "answer"
+    c8 = engine.ask("أقدر أقرأ القرآن بالإنجليزي؟", use_llm=False)
+    assert c8["type"] == "clarify" and c8["template"] == "ست-08", c8
+    assert [engine.ask(o["q"], use_llm=False).get("template") or engine.ask(o["q"], use_llm=False)["segments"][0]["id"] for o in c8["options"]] == ["ق-20", "ق-20", "ام-02"]
+    assert engine.ask("أنا لا أعرف العربية، هل أستطيع أن أصلي بترجمة القرآن بالإنجليزية؟", use_llm=False)["type"] != "clarify"
+    f41 = engine.ask("كيف أجد البقرة 255 في المصحف؟", use_llm=False)
+    assert f41["type"] == "abstain" and f41["method"]["decision"] == "NOT_COVERED", f41
+    assert engine.ask("البقرة 255", use_llm=False)["type"] == "verse"
+    assert engine.ask("قال تعالى «إنا نحن أنزلنا الذكر وإنا له لحافظين»", use_llm=False)["type"] == "verse"
     # المقيِّم الموحّد: التطبيع القانوني والحكم المنفصل على القرار والاختيار
     from app import evaluation as ev
     assert ev.canonical({"type": "abstain", "reason": "tafsir"}) == "NOT_COVERED" and ev.canonical({"type": "abstain", "reason": "fatwa"}) == "REFER"
