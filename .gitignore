@@ -4,3 +4,4 @@ __pycache__/
 logs/
 eval/results/*.tmp
 .venv/
+out/
