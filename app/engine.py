@@ -82,6 +82,9 @@ def _gate(dec: dict, exclude=()):
     if dec.get("decision") == "clarify":
         opts = [o for o in dec.get("options", []) if o in library()["need_by_id"] and menu_segments(o, exclude)]
         if len(opts) < 2:
+            # سؤال واسع وخياراته غير مغطّاة بعد: نعرض الحاجات المغطّاة بدلاً من الامتناع
+            opts += [n["id"] for n in library()["needs"] if n["id"] not in opts and menu_segments(n["id"], exclude)]
+        if len(opts) < 2:
             return {"decision": "abstain", "reason": "not_covered", "gate": "blocked"}
         dec["options"] = opts[:3]
     return dec

@@ -71,6 +71,8 @@ def main():
     # الاستيضاح لا يعرض حاجة بلا مقطع
     g = engine._gate({"decision": "clarify", "options": ["ح1", "ح3", "ح7"]})
     assert all(menu_segments(o) for o in g.get("options", [])), g
+    g = engine._gate({"decision": "clarify", "options": ["ح1", "ح2"]})  # كلاهما غير مغطّى: تُعرض المغطّاة
+    assert g["decision"] == "clarify" and len(g["options"]) >= 2 and all(menu_segments(o) for o in g["options"]), g
     print("\nكل الاختبارات نجحت" if not fails else f"\nفشل {fails}")
     return fails
 
