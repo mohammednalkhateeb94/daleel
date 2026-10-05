@@ -3,6 +3,7 @@
 يُعرض المختار حرفياً، وبقية النص متاحة بزر «أريد التفصيل». عند أي خطأ يُعرض المقطع كاملاً.
 """
 import os
+import re
 import time
 
 import httpx
@@ -39,6 +40,21 @@ SYSTEM = """أنت جزء من «دليل»، أداة تعرض على المب�
 """
 
 
+LIST_ITEM = re.compile(r"^\s*(\d+|[أ-ي])\s*[)\-–.]")
+
+
+def _with_headers(units, idx):
+    """يضيف رأس القائمة أو الجملة المنتهية بنقطتين التي تُفهم الجملة المختارة بها (مثل «منها:» قبل بنود مرقّمة)."""
+    out = set(idx)
+    for i in idx:
+        j = i - 1
+        while j >= 0 and LIST_ITEM.match(units[j]) and not units[j].rstrip().endswith(":"):
+            j -= 1
+        if j >= 0 and units[j].rstrip().endswith(":") and (j == i - 1 or LIST_ITEM.match(units[i])):
+            out.add(j)
+    return sorted(out)
+
+
 def _numbered(seg):
     return "\n".join(f"[{i}] {u.strip()}" for i, u in enumerate(seg["units"]) if not is_cut_marker(u))
 
@@ -72,6 +88,9 @@ def select(question: str, segs: list[dict], timeout: float = 8.0):
                       and not is_cut_marker(s["units"][i])})
         if not idx:
             continue
+        idx = _with_headers(s["units"], idx)
+        if len(s["units"]) - len(idx) <= 1:
+            continue  # لم يبق إلا جملة واحدة: يُعرض كاملاً
         share = sum(len(s["units"][i]) for i in idx) / max(1, len(s["text"]))
         if share <= MAX_SHARE:
             out[s["id"]] = idx
