@@ -71,8 +71,10 @@ def main():
     # الاستيضاح لا يعرض حاجة بلا مقطع
     g = engine._gate({"decision": "clarify", "options": ["ح1", "ح3", "ح7"]})
     assert all(menu_segments(o) for o in g.get("options", [])), g
-    g = engine._gate({"decision": "clarify", "options": ["ح1", "ح2"]})  # كلاهما غير مغطّى: تُعرض المغطّاة
+    g = engine._gate({"decision": "clarify", "options": ["ح1", "ح2", "ح5"]})  # سؤال واسع وخياراته غير مغطّاة: تُعرض المغطّاة
     assert g["decision"] == "clarify" and len(g["options"]) >= 2 and all(menu_segments(o) for o in g["options"]), g
+    g = engine._gate({"decision": "clarify", "options": ["ح2", "ح3"]})  # سؤال محدد: لا خيارات بديلة
+    assert g["decision"] == "abstain", g
     # الفحص بعد الاختيار: «لا يجيب» يُسقط المقطع، و«جزئياً» يُعرض بعنوان «متعلق»
     from app import router
     orig_d, orig_s = router.decide, focus.select

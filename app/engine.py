@@ -80,9 +80,11 @@ def _gate(dec: dict, exclude=()):
             return {"decision": "abstain", "reason": "not_covered", "gate": "need_mismatch"}
         dec["segments"] = ids[:2]
     if dec.get("decision") == "clarify":
-        opts = [o for o in dec.get("options", []) if o in library()["need_by_id"] and menu_segments(o, exclude)]
-        if len(opts) < 2:
-            # سؤال واسع وخياراته غير مغطّاة بعد: نعرض الحاجات المغطّاة بدلاً من الامتناع
+        asked = [o for o in dec.get("options", []) if o in library()["need_by_id"]]
+        opts = [o for o in asked if menu_segments(o, exclude)]
+        if len(opts) < 2 and len(asked) >= 3:
+            # سؤال واسع («أخبرني عن القرآن») وخياراته غير مغطّاة بعد: نعرض الحاجات المغطّاة بدلاً من الامتناع.
+            # السؤال المحدد («متى نزل القرآن؟») لا يُعرض عليه خيارات لا علاقة لها به.
             opts += [n["id"] for n in library()["needs"] if n["id"] not in opts and menu_segments(n["id"], exclude)]
         if len(opts) < 2:
             return {"decision": "abstain", "reason": "not_covered", "gate": "blocked"}
