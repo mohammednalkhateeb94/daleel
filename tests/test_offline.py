@@ -54,6 +54,23 @@ def main():
     assert find_ref("ما تفسير آية الكرسي؟") == (2, 255) and find_ref("ما معنى الآية 5 من سورة الفاتحة") == (1, 5)
     t = engine.ask("فسر لي سورة الفاتحة", use_llm=False)
     assert t["reason"] == "tafsir" and "quran.com/ar/1:1/tafsirs" in t["tafsir"]["url"], t
+    # أزرار الحاجات: لا يجيب الزر إلا بمقطع أساسي أو محدد له، والحاجة بلا مقطع أساسي لا تظهر متاحة
+    from app.library import menu_segments
+    for n in engine.needs_menu():
+        r = engine.by_need(n["id"])
+        if n["available"]:
+            sid = r["segments"][0]["id"]
+            seg = library()["by_id"][sid]
+            assert seg["priority"] == "أساسي" or sid in library()["need_by_id"][n["id"]].get("entry", []), (n["id"], sid)
+        else:
+            assert r["type"] == "abstain", (n["id"], r)
+    assert not any(s["priority"] != "أساسي" for n in library()["needs"] for s in menu_segments(n["id"]) if not n.get("entry"))
+    # بوابة الحاجة: مقطع من حاجة أخرى بملاءمة غير عالية → امتناع
+    assert engine._gate({"decision": "answer", "need": "ح1", "segments": ["ق-23"], "fit": "medium"})["decision"] == "abstain"
+    assert engine._gate({"decision": "answer", "need": "ح7", "segments": ["ق-23"], "fit": "medium"})["decision"] == "answer"
+    # الاستيضاح لا يعرض حاجة بلا مقطع
+    g = engine._gate({"decision": "clarify", "options": ["ح1", "ح3", "ح7"]})
+    assert all(menu_segments(o) for o in g.get("options", [])), g
     print("\nكل الاختبارات نجحت" if not fails else f"\nفشل {fails}")
     return fails
 

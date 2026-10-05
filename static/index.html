@@ -20,7 +20,7 @@
   --bg:#07111b; --bg2:#0b1826;
   --panel:rgba(255,255,255,.035); --panel2:rgba(255,255,255,.06);
   --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
-  --text:#eef3f6; --muted:#97a6b4; --dim:#6b7a88;
+  --text:#eef3f6; --muted:#97a6b4; --dim:#8595a4;
   --mint:#5ee0b5; --mint2:#2fbf93; --mintBg:rgba(94,224,181,.10);
   --gold:#e8c46a; --goldBg:rgba(232,196,106,.08);
   --ayah:#9df0d2;
@@ -121,6 +121,8 @@ mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px
 .sec h3{margin:0;font-size:20px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .need{text-align:right;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--text);display:flex;flex-direction:column;gap:6px;min-height:118px;transition:border-color .15s,transform .15s}
+.need.off{opacity:.5;cursor:default}.need.off:hover{transform:none;border-color:var(--line)}
+.asked{font-size:13.5px;color:var(--muted);margin:0 2px 10px}.asked b{color:var(--text);font-weight:600}
 .need:hover{border-color:rgba(94,224,181,.5);transform:translateY(-2px)}
 .need .n{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--mint);background:var(--mintBg);border:1px solid rgba(94,224,181,.25)}
 .need .s{font-size:12px;color:var(--dim)}
@@ -157,12 +159,12 @@ footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin
   <form id="askForm" class="panel" autocomplete="off">
     <label for="q">اكتب سؤالك عن القرآن</label>
     <div class="field">
-      <textarea id="q" maxlength="300" rows="2" placeholder="مثال: كيف حُفظ القرآن؟"></textarea>
+      <textarea id="q" maxlength="300" rows="2" placeholder="مثال: كيف جُمع القرآن؟"></textarea>
       <button class="primary" type="submit">اسأل</button>
     </div>
     <div class="examples" aria-label="أمثلة">
-      <button type="button" class="tag" data-q="ما هو القرآن؟">ما هو القرآن؟</button>
-      <button type="button" class="tag" data-q="كيف حُفظ القرآن؟">كيف حُفظ القرآن؟</button>
+      <button type="button" class="tag" data-q="كيف جُمع القرآن؟">كيف جُمع القرآن؟</button>
+      <button type="button" class="tag" data-q="من رتّب سور القرآن؟">من رتّب سور القرآن؟</button>
       <button type="button" class="tag" data-q="هل القرآن من تأليف محمد ﷺ؟">هل القرآن من تأليف محمد ﷺ؟</button>
     </div>
     <div class="meta"><span id="privacy"></span><span id="count">0 / 300</span></div>
@@ -206,9 +208,11 @@ function bind(root){
   root.querySelectorAll("[data-need]").forEach(b => b.onclick = () => pickNeed(b.dataset.need, b.dataset.keep === "1"));
 }
 function menu(needs){
-  const list = needs.filter(n => n.available);
-  $("menu").innerHTML = list.map((n,i) =>
-    `<button class="need" data-need="${n.id}"><span class="n">${i+1}</span><span class="s">${esc(n.section)}</span><span class="t">${esc(n.title)}</span></button>`).join("");
+  S.needs = needs;
+  const list = needs.filter(n => n.available).concat(needs.filter(n => !n.available));
+  $("menu").innerHTML = list.map((n,i) => n.available
+    ? `<button class="need" data-need="${n.id}"><span class="n">${i+1}</span><span class="s">${esc(n.section)}</span><span class="t">${esc(n.title)}</span></button>`
+    : `<button class="need off" disabled aria-disabled="true"><span class="n">${i+1}</span><span class="s">${esc(n.section)} · قيد المراجعة</span><span class="t">${esc(n.title)}</span></button>`).join("");
   bind($("menu"));
 }
 function loading(){ $("result").innerHTML = '<div class="panel spinner">جارٍ البحث في المكتبة…</div>'; }
@@ -226,25 +230,26 @@ function quote(s){
   if(f[0] > 0) ex = cut + "\n" + ex;
   if(f[f.length-1] < u.length - 1) ex += "\n" + cut;
   const full = u.map((x, i) => f.includes(i) ? x.replace(/^(\s*)([\s\S]*?)(\s*)$/, (m,a,b,c) => `${a}<mark>${fmt(b)}</mark>${c}`) : fmt(x)).join("");
-  return `<div class="qhead"><small>الجزء الذي يجيب عن سؤالك من النص المعتمد</small><button type="button" class="more" data-more>أريد التفصيل</button></div>
+  return `<div class="qhead"><small>الجزء المتعلق بسؤالك من النص المعتمد</small><button type="button" class="more" data-more>أريد التفصيل</button></div>
     <blockquote data-ex>${ex}</blockquote><blockquote data-full hidden>${full}</blockquote>`;
 }
-function render(r){
+function render(r, label){
   S.lastId = r.decision_id;
-  let h = r.notice ? `<div class="notice">${esc(r.notice)}</div>` : "";
+  let h = label ? `<p class="asked">${label}</p>` : "";
+  h += r.notice ? `<div class="notice">${esc(r.notice)}</div>` : "";
   if(r.type === "answer"){
     S.lastNeed = r.need;
-    r.segments.forEach(s => {
+    r.segments.forEach((s, k) => {
       if(!S.shown.includes(s.id)) S.shown.push(s.id);
       h += `<article class="panel card">
         <p class="kicker">يجيب هذا المقطع عن</p>
         <p class="about">${esc((s.about||"").replace(ABOUT,""))}</p>
-        ${s.about_note?`<p class="note">${esc(s.about_note)}</p>`:""}
+        ${s.about_note && k === 0?`<p class="note">${esc(s.about_note)}</p>`:""}
         ${s.src_line?`<details><summary>${esc(s.src_line)}</summary><p>${fmt(s.src_question)}</p></details>`:""}
         ${quote(s)}
         <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · ${esc(s.location)}<br>
           <a class="link" href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً ↖</a>
-          ${s.footer?`<small>${esc(s.footer)}</small>`:""}</p>
+          ${s.footer && k === r.segments.length - 1?`<small>${esc(s.footer)}</small>`:""}</p>
       </article>`;
     });
     h += `<div class="panel msg"><p>${esc((r.ask_feedback||"").replace(/\s*\[.*$/,""))}</p><div class="fb">
@@ -263,23 +268,33 @@ function render(r){
     const card = b.closest("article"), ex = card.querySelector("[data-ex]"), full = card.querySelector("[data-full]");
     const open = full.hidden; full.hidden = !open; ex.hidden = open;
     b.textContent = open ? "اعرض المختصر" : "أريد التفصيل";
-    b.previousElementSibling.textContent = open ? "النص المعتمد كاملاً، والمظلَّل هو ما يجيب عن سؤالك" : "الجزء الذي يجيب عن سؤالك من النص المعتمد";
+    b.previousElementSibling.textContent = open ? "النص المعتمد كاملاً، والمظلَّل هو المتعلق بسؤالك" : "الجزء المتعلق بسؤالك من النص المعتمد";
   });
   if(r.needs) menu(r.needs);
   focusResult();
 }
-function fail(){ $("result").innerHTML = '<div class="panel msg limit"><p>تعذّر الاتصال الآن. اختر سؤالك من القائمة أدناه.</p></div>'; }
-async function ask(text, followup){
-  loading();
-  const body = {question:text};
-  if(followup) body.context = {previous_question:S.lastQuestion, shown:S.shown};
-  else { S.shown = []; S.lastQuestion = text; }
-  try { render(await post("/api/ask", body)); } catch(e){ fail(); }
+let seq = 0, retry = null;
+function fail(){
+  $("result").innerHTML = '<div class="panel msg limit"><p>تعذّر الوصول إلى الخادم الآن. قد يستغرق أول فتح للموقع نصف دقيقة.</p><div class="fb"><button class="ghost" id="retry">أعد المحاولة</button></div></div>';
+  $("retry").onclick = () => retry && retry();
 }
-async function pickNeed(id, keepShown){
-  if(!keepShown) S.shown = [];
+async function run(url, body, label){
+  const my = ++seq;                 // تُهمل أي استجابة وصلت بعد طلب أحدث منها
+  retry = () => run(url, body, label);
   loading();
-  try { render(await post("/api/need", {need:id, shown:S.shown})); } catch(e){ fail(); }
+  try { const r = await post(url, body); if(my === seq) render(r, label); }
+  catch(e){ if(my === seq) fail(); }
+}
+function ask(text, followup){
+  const body = {question:text};
+  if(followup) body.context = {previous_question:S.lastQuestion, shown:[...S.shown]};
+  else { S.shown = []; S.lastQuestion = text; }
+  run("/api/ask", body, `${followup ? "ما بقي من سؤالك" : "سؤالك"}: <b>${esc(text)}</b>`);
+}
+function pickNeed(id, keepShown){
+  if(!keepShown) S.shown = [];
+  const n = (S.needs || []).find(x => x.id === id);
+  run("/api/need", {need:id, shown:[...S.shown]}, n ? `اخترت: <b>${esc(n.title)}</b>` : "");
 }
 async function feedback(v){
   document.querySelectorAll("button[data-fb]").forEach(b => b.disabled = true);

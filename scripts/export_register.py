@@ -78,12 +78,14 @@ def main(path):
     # الاحتياجات
     needs = []
     ws = wb["الاحتياجات"]
+    hdr_n = {cell(ws, 1, c): c for c in range(1, ws.max_column + 1)}
     for r in range(2, ws.max_row + 1):
         if cell(ws, r, 1):
             needs.append(dict(id=cell(ws, r, 1), section=cell(ws, r, 2), title=cell(ws, r, 3),
                               phrasings=[p.strip(" «»") for p in cell(ws, r, 4).split("·") if p.strip()],
                               out_of_scope=cell(ws, r, 5),
-                              next=[x.strip() for x in cell(ws, r, 6).replace("·", " ").split() if x.strip().startswith("ح")]))
+                              next=[x.strip() for x in cell(ws, r, 6).replace("·", " ").split() if x.strip().startswith("ح")],
+                              entry=[x for x in re.findall(r"ق-\d+", cell(ws, r, hdr_n["مقطع الزر"]))] if "مقطع الزر" in hdr_n else []))
     # المقاطع
     ws = wb["المقاطع"]
     hdr = {cell(ws, 1, c): c for c in range(1, ws.max_column + 1)}

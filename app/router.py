@@ -14,7 +14,7 @@ PRICE_IN = float(os.getenv("DALEEL_PRICE_IN", "1.0"))
 PRICE_OUT = float(os.getenv("DALEEL_PRICE_OUT", "5.0"))
 
 REASONS = ["level_c", "fatwa", "hadith_request", "verse_check", "tafsir", "qiraat", "scientific",
-           "off_topic", "not_covered", "non_arabic"]
+           "off_topic", "unrelated", "not_covered", "non_arabic"]
 
 TOOL = {
     "name": "decide",
@@ -57,7 +57,8 @@ SYSTEM = """أنت موجِّه داخل «دليل»، أداة توصل الم
    - fatwa: طلب حكم أو فتوى أو حالة شخصية.
    - tafsir: تفسير آية بعينها. qiraat: القراءات والأحرف. scientific: الإعجاز العلمي.
    - hadith_request: طلب نص حديث. verse_check: التحقق من نص آية.
-   - off_topic: موضوع إسلامي خارج القرآن (عبادات، سيرة…).
+   - off_topic: موضوع إسلامي خارج القرآن (عبادات، سيرة، فقه…).
+   - unrelated: سؤال لا علاقة له بالدين أصلاً (طبخ، رياضة، تقنية، معلومات عامة…).
    - not_covered: داخل موضوع القرآن لكن لا يوجد مقطع في الفهرس يجيب عنه. لا تختر أقرب مقطع إن لم يجب فعلاً.
    - level_c: مسألة خلافية تفصيلية أو عالية الحساسية.
 4. في المتابعة («ما الذي بقي؟»): لا تختر مقطعاً سبق عرضه. إن لم يوجد غيره يجيب عمّا بقي فـ abstain بسبب not_covered.

@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import fallback, focus, router
-from .library import T, library, need_segments
+from .library import T, library, menu_segments, need_segments
 from .precheck import precheck
 from .quran import find_ref, tafsir_link
 
@@ -16,7 +16,7 @@ LOG = Path(os.getenv("DALEEL_LOG", Path(__file__).resolve().parent.parent / "log
 REASON_TEMPLATE = {
     "fatwa": "ام-02", "qiraat": "ام-03", "scientific": "ام-04", "hadith_request": "ام-05",
     "verse_not_found": "ام-06", "verse_check": "ام-06", "not_covered": "ام-07", "non_arabic": "ام-08",
-    "tafsir": "ام-09", "off_topic": "ام-01", "level_c": "ام-07", "outage": "ام-10",
+    "tafsir": "ام-09", "off_topic": "ام-01", "unrelated": "ام-12", "level_c": "ام-07", "outage": "ام-10",
 }
 CLARIFY_PAIRS = {frozenset({"ح1", "ح7"}): "ست-01", frozenset({"ح2", "ح7"}): "ست-02", frozenset({"ح3", "ح7"}): "ست-03"}
 
@@ -35,7 +35,7 @@ def needs_menu():
     out = []
     for n in lib["needs"]:
         out.append({"id": n["id"], "section": n["section"], "title": n["title"],
-                    "available": bool(need_segments(n["id"]))})
+                    "available": bool(menu_segments(n["id"]))})
     return out
 
 
@@ -74,9 +74,13 @@ def _gate(dec: dict, exclude=()):
         ids = [i for i in dec.get("segments", []) if i in by_id and i not in exclude and by_id[i]["level"] in ("أ", "ب")]
         if not ids or dec.get("fit") == "low":
             return {"decision": "abstain", "reason": "not_covered", "gate": "blocked"}
+        # المقطع يجب أن يكون من الحاجة التي يسأل عنها المستخدم: مقطع عن الإعجاز ليس جواباً لـ«ما القرآن؟»
+        need = dec.get("need")
+        if need in library()["need_by_id"] and dec.get("fit") != "high" and all(by_id[i]["need"] != need for i in ids):
+            return {"decision": "abstain", "reason": "not_covered", "gate": "need_mismatch"}
         dec["segments"] = ids[:2]
     if dec.get("decision") == "clarify":
-        opts = [o for o in dec.get("options", []) if o in library()["need_by_id"]]
+        opts = [o for o in dec.get("options", []) if o in library()["need_by_id"] and menu_segments(o, exclude)]
         if len(opts) < 2:
             return {"decision": "abstain", "reason": "not_covered", "gate": "blocked"}
         dec["options"] = opts[:3]
@@ -173,7 +177,7 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
 def by_need(need_id: str, exclude=()) -> dict:
     """اختيار من القائمة أو من أزرار الاستيضاح: أول مقطع معتمد للحاجة لم يُعرض بعد."""
     did = uuid.uuid4().hex[:12]
-    segs = need_segments(need_id, exclude)
+    segs = menu_segments(need_id, exclude)
     if not segs:
         resp = {"type": "abstain", "reason": "not_covered", "message": T("و-12" if exclude else "ام-07")}
     else:
@@ -190,7 +194,7 @@ def feedback(decision_id: str, value: str, need: str | None = None) -> dict:
     if value == "yes":
         nxt = library()["need_by_id"].get(need or "", {}).get("next", [])
         nb = library()["need_by_id"]
-        return {"message": T("و-10"), "next": [{"id": n, "title": nb[n]["title"]} for n in nxt if n in nb and need_segments(n)]}
+        return {"message": T("و-10"), "next": [{"id": n, "title": nb[n]["title"]} for n in nxt if n in nb and menu_segments(n)]}
     if value == "partial":
         return {"message": T("و-03")}
     return {"message": T("و-09")}

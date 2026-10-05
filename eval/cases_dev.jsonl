@@ -33,3 +33,5 @@
 {"type": "abstain", "question": "كم عدد سجدات التلاوة في القرآن؟", "expect": "abstain", "reason": "not_covered", "id": "d33"}
 {"type": "abstain", "question": "ما قصة أصحاب الكهف بالتفصيل؟", "expect": "abstain", "reason": "not_covered", "id": "d34"}
 {"type": "verse", "question": "قال تعالى «إنا نحن أنزلنا الذكر وإنا له لحافظين»", "expect": "verse", "ref": "الحجر: 9", "id": "d35"}
+{"type": "abstain", "question": "كيف أطبخ الكبسة؟", "expect": "abstain", "reason": "unrelated", "id": "d36"}
+{"type": "abstain", "question": "من فاز بكأس العالم 2022؟", "expect": "abstain", "reason": "unrelated", "id": "d37"}

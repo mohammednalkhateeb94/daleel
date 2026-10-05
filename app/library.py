@@ -35,6 +35,18 @@ def T(code: str, **kw) -> str:
     return text
 
 
+def menu_segments(need_id: str, exclude=()) -> list[dict]:
+    """مقاطع زر الحاجة: المحددة له في السجل («مقطع الزر») بترتيبها، وإلا المقاطع الأساسية فقط.
+    مقطع «إضافي» لا يُعرض جواباً لعنوان الحاجة لأنه يجيب عن جانب منها لا عنها."""
+    lib = library()
+    n = lib["need_by_id"].get(need_id, {})
+    if n.get("entry"):
+        segs = [lib["by_id"][i] for i in n["entry"] if i in lib["by_id"]]
+    else:
+        segs = [s for s in need_segments(need_id) if s["priority"] == "أساسي"]
+    return [s for s in segs if s["id"] not in exclude]
+
+
 def need_segments(need_id: str, exclude=()) -> list[dict]:
     segs = [s for s in library()["segments"] if s["need"] == need_id and s["id"] not in exclude]
     return sorted(segs, key=lambda s: (s["priority"] != "أساسي", int(s["id"].split("-")[1])))
