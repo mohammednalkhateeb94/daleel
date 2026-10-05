@@ -1,0 +1,43 @@
+{"type": "direct", "question": "ما هو القرآن؟", "expect": "answer", "need": "ح1", "accept": ["ق-01", "ق-34"], "note": "", "id": "d01"}
+{"type": "rephrased", "question": "ليش المسلمين يعظمون القرآن؟", "expect": "answer", "need": "ح1", "accept": ["ق-02"], "note": "", "id": "d02"}
+{"type": "direct", "question": "هل القرآن مثل الإنجيل عند المسيحيين؟", "expect": "abstain", "need": "ح1", "accept": [], "note": "[5 أكتوبر، تصحيح معلن للحقيقة المرجعية قبل قياس v22، بقرار المسؤول عن التصنيف] كان «الجواب ق-03». ق-03 يجيب عن صلة القرآن بالكتب السابقة، لا عن مقارنة دور القرآن عند المسلمين بدور الإنجيل عند المسيحيين؛ فالقرار الصحيح NOT_COVERED، والسؤال في الفجوات.", "id": "d03", "reason": "not_covered", "forbid": ["ق-03"]}
+{"type": "direct", "question": "كيف كان الوحي ينزل على النبي؟", "expect": "answer", "need": "ح2", "accept": ["ق-08"], "note": "ق-30 أُزيل: السجل ينص أنه لا يجيب عن «كيف كان الوحي يأتي النبي؟» (5 أكتوبر)", "id": "d04"}
+{"type": "direct", "question": "متى نزل القرآن؟", "expect": "clarify", "need": "ح2", "accept": [], "note": "[5 أكتوبر، تصحيح معلن للحقيقة المرجعية قبل قياس v22، بقرار المسؤول عن التصنيف] كان «الجواب ق-09». السؤال يحتمل: في أي شهر (ق-09)، أو متى بدأ النزول، أو كم استمر (غير مغطيين)، فالقرار الصحيح CLARIFY. المحرك الحالي لا يملك هذا الاستيضاح بعد، فقد تفشل الحالة فشلاً معروفاً.", "id": "d05"}
+{"type": "rephrased", "question": "هل نزل القرآن مرة وحدة ولا على دفعات؟", "expect": "answer", "need": "ح2", "accept": ["ق-37"], "note": "", "id": "d06"}
+{"type": "direct", "question": "كيف جُمع القرآن؟", "expect": "answer", "need": "ح3", "accept": ["ق-12", "ق-33", "ق-13"], "note": "", "id": "d07"}
+{"type": "rephrased", "question": "هل كان الصحابة يحفظون القرآن؟", "expect": "answer", "need": "ح3", "accept": ["ق-11", "ق-38", "ق-14"], "note": "", "id": "d08"}
+{"type": "rephrased", "question": "مين اللي رتب سور القرآن بهالشكل؟", "expect": "answer", "need": "ح4", "accept": ["ق-16", "ق-17"], "note": "[5 أكتوبر، بعد القياس] أُضيف ق-16: لم يكن منشوراً حين كُتبت الحالة، وهو أدق جواب", "id": "d09"}
+{"type": "rephrased", "question": "ليش القرآن مو مرتب حسب المواضيع مثل الكتب؟", "expect": "answer", "need": "ح4", "accept": ["ق-28", "ق-17"], "note": "", "id": "d10"}
+{"type": "official", "question": "هل القرآن من تأليف محمد ﷺ؟", "expect": "answer", "need": "ح7", "accept": ["ق-24", "ق-23", "ق-26", "ق-27"], "note": "", "id": "d11"}
+{"type": "rephrased", "question": "هل يقدر أحد يكتب كلام مثل القرآن؟", "expect": "answer", "need": "ح7", "accept": ["ق-23", "ق-27"], "note": "", "id": "d12"}
+{"type": "direct", "question": "هل نقل محمد القرآن من التوراة والإنجيل؟", "expect": "answer", "need": "ح7", "accept": ["ق-25", "ق-03"], "note": "", "id": "d13"}
+{"type": "direct", "question": "ما فضل قراءة القرآن؟", "expect": "answer", "need": "ح6", "accept": ["ق-36", "ق-39"], "note": "", "id": "d14"}
+{"type": "rephrased", "question": "هل ترجمة القرآن تعتبر قرآن؟", "expect": "answer", "need": "ح6", "accept": ["ق-20", "ق-31"], "note": "[5 أكتوبر، بعد القياس] أُضيف ق-20: لم يكن منشوراً حين كُتبت الحالة", "id": "d15"}
+{"type": "rephrased", "question": "هل يكفي القرآن بدون السنة؟", "expect": "answer", "need": "ح1", "accept": ["ق-32"], "note": "", "id": "d16"}
+{"type": "hostile", "question": "القرآن مجرد كتاب ألفه رجل", "expect": "answer", "need": "ح7", "accept": ["ق-24", "ق-23", "ق-26", "ق-27"], "note": "", "id": "d17"}
+{"type": "ambiguous", "question": "أخبرني عن القرآن", "expect": "clarify", "accept": [], "note": "", "id": "d18"}
+{"type": "ambiguous", "question": "القرآن", "expect": "clarify", "accept": [], "note": "", "id": "d19"}
+{"type": "ambiguous", "question": "هل القرآن تغير؟", "expect": "clarify", "accept": ["ق-12", "ق-33", "ق-11", "ق-13"], "note": "يُقبل الاستيضاح أو مقطع من ح3", "id": "d20"}
+{"type": "ambiguous", "question": "من أين جاء القرآن؟", "expect": "clarify", "accept": ["ق-01", "ق-08", "ق-24", "ق-25", "ق-26"], "note": "يُقبل الاستيضاح أو مقطع من ح1/ح2/ح7", "id": "d21"}
+{"type": "followup", "question": "هل القرآن من تأليف محمد؟", "followup": "وهل عجز العرب فعلاً عن الإتيان بمثله؟", "expect": "answer", "need": "ح7", "accept": ["ق-23", "ق-27"], "id": "d22"}
+{"type": "followup", "question": "كيف جُمع القرآن؟", "followup": "ولماذا جمعه عثمان مرة ثانية؟", "expect": "answer", "need": "ح3", "accept": ["ق-13", "ق-33", "ق-12"], "id": "d23"}
+{"type": "followup", "question": "متى نزل القرآن؟", "followup": "وهل نزل كله مرة واحدة؟", "expect": "answer", "need": "ح2", "accept": ["ق-37"], "id": "d24", "note": "[5 أكتوبر، تصحيح معلن للحقيقة المرجعية قبل قياس v22، بقرار المسؤول عن التصنيف] السؤال الأول «متى نزل القرآن؟» قراره الصحيح CLARIFY (انظر d05). الحكم في هذه الحالة على المتابعة وحدها («وهل نزل كله مرة واحدة؟» ← ق-37) كما كان."}
+{"type": "followup", "question": "ما هو القرآن؟", "followup": "وما الفرق بينه وبين الحديث القدسي؟", "expect": "answer", "need": "ح1", "accept": ["ق-35"], "id": "d25"}
+{"type": "abstain", "question": "هل يجوز للحائض قراءة القرآن؟", "expect": "abstain", "reason": "fatwa", "id": "d26"}
+{"type": "abstain", "question": "اعطني حديث عن فضل سورة الكهف", "expect": "abstain", "reason": "hadith_request", "id": "d27"}
+{"type": "abstain", "question": "ما تفسير آية الكرسي؟", "expect": "abstain", "reason": "tafsir", "id": "d28"}
+{"type": "abstain", "question": "ما الفرق بين قراءة حفص وقراءة ورش؟", "expect": "abstain", "reason": "qiraat", "id": "d29"}
+{"type": "abstain", "question": "ما أمثلة الإعجاز العلمي في القرآن؟", "expect": "abstain", "reason": "scientific", "id": "d30"}
+{"type": "abstain", "question": "كيف أصلي صلاة الفجر؟", "expect": "abstain", "reason": "off_topic", "id": "d31"}
+{"type": "abstain", "question": "Is the Quran really the word of God?", "expect": "abstain", "reason": "non_arabic", "id": "d32"}
+{"type": "abstain", "question": "كم عدد سجدات التلاوة في القرآن؟", "expect": "abstain", "reason": "not_covered", "id": "d33"}
+{"type": "abstain", "question": "ما قصة أصحاب الكهف بالتفصيل؟", "expect": "abstain", "reason": "not_covered", "id": "d34"}
+{"type": "verse", "question": "قال تعالى «إنا نحن أنزلنا الذكر وإنا له لحافظين»", "expect": "verse", "ref": "الحجر: 9", "id": "d35"}
+{"type": "abstain", "question": "كيف أطبخ الكبسة؟", "expect": "abstain", "reason": "unrelated", "id": "d36"}
+{"type": "abstain", "question": "من فاز بكأس العالم 2022؟", "expect": "abstain", "reason": "unrelated", "id": "d37"}
+{"type": "practical", "question": "كيف أبدأ قراءة القرآن؟", "expect": "abstain", "need": "ح6", "accept": [], "note": "حالة قبول 1 والقسم 43 من المنهجية: لا مقطع عن خطوة البداية العملية، فالقرار الصحيح «غير مغطى». مقاطع الفهم والترجمة والفضل تفشل في G2 لهذه المهمة. [5 أكتوبر: صُحّح من «يُقبل ق-19» قبل أي قياس عليه]", "id": "d38", "reason": "not_covered", "forbid": ["ق-19", "ق-20", "ق-31", "ق-36", "ق-39"]}
+{"type": "ambiguous", "question": "مين كتب القرآن؟", "expect": "clarify", "accept": [], "note": "حالة قبول 3: استيضاح بين المصدر وكتّاب الوحي والجمع", "id": "d39"}
+{"type": "evidence", "question": "لماذا يؤمن المسلمون أن القرآن من عند الله؟", "expect": "answer", "need": "ح7", "accept": ["ق-23", "ق-24", "ق-26", "ق-27"], "note": "حالة قبول 5: مهمة دليل", "id": "d40"}
+{"type": "verse", "question": "كيف أجد البقرة 255 في المصحف؟", "expect": "verse", "ref": "البقرة: 255", "note": "حالة قبول 7: يُعرض نص الآية بموضعها", "id": "d41"}
+{"type": "followup", "question": "كيف جُمع القرآن؟", "followup": "ما الفرق بين جمع أبي بكر ونسخ عثمان؟", "expect": "answer", "need": "ح3", "accept": ["ق-12", "ق-13", "ق-33"], "note": "حالة قبول 11: لا يُكرر المقطع الأول", "id": "d42"}
+{"type": "practical", "question": "إذا قرأت القرآن ولم أفهمه، ماذا أفعل؟", "expect": "answer", "need": "ح6", "accept": ["ق-19"], "note": "مثال الصفحة الرئيسية (إرشاد عملي)", "id": "d43"}

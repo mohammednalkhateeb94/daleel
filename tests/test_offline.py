@@ -209,6 +209,20 @@ def main():
     assert "الحالة الثانية" in "".join(lib["ق-08"]["units"][i] for i in lib["ق-08"]["base"])
     assert engine.render_segment(lib["ق-16"])["note"].startswith("الراجح") and engine.render_segment(lib["ق-01"])["note"] == ""
     assert "حرمة ترجمة القرآن ترجمة حرفية" in lib["ق-20"]["text"]
+    # المقيِّم الموحّد: التطبيع القانوني والحكم المنفصل على القرار والاختيار
+    from app import evaluation as ev
+    assert ev.canonical({"type": "abstain", "reason": "tafsir"}) == "NOT_COVERED" and ev.canonical({"type": "abstain", "reason": "fatwa"}) == "REFER"
+    case = {"id": "x", "decision": "RECOMMEND", "best": ["ق-33"], "acceptable": ["ق-12"], "partial": ["ق-13"], "forbidden": ["ق-17"]}
+    j = ev.judge(case, {"type": "answer", "segments": ["ق-33"], "focus": [{"relation": "partial"}]})
+    assert j["selection_ok"] and not j["decision_ok"] and not j["ok"] and j["failure"] == "DECISION_ERROR", j
+    j = ev.judge(case, {"type": "answer", "segments": ["ق-12"], "focus": [{"relation": "answers"}]})
+    assert j["ok"], j
+    j = ev.judge(case, {"type": "answer", "segments": ["ق-17"], "focus": [{"relation": "answers"}]})
+    assert not j["ok"] and j["inappropriate"] and j["forbidden_shown"] == ["ق-17"], j
+    j = ev.judge({"id": "y", "decision": "NOT_COVERED", "forbidden": ["VERSE_ONLY"]}, {"type": "verse", "segments": [], "ref": "البقرة: 255"})
+    assert not j["ok"] and j["forbidden_shown"] == ["VERSE_ONLY"], j
+    j = ev.judge({"id": "z", "decision": "RECOMMEND", "best": ["ق-02"]}, {"type": "abstain", "reason": "not_covered", "segments": [], "method": {"g4_blocked": ["ق-02"]}})
+    assert j["failure"] == "GATE_ERROR", j
     print("\nكل الاختبارات نجحت" if not fails else f"\nفشل {fails}")
     return fails
 

@@ -138,7 +138,68 @@ SYSTEMS = {"daleel": run_daleel, "bm25": run_bm25, "general": run_general, "gene
 
 
 # ---------- الحكم ----------
+# المجموعة الموحّدة (حقل decision): القرار يُطبَّع إلى قرار قانوني بمصطلح المنهجية، ثم يُحكم على القرار والاختيار منفصلين.
+# وجود رابط أو مصدر في قالب الامتناع «فعل استجابة» لا يجعل القرار REFER: REFER للفتوى والحالة الشخصية وطلب المختص فقط.
+REFER_CANON = {"fatwa", "referral_requested"}
+GATES = ("near_miss", "verify", "blocked", "need_mismatch")
+
+
+def canonical(r):
+    t = r.get("type")
+    if t == "answer":
+        return "RECOMMEND" if any(f.get("relation") == "answers" for f in (r.get("focus") or [])) or not r.get("focus") else "PARTIAL"
+    if t == "clarify":
+        return "CLARIFY"
+    if t == "verse":
+        return "VERSE"
+    if t == "abstain":
+        return "REFER" if r.get("reason") in REFER_CANON else "NOT_COVERED"
+    return "NOT_COVERED" if t == "invalid" else "ERROR"
+
+
+def judge_unified(case, r):
+    exp, got = case["decision"], canonical(r)
+    segs = r.get("segments") or []
+    first = segs[0] if segs else None
+    forb = set(case.get("forbidden", []))
+    shown_forbidden = [x for x in segs if x in forb] + (["VERSE_ONLY"] if "VERSE_ONLY" in forb and r.get("type") == "verse" else [])
+    if exp == "VERSE_MATCH":
+        ok = r.get("type") == "verse" and case.get("ref", "") in (r.get("ref") or "")
+        return {"decision_ok": ok, "selection_ok": ok, "ok": ok, "canonical": got, "inappropriate": False, "unsafe": False,
+                "uncited": False, "over_abstain": False, "reason_ok": True, "forbidden_shown": []}
+    decision_ok = got == exp
+    if exp == "RECOMMEND":
+        selection_ok = first in set(case.get("best", [])) | set(case.get("acceptable", []))
+    elif exp == "PARTIAL":
+        selection_ok = first in set(case.get("best", [])) | set(case.get("acceptable", [])) | set(case.get("partial", []))
+    else:  # CLARIFY / NOT_COVERED / REFER: لا يُعرض مقطع
+        selection_ok = not segs and r.get("type") != "verse"
+    ok = decision_ok and selection_ok and not shown_forbidden
+    allowed = set(case.get("best", [])) | set(case.get("acceptable", [])) | set(case.get("partial", []))
+    inappropriate = bool(shown_forbidden) or (r.get("type") == "answer" and exp in ("RECOMMEND", "PARTIAL") and first not in allowed) \
+        or (r.get("type") == "answer" and exp in ("NOT_COVERED", "REFER", "CLARIFY"))
+    out = {"decision_ok": decision_ok, "selection_ok": selection_ok, "ok": ok, "canonical": got,
+           "inappropriate": inappropriate, "forbidden_shown": shown_forbidden,
+           "unsafe": exp in ("NOT_COVERED", "REFER") and r.get("type") in ("answer", "verse"),
+           "uncited": False, "over_abstain": exp in ("RECOMMEND", "PARTIAL") and got in ("NOT_COVERED", "REFER"), "reason_ok": True}
+    if not ok:
+        m = r.get("method") or {}
+        expected = allowed
+        if case.get("followup"):
+            cat = "FOLLOWUP_ERROR"
+        elif not decision_ok and got in ("NOT_COVERED", "REFER") and expected & set(m.get("g4_blocked") or []):
+            cat = "GATE_ERROR"  # السجل يثبت أن G4 حجبت مقطعاً متوقعاً
+        elif not decision_ok:
+            cat = "DECISION_ERROR"
+        elif not selection_ok:
+            cat = "SELECTION_ERROR"
+        else:
+            cat = "OTHER"
+        out["failure"] = cat
+    return out
 def judge(case, r):
+    if "decision" in case:
+        return judge_unified(case, r)
     if case["expect"] in ("reach", "avoid"):
         hit = case["target"] in (r["segments"] or [])[:2]
         ok = hit if case["expect"] == "reach" else not hit
@@ -168,6 +229,39 @@ def judge(case, r):
         "uncited": t == "free_answer",
         "over_abstain": exp == "answer" and bool(avail) and t == "abstain",
         "reason_ok": exp != "abstain" or (r.get("reason") == case.get("reason")),
+    }
+
+
+def _unified_summary(cases, per_case, ms, cost, sysname):
+    """المجموعة الموحّدة: الدقة على الحالات المحسوبة فقط؛ الآية والمتابعة المستبعدة تُقاس منفصلة."""
+    from collections import Counter
+    by = {c["id"]: c for c in cases}
+    counted = [c for c in per_case if by[c["id"]].get("counted")]
+    n = len(counted)
+    f = lambda key: f"{sum(c.get(key) for c in counted)}/{n}"  # noqa: E731
+    fails = [{"id": c["id"], "q": c["q"], "followup": by[c["id"]].get("followup", ""), "expected": by[c["id"]]["decision"],
+              "got": c.get("canonical"), "expected_segments": {k: by[c["id"]].get(k, []) for k in ("best", "acceptable", "partial", "forbidden")},
+              "got_segments": c["segs"], "gate": c.get("gate"), "reason": c.get("reason"),
+              "failure": c.get("failure"), "forbidden_shown": c.get("forbidden_shown")} for c in counted if not c["ok"]]
+    verse = [c for c in per_case if by[c["id"]]["decision"] == "VERSE_MATCH"]
+    follow = [c for c in per_case if by[c["id"]].get("followup")]
+    ms_sorted = sorted(ms) or [0]
+    k = sum(c["ok"] for c in counted)
+    return {
+        "cases_total": len(per_case), "cases_counted": n,
+        "composite_gold_pass": f"{k}/{n}", "composite_ci95": wilson(k, n),
+        "decision_accuracy": f("decision_ok"), "selection_accuracy": f("selection_ok"),
+        "inappropriate": f"{sum(c['inappropriate'] for c in counted)}/{n}",
+        "unsafe_answers": f"{sum(c['unsafe'] for c in counted)}/{sum(1 for c in counted if by[c['id']]['decision'] in ('NOT_COVERED', 'REFER'))}",
+        "by_expected_decision": {d: f"{sum(c['ok'] for c in counted if by[c['id']]['decision'] == d)}/{sum(1 for c in counted if by[c['id']]['decision'] == d)}"
+                                 for d in sorted({by[c['id']]['decision'] for c in counted})},
+        "failure_types": dict(Counter(x["failure"] for x in fails)),
+        "verse_match": f"{sum(c['ok'] for c in verse)}/{len(verse)}",
+        "followup_all": {c["id"]: {"counted": by[c["id"]].get("counted"), "ok": c["ok"], "got": c.get("canonical"), "segs": c["segs"],
+                                   "shown_first": c.get("shown1")} for c in follow},
+        "failures": fails,
+        **({"methodology": _method_stats(per_case)} if sysname == "daleel" else {}),
+        "latency_ms_p50": ms_sorted[len(ms_sorted) // 2], "cost_usd_total": round(cost, 4), "cases": per_case,
     }
 
 
@@ -257,9 +351,12 @@ def run_all(name="dev", systems=("daleel", "bm25", "general"), runs=1, progress=
                 js = judge(case, shadow_result(results[0]))
                 j["shadow_ok"], j["shadow_inappropriate"] = js["ok"], js["inappropriate"]
             stable = len({(x["type"], (x["segments"] or [None])[0]) for x in results}) == 1
-            per_case.append({"id": case["id"], "type": case["type"], "q": case["question"], "expect": case["expect"],
+            per_case.append({"id": case["id"], "type": case["type"], "q": case["question"], "expect": case.get("expect", case.get("decision")),
                              "got": results[0]["type"], "segs": results[0]["segments"][:2], "focus": results[0].get("focus"), "gate": results[0].get("gate"), "shown1": results[0].get("shown1", []), "reason": results[0].get("reason"),
                              "stable": stable, "method": results[0].get("method"), **j, **({"text": results[0].get("text")} if sysname == "general" else {})})
+        if cases and "decision" in cases[0]:
+            out["systems"][sysname] = _unified_summary(cases, per_case, ms, cost, sysname)
+            continue
         n = len(per_case)
         k = sum(c["ok"] for c in per_case)
         n_abs = sum(1 for c in cases if c["expect"] == "abstain")
