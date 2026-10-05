@@ -8,6 +8,7 @@ from pathlib import Path
 
 from . import fallback, focus, router
 from .library import T, library, menu_segments, need_segments
+from .normalize import norm
 from .precheck import precheck
 from .quran import find_ref, tafsir_link
 
@@ -82,8 +83,8 @@ def _gate(dec: dict, exclude=()):
     if dec.get("decision") == "clarify":
         asked = [o for o in dec.get("options", []) if o in library()["need_by_id"]]
         opts = [o for o in asked if menu_segments(o, exclude)]
-        if len(opts) < 2 and len(asked) >= 3:
-            # سؤال واسع («أخبرني عن القرآن») وخياراته غير مغطّاة بعد: نعرض الحاجات المغطّاة بدلاً من الامتناع.
+        if len(opts) < 2 and (len(asked) >= 3 or dec.get("q_words", 99) <= 3):
+            # سؤال واسع («أخبرني عن القرآن»، أو كلمة أو كلمتان) وخياراته غير مغطّاة بعد: نعرض الحاجات المغطّاة بدلاً من الامتناع.
             # السؤال المحدد («متى نزل القرآن؟») لا يُعرض عليه خيارات لا علاقة لها به.
             opts += [n["id"] for n in library()["needs"] if n["id"] not in opts and menu_segments(n["id"], exclude)]
         if len(opts) < 2:
@@ -125,6 +126,7 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
             dec = fallback.decide(question, exclude)
             if use_llm and meta.get("error"):
                 dec["outage"] = True
+        dec["q_words"] = len(norm(question).split())
         dec = _gate(dec, exclude)
 
     d = dec["decision"]
