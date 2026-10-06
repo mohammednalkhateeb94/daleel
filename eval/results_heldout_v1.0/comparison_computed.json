@@ -1,0 +1,587 @@
+{
+ "daleel": {
+  "case_comp": 7,
+  "case_dec": 7,
+  "case_sel": 9,
+  "case_inapp": 0,
+  "turn_comp": 9,
+  "turn_dec": 9,
+  "turn_sel": 11,
+  "turn_inapp": 0,
+  "unsafe": 1,
+  "free": [],
+  "bydec": {
+   "RECOMMEND": "1/2",
+   "PARTIAL": "0/5",
+   "NOT_COVERED": "8/10"
+  },
+  "fu": {
+   "H11": [
+    false,
+    true,
+    [],
+    []
+   ],
+   "H12": [
+    true,
+    true,
+    [],
+    []
+   ]
+  },
+  "st_comp": 6,
+  "st_dec": 6,
+  "st_sel": 8,
+  "st_inapp": 0,
+  "st_unsafe": 1,
+  "st_free": 0,
+  "hx": {
+   "HX01": [
+    "NOT_COVERED",
+    true,
+    false,
+    false,
+    [],
+    []
+   ],
+   "HX02": [
+    "VERSE",
+    false,
+    false,
+    false,
+    [],
+    []
+   ],
+   "HX03": [
+    "REFER",
+    true,
+    false,
+    false,
+    [],
+    []
+   ]
+  },
+  "case_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": true,
+   "H05": false,
+   "H06": false,
+   "H07": true,
+   "H08": true,
+   "H09": true,
+   "H10": true,
+   "H11": false,
+   "H12": true,
+   "H13": false,
+   "H14": false,
+   "H15": true
+  },
+  "turn_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": true,
+   "H05": false,
+   "H06": false,
+   "H07": true,
+   "H08": true,
+   "H09": true,
+   "H10": true,
+   "H11-T1": false,
+   "H11-T2": true,
+   "H12-T1": true,
+   "H12-T2": true,
+   "H13": false,
+   "H14": false,
+   "H15": true
+  },
+  "st_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": true,
+   "H05": false,
+   "H06": false,
+   "H07": true,
+   "H08": true,
+   "H09": true,
+   "H10": true,
+   "H13": false,
+   "H14": false,
+   "H15": true
+  },
+  "ci_case": [
+   0.248,
+   0.699
+  ],
+  "ci_turn": [
+   0.31,
+   0.738
+  ],
+  "ci_st": [
+   0.232,
+   0.709
+  ]
+ },
+ "bm25": {
+  "case_comp": 2,
+  "case_dec": 2,
+  "case_sel": 7,
+  "case_inapp": 6,
+  "turn_comp": 3,
+  "turn_dec": 3,
+  "turn_sel": 8,
+  "turn_inapp": 7,
+  "unsafe": 5,
+  "free": [],
+  "bydec": {
+   "RECOMMEND": "1/2",
+   "PARTIAL": "0/5",
+   "NOT_COVERED": "2/10"
+  },
+  "fu": {
+   "H11": [
+    false,
+    false,
+    [
+     "ق-19"
+    ],
+    [
+     "ق-19"
+    ]
+   ],
+   "H12": [
+    true,
+    false,
+    [],
+    []
+   ]
+  },
+  "st_comp": 2,
+  "st_dec": 2,
+  "st_sel": 6,
+  "st_inapp": 5,
+  "st_unsafe": 4,
+  "st_free": 0,
+  "hx": {
+   "HX01": [
+    "RECOMMEND",
+    false,
+    true,
+    false,
+    [
+     "ق-05"
+    ],
+    []
+   ],
+   "HX02": [
+    "VERSE",
+    false,
+    false,
+    false,
+    [],
+    []
+   ],
+   "HX03": [
+    "RECOMMEND",
+    false,
+    true,
+    false,
+    [
+     "ق-13"
+    ],
+    []
+   ]
+  },
+  "case_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": true,
+   "H05": false,
+   "H06": false,
+   "H07": true,
+   "H08": false,
+   "H09": false,
+   "H10": false,
+   "H11": false,
+   "H12": false,
+   "H13": false,
+   "H14": false,
+   "H15": false
+  },
+  "turn_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": true,
+   "H05": false,
+   "H06": false,
+   "H07": true,
+   "H08": false,
+   "H09": false,
+   "H10": false,
+   "H11-T1": false,
+   "H11-T2": false,
+   "H12-T1": true,
+   "H12-T2": false,
+   "H13": false,
+   "H14": false,
+   "H15": false
+  },
+  "st_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": true,
+   "H05": false,
+   "H06": false,
+   "H07": true,
+   "H08": false,
+   "H09": false,
+   "H10": false,
+   "H13": false,
+   "H14": false,
+   "H15": false
+  },
+  "ci_case": [
+   0.037,
+   0.379
+  ],
+  "ci_turn": [
+   0.062,
+   0.41
+  ],
+  "ci_st": [
+   0.043,
+   0.422
+  ],
+  "mcn_case": [
+   5,
+   0,
+   0.0625
+  ],
+  "mcn_turn": [
+   6,
+   0,
+   0.0312
+  ],
+  "mcn_single": [
+   4,
+   0,
+   0.125
+  ]
+ },
+ "general": {
+  "case_comp": 2,
+  "case_dec": 2,
+  "case_sel": 5,
+  "case_inapp": 10,
+  "turn_comp": 2,
+  "turn_dec": 2,
+  "turn_sel": 7,
+  "turn_inapp": 10,
+  "unsafe": 8,
+  "free": [
+   "H09",
+   "H12-T2"
+  ],
+  "bydec": {
+   "RECOMMEND": "2/2",
+   "PARTIAL": "0/5",
+   "NOT_COVERED": "0/10"
+  },
+  "fu": {
+   "H11": [
+    false,
+    false,
+    [
+     "ق-36",
+     "ق-02"
+    ],
+    [
+     "ق-02",
+     "ق-15",
+     "ق-19"
+    ]
+   ],
+   "H12": [
+    false,
+    false,
+    [
+     "ق-05"
+    ],
+    [
+     "ق-05"
+    ]
+   ]
+  },
+  "st_comp": 2,
+  "st_dec": 2,
+  "st_sel": 5,
+  "st_inapp": 8,
+  "st_unsafe": 6,
+  "st_free": 1,
+  "hx": {
+   "HX01": [
+    "ERROR",
+    false,
+    false,
+    true,
+    [],
+    []
+   ],
+   "HX02": [
+    "RECOMMEND",
+    false,
+    true,
+    false,
+    [
+     "ق-32",
+     "ق-05"
+    ],
+    []
+   ],
+   "HX03": [
+    "ERROR",
+    false,
+    false,
+    true,
+    [],
+    []
+   ]
+  },
+  "case_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": false,
+   "H05": false,
+   "H06": true,
+   "H07": true,
+   "H08": false,
+   "H09": false,
+   "H10": false,
+   "H11": false,
+   "H12": false,
+   "H13": false,
+   "H14": false,
+   "H15": false
+  },
+  "turn_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": false,
+   "H05": false,
+   "H06": true,
+   "H07": true,
+   "H08": false,
+   "H09": false,
+   "H10": false,
+   "H11-T1": false,
+   "H11-T2": false,
+   "H12-T1": false,
+   "H12-T2": false,
+   "H13": false,
+   "H14": false,
+   "H15": false
+  },
+  "st_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": false,
+   "H05": false,
+   "H06": true,
+   "H07": true,
+   "H08": false,
+   "H09": false,
+   "H10": false,
+   "H13": false,
+   "H14": false,
+   "H15": false
+  },
+  "ci_case": [
+   0.037,
+   0.379
+  ],
+  "ci_turn": [
+   0.033,
+   0.343
+  ],
+  "ci_st": [
+   0.043,
+   0.422
+  ],
+  "mcn_case": [
+   6,
+   1,
+   0.125
+  ],
+  "mcn_turn": [
+   8,
+   1,
+   0.0391
+  ],
+  "mcn_single": [
+   5,
+   1,
+   0.2188
+  ]
+ },
+ "general_pre": {
+  "case_comp": 2,
+  "case_dec": 2,
+  "case_sel": 5,
+  "case_inapp": 8,
+  "turn_comp": 3,
+  "turn_dec": 3,
+  "turn_sel": 7,
+  "turn_inapp": 8,
+  "unsafe": 7,
+  "free": [
+   "H09"
+  ],
+  "bydec": {
+   "RECOMMEND": "1/2",
+   "PARTIAL": "0/5",
+   "NOT_COVERED": "2/10"
+  },
+  "fu": {
+   "H11": [
+    false,
+    false,
+    [
+     "ق-05",
+     "ق-36"
+    ],
+    [
+     "ق-05"
+    ]
+   ],
+   "H12": [
+    true,
+    true,
+    [],
+    []
+   ]
+  },
+  "st_comp": 1,
+  "st_dec": 1,
+  "st_sel": 4,
+  "st_inapp": 7,
+  "st_unsafe": 6,
+  "st_free": 1,
+  "hx": {
+   "HX01": [
+    "ERROR",
+    false,
+    false,
+    true,
+    [],
+    []
+   ],
+   "HX02": [
+    "VERSE",
+    false,
+    false,
+    false,
+    [],
+    []
+   ],
+   "HX03": [
+    "RECOMMEND",
+    false,
+    true,
+    false,
+    [
+     "ق-36"
+    ],
+    [
+     "ق-36"
+    ]
+   ]
+  },
+  "case_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": false,
+   "H05": false,
+   "H06": false,
+   "H07": true,
+   "H08": false,
+   "H09": false,
+   "H10": false,
+   "H11": false,
+   "H12": true,
+   "H13": false,
+   "H14": false,
+   "H15": false
+  },
+  "turn_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": false,
+   "H05": false,
+   "H06": false,
+   "H07": true,
+   "H08": false,
+   "H09": false,
+   "H10": false,
+   "H11-T1": false,
+   "H11-T2": false,
+   "H12-T1": true,
+   "H12-T2": true,
+   "H13": false,
+   "H14": false,
+   "H15": false
+  },
+  "st_ok": {
+   "H01": false,
+   "H02": false,
+   "H03": false,
+   "H04": false,
+   "H05": false,
+   "H06": false,
+   "H07": true,
+   "H08": false,
+   "H09": false,
+   "H10": false,
+   "H13": false,
+   "H14": false,
+   "H15": false
+  },
+  "ci_case": [
+   0.037,
+   0.379
+  ],
+  "ci_turn": [
+   0.062,
+   0.41
+  ],
+  "ci_st": [
+   0.014,
+   0.333
+  ],
+  "mcn_case": [
+   5,
+   0,
+   0.0625
+  ],
+  "mcn_turn": [
+   6,
+   0,
+   0.0312
+  ],
+  "mcn_single": [
+   5,
+   0,
+   0.0625
+  ]
+ }
+}
