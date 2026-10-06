@@ -1,0 +1,146 @@
+{
+ "case_level": {
+  "H01": {
+   "ok": false,
+   "decision_ok": false,
+   "selection_ok": false,
+   "inappropriate": false,
+   "turns": {
+    "H01": false
+   }
+  },
+  "H02": {
+   "ok": false,
+   "decision_ok": false,
+   "selection_ok": false,
+   "inappropriate": false,
+   "turns": {
+    "H02": false
+   }
+  },
+  "H03": {
+   "ok": false,
+   "decision_ok": false,
+   "selection_ok": true,
+   "inappropriate": false,
+   "turns": {
+    "H03": false
+   }
+  },
+  "H04": {
+   "ok": true,
+   "decision_ok": true,
+   "selection_ok": true,
+   "inappropriate": false,
+   "turns": {
+    "H04": true
+   }
+  },
+  "H05": {
+   "ok": false,
+   "decision_ok": false,
+   "selection_ok": false,
+   "inappropriate": false,
+   "turns": {
+    "H05": false
+   }
+  },
+  "H06": {
+   "ok": false,
+   "decision_ok": false,
+   "selection_ok": false,
+   "inappropriate": false,
+   "turns": {
+    "H06": false
+   }
+  },
+  "H07": {
+   "ok": true,
+   "decision_ok": true,
+   "selection_ok": true,
+   "inappropriate": false,
+   "turns": {
+    "H07": true
+   }
+  },
+  "H08": {
+   "ok": true,
+   "decision_ok": true,
+   "selection_ok": true,
+   "inappropriate": false,
+   "turns": {
+    "H08": true
+   }
+  },
+  "H09": {
+   "ok": true,
+   "decision_ok": true,
+   "selection_ok": true,
+   "inappropriate": false,
+   "turns": {
+    "H09": true
+   }
+  },
+  "H10": {
+   "ok": true,
+   "decision_ok": true,
+   "selection_ok": true,
+   "inappropriate": false,
+   "turns": {
+    "H10": true
+   }
+  },
+  "H11": {
+   "ok": false,
+   "decision_ok": false,
+   "selection_ok": false,
+   "inappropriate": false,
+   "turns": {
+    "H11-T1": false,
+    "H11-T2": true
+   }
+  },
+  "H12": {
+   "ok": true,
+   "decision_ok": true,
+   "selection_ok": true,
+   "inappropriate": false,
+   "turns": {
+    "H12-T1": true,
+    "H12-T2": true
+   }
+  },
+  "H13": {
+   "ok": false,
+   "decision_ok": false,
+   "selection_ok": true,
+   "inappropriate": false,
+   "turns": {
+    "H13": false
+   }
+  },
+  "H14": {
+   "ok": false,
+   "decision_ok": false,
+   "selection_ok": false,
+   "inappropriate": false,
+   "turns": {
+    "H14": false
+   }
+  },
+  "H15": {
+   "ok": true,
+   "decision_ok": true,
+   "selection_ok": true,
+   "inappropriate": false,
+   "turns": {
+    "H15": true
+   }
+  }
+ },
+ "case_composite": "7/15",
+ "case_ci95": [
+  0.248,
+  0.699
+ ]
+}
