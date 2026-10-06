@@ -50,6 +50,11 @@ a{color:var(--mint)}
 .hero h1{margin:0;font-size:clamp(40px,8vw,64px);line-height:1.1;font-weight:700;letter-spacing:-.5px}
 .hero h2{margin:6px 0 10px;font-size:clamp(22px,4.2vw,32px);line-height:1.35;color:var(--mint);font-weight:700}
 .hero p{margin:0 0 22px;color:#c9d4dc;font-size:17px;max-width:620px}
+.hero .kicker{margin:6px 0 0;color:var(--muted);font-size:clamp(16px,2.6vw,19px);font-weight:600}
+.hero h2{margin-top:2px}
+.hero p:last-child{margin-bottom:16px}
+#askForm{border-color:rgba(94,224,181,.38);box-shadow:0 0 0 1px rgba(94,224,181,.06),0 12px 32px rgba(0,0,0,.28)}
+#askForm label{font-size:17.5px}
 
 /* البطاقات */
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;backdrop-filter:blur(6px)}
@@ -64,12 +69,12 @@ textarea{flex:1;min-height:56px;max-height:180px;border:1px solid var(--line2);b
 textarea::placeholder{color:var(--dim)}
 textarea:focus{outline:none;border-color:var(--mint);box-shadow:0 0 0 3px rgba(94,224,181,.18)}
 button{font:inherit;cursor:pointer;border:0;border-radius:12px;min-height:44px}
-button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
 .primary{background:linear-gradient(145deg,var(--mint),var(--mint2));color:#06261c;font-weight:700;padding:10px 22px}
 .primary:hover{filter:brightness(1.07)}
 .meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--dim)}
 .examples{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.tag{background:var(--panel2);border:1px solid var(--line);color:#cfd9e0;border-radius:999px;padding:5px 14px;min-height:36px;font-size:14px}
+.tag{background:var(--panel2);border:1px solid var(--line);color:#cfd9e0;border-radius:999px;padding:5px 14px;min-height:44px;font-size:14px}
 .tag:hover{border-color:var(--mint);color:var(--mint)}
 .disclosure{margin:12px 2px 0;font-size:13px;color:var(--muted)}
 
@@ -88,21 +93,38 @@ blockquote{margin:12px 0;padding:16px 18px;border-inline-start:3px solid var(--m
   font-size:17.5px;line-height:2.05;white-space:pre-wrap;color:#e6edf1}
 mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 .cut{color:var(--dim)}
-.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
-.qhead small{color:var(--dim);font-size:12.5px}
-.more{background:transparent;border:1px solid var(--line2);color:var(--mint);border-radius:999px;padding:4px 14px;min-height:36px;font-size:13.5px;font-weight:600}
+.qfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
+.qfoot small{color:var(--dim);font-size:12.5px}
+.rtype{margin:0 0 4px;font-size:17px;line-height:1.5;font-weight:700;color:var(--mint)}
+.is-partial{border-inline-start:3px solid var(--gold)}
+.is-partial .rtype{color:var(--gold)}
+.is-answer{border-inline-start:3px solid var(--mint)}
+.rpart{margin:0 0 6px;font-size:14.5px;color:#e9dcb5}
+.card .about{font-size:16.5px;color:#d6e0e6;margin:0 0 4px}
+.card blockquote{max-width:44em}
+.src-k{display:block;font-size:12px;font-weight:600;color:var(--dim);margin-bottom:2px}
+.src p{margin:0}
+.src-l{color:var(--dim);font-size:13px}
+.more{background:transparent;border:1px solid var(--line2);color:var(--mint);border-radius:999px;padding:4px 16px;min-height:44px;font-size:13.5px;font-weight:600}
 .more:hover{border-color:var(--mint)}
-.qhead + blockquote{margin-top:8px}
+.card blockquote{margin:10px 0 6px}
 .tafsir{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border:1px solid rgba(94,224,181,.35);background:var(--mintBg);color:var(--mint);border-radius:12px;padding:8px 14px;font-weight:600;font-size:14.5px;text-decoration:none}
 .tafsir:hover{border-color:var(--mint)}
 .ayah{font-family:"Amiri Quran","Amiri",serif;color:var(--ayah);font-size:1.12em}
 .src{font-size:13.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin:12px 0 0}
 .src b{color:#d6e0e6;font-weight:600}
-.src .link{display:inline-block;margin-top:4px;font-weight:600;text-decoration:none}
+.src .link{display:inline-flex;align-items:center;gap:4px;min-height:44px;margin-top:2px;font-weight:600;text-decoration:none}
+.src-o{white-space:nowrap}
 .src .link:hover{text-decoration:underline}
 .src small{display:block;color:var(--dim);margin-top:4px}
 .msg p{margin:0 0 6px}
 .fb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.fbq-h{margin:0;font-weight:600}
+.fbq-h2{margin:12px 0 4px;font-weight:600;font-size:15.5px}
+.choice[aria-pressed="true"]{border-color:var(--mint);color:var(--mint);background:var(--mintBg);font-weight:700}
+.choice[aria-pressed="true"]::before{content:"✓ ";}
+.fbpanel{margin-top:10px}
+.fbpanel > p{margin:0 0 6px}
 .ghost{background:var(--panel2);border:1px solid var(--line2);color:var(--text);padding:6px 18px}
 .ghost:hover:not([disabled]){border-color:var(--mint);color:var(--mint)}
 .ghost[disabled]{opacity:.45;cursor:default}
@@ -111,6 +133,14 @@ mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px
 .nav-sep{display:flex;align-items:center;gap:8px;margin:10px 0 2px;color:var(--muted,#8a97ad);font-size:12px}
 .nav-sep::before,.nav-sep::after{content:"";flex:1;border-top:1px solid rgba(255,255,255,.12)}
 .next.nav .ghost{opacity:.85}
+.state{border-inline-start:3px solid var(--line2)}
+.st-h{margin:0 0 6px;font-size:16.5px;line-height:1.5;font-weight:700}
+.st-clarify{border-inline-start-color:var(--mint)}.st-clarify .st-h{color:var(--mint)}
+.st-q{margin:0 0 2px;font-weight:600}
+.st-notcov{border-inline-start-color:var(--gold)}.st-notcov .st-h{color:var(--gold)}
+.st-refer{border-inline-start-color:#8fb3ff}.st-refer .st-h{color:#a9c4ff}
+.state > p{margin:0 0 6px}
+.state .next{margin-top:10px}
 .rnote{border-inline-start:3px solid var(--gold);background:var(--goldBg);border-radius:10px;padding:6px 12px;font-size:14px;margin:8px 0}
 .notice{border-inline-start:3px solid var(--gold);background:var(--goldBg);border-radius:12px;padding:8px 14px;font-size:14px;margin-bottom:12px}
 .verse{font-family:"Amiri Quran","Amiri",serif;font-size:24px;line-height:2.3;color:var(--ayah);background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:10px 0}
@@ -124,7 +154,7 @@ mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px
 .sec{display:flex;align-items:center;justify-content:space-between;margin:34px 0 12px}
 .sec h3{margin:0;font-size:20px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.need{text-align:right;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--text);display:flex;flex-direction:column;gap:6px;min-height:118px;transition:border-color .15s,transform .15s}
+.need{text-align:right;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--text);display:flex;flex-direction:column;gap:6px;min-height:96px;transition:border-color .15s,transform .15s}
 .need.off{opacity:.5;cursor:default}.need.off:hover{transform:none;border-color:var(--line)}
 .asked{font-size:13.5px;color:var(--muted);margin:0 2px 10px}.asked b{color:var(--text);font-weight:600}
 .need:hover{border-color:rgba(94,224,181,.5);transform:translateY(-2px)}
@@ -154,7 +184,11 @@ details.soon{margin-top:12px;background:transparent;border:0;padding:0}
 details.soon summary{color:var(--muted);font-size:14px}
 details.soon ul{margin:8px 0 0;padding:0 18px;color:var(--dim);font-size:14px}
 .next{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.disclosure.top{margin:0 2px 12px}
+.how .disclosure{margin:8px 0 0}
+.more-toggle{display:block;min-width:13em;margin:12px auto 0;background:transparent;border:1px solid var(--line2);color:var(--mint);border-radius:999px;padding:8px 20px;font-weight:600}
+.more-toggle:hover{border-color:var(--mint);background:var(--mintBg)}
+#menuMore{margin-top:12px}
+#menuMore[hidden],#moreBtn[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -167,11 +201,11 @@ details.soon ul{margin:8px 0 0;padding:0 18px;color:var(--dim);font-size:14px}
 
   <section class="hero">
     <h1>دليل</h1>
-    <h2>من سؤالك عن القرآن إلى المقطع المناسب</h2>
-    <p>اسأل بكلماتك، ويختار لك «دليل» نصاً موثوقاً يجيب عن سؤالك، مع مصدره وموضعه.</p>
+    <p class="kicker">الإسلام خطوة بخطوة</p>
+    <h2>من سؤالك عن القرآن إلى المادة المناسبة</h2>
+    <p>اسأل بطريقتك، ويساعدك دليل في الوصول إلى مادة موثقة ومراجعة تجيب عن سؤالك.</p>
   </section>
 
-  <p class="disclosure top" id="disclosure"></p>
   <form id="askForm" class="panel" autocomplete="off">
     <label for="q">اكتب سؤالك عن القرآن</label>
     <div class="field">
@@ -190,13 +224,18 @@ details.soon ul{margin:8px 0 0;padding:0 18px;color:var(--dim);font-size:14px}
   <section id="result" tabindex="-1" aria-label="النتيجة"></section>
 
   <div class="sec"><h3>أو اختر سؤالك</h3></div>
-  <nav class="grid" id="menu" aria-label="الأسئلة المتاحة"></nav>
+  <nav id="menuNav" aria-label="الأسئلة المتاحة">
+    <div class="grid" id="menu"></div>
+    <button type="button" class="more-toggle" id="moreBtn" aria-expanded="false" aria-controls="menuMore" hidden>عرض جميع الأسئلة</button>
+    <div class="grid" id="menuMore" hidden></div>
+  </nav>
   <div id="soon"></div>
 
   <section class="how">
     <div class="panel accent">
       <h4>كيف يعمل؟</h4>
       <p>يفهم سؤالك بالذكاء الاصطناعي، ثم يختار مقطعاً من مكتبة نصوص راجعها مختص، وينقله حرفياً مع مصدره وموضعه.</p>
+      <p class="disclosure" id="disclosure"></p>
     </div>
     <div class="panel limit">
       <h4>حدود واضحة</h4>
@@ -211,6 +250,7 @@ details.soon ul{margin:8px 0 0;padding:0 18px;color:var(--dim);font-size:14px}
 </div>
 <script>
 const S = {lastQuestion:"", shown:[], lastNeed:null, lastId:null};
+const FEATURED = ["ح2", "ح7"];  // الأسئلة الجاهزة الظاهرة أولاً (معتمدة): «كيف نزل القرآن؟» و«لماذا يؤمن المسلمون أن القرآن من الله؟»
 const $ = id => document.getElementById(id);
 const esc = s => (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = s => esc(s).replace(/﴿([^﴾]+)﴾/g, '<span class="ayah">﴿$1﴾</span>');
@@ -231,10 +271,16 @@ function bind(root){
 function menu(needs){
   S.needs = needs;
   const on = needs.filter(n => n.available), off = needs.filter(n => !n.available);
-  $("menu").innerHTML = on.map((n,i) =>
-    `<button class="need" data-need="${n.id}"><span class="n">${i+1}</span><span class="s">${esc(n.section)}</span><span class="t">${esc(n.title)}</span></button>`).join("");
+  const card = (n,i) => `<button class="need" data-need="${n.id}"><span class="n">${i+1}</span><span class="s">${esc(n.section)}</span><span class="t">${esc(n.title)}</span></button>`;
+  // الأسئلة الظاهرة أولاً: قائمة ثابتة معتمدة؛ إن لم تكن كلها متاحة تظهر الأسئلة كلها كما كانت
+  const feat = FEATURED.map(id => on.find(n => n.id === id)).filter(Boolean);
+  const split = feat.length > 0 && feat.length === FEATURED.length;
+  const first = split ? feat : on, rest = split ? on.filter(n => !FEATURED.includes(n.id)) : [];
+  $("menu").innerHTML = first.map(card).join("");
+  $("menuMore").innerHTML = rest.map((n,i) => card(n, i + first.length)).join("");
+  $("moreBtn").hidden = !rest.length;
   $("soon").innerHTML = off.length ? `<details class="soon"><summary>قريباً (${off.length}): أسئلة نصوصها قيد المراجعة</summary><ul>${off.map(n => `<li>${esc(n.title)}</li>`).join("")}</ul></details>` : "";
-  bind($("menu"));
+  bind($("menu")); bind($("menuMore"));
 }
 function loading(){ $("result").innerHTML = '<div class="panel spinner">جارٍ البحث في المكتبة…</div>'; }
 function focusResult(){ const r=$("result"); r.focus({preventScroll:true}); r.scrollIntoView({behavior:"smooth",block:"start"}); }
@@ -242,6 +288,9 @@ const optBtn = (o, keep) => o.q
   ? `<button class="opt" data-ask="${esc(o.q)}">${esc(o.title)}</button>`
   : `<button class="opt" data-need="${o.id}" data-keep="${keep?1:0}"${o.segment ? ` data-seg="${esc(o.segment)}"` : ""}>${esc(o.title)}</button>`;
 
+// الإحالة بالمعنى المعتمد في المنهجية: الفتوى والحالة الشخصية، وطلب المستخدم مختصاً
+const REFER_REASONS = new Set(["fatwa", "referral_requested"]);
+const OTHER_REASONS = new Set(["verse_not_found", "verse_check", "outage"]);
 const tafsirBtn = t => t ? `<a class="tafsir" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.label)} ↖</a>` : "";
 function quote(s){
   const f = s.focus, u = s.units || [];
@@ -254,8 +303,8 @@ function quote(s){
   if(f[0] > 0) ex = cut + "\n" + ex;
   if(f[f.length-1] < u.length - 1) ex += "\n" + cut;
   const full = u.map((x, i) => f.includes(i) ? x.replace(/^(\s*)([\s\S]*?)(\s*)$/, (m,a,b,c) => `${a}<mark>${fmt(b)}</mark>${c}`) : fmt(x)).join("");
-  return `<div class="qhead"><small>الجزء المتعلق بسؤالك من النص المعتمد</small><button type="button" class="more" data-more aria-expanded="false" aria-controls="full-${s.id}">أريد التفصيل</button></div>
-    <blockquote data-ex>${ex}</blockquote><blockquote data-full id="full-${s.id}" hidden>${full}</blockquote>`;
+  return `<blockquote data-ex id="ex-${s.id}">${ex}</blockquote><blockquote data-full id="full-${s.id}" hidden>${full}</blockquote>
+    <div class="qfoot"><small data-cap>الجزء المتعلق بسؤالك من النص المعتمد</small><button type="button" class="more" data-more aria-expanded="false" aria-controls="full-${s.id} ex-${s.id}">أريد التفصيل</button></div>`;
 }
 function render(r, label){
   S.lastId = r.decision_id;
@@ -266,44 +315,77 @@ function render(r, label){
     S.lastNeed = r.need;
     r.segments.forEach((s, k) => {
       if(!S.shown.includes(s.id)) S.shown.push(s.id);
-      h += `<article class="panel card">
-        <p class="kicker">${s.relation === "partial" ? "مقطع متعلق بسؤالك، ويتناول" : "يجيب هذا المقطع عن"}</p>
+      const part = s.relation === "partial";
+      // نوع النتيجة بالنص أولاً: RECOMMEND و PARTIAL بعنوانين مختلفين، لا بلون فقط
+      h += `<article class="panel card ${part ? "is-partial" : "is-answer"}">
+        <h3 class="rtype">${part ? "مادة تجيب عن جزء من سؤالك" : "مادة تجيب عن سؤالك"}</h3>
+        ${part ? `<p class="rpart">هذه المادة مفيدة لسؤالك، لكنها لا تغطيه كاملًا.</p>` : ""}
         <p class="about">${esc((s.about||"").replace(ABOUT,""))}</p>
         ${quote(s)}
-        ${s.relation === "partial" && s.partial_note ? `<p class="rnote">${esc(s.partial_note)}</p>` : ""}
         ${s.note?`<p class="rnote"><b>تنبيه المراجع:</b> ${esc(s.note)}</p>`:""}
-        <p class="src">المصدر: <b>${esc(s.source.title)}</b> — ${esc(s.source.org)} · <a class="link" href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener">اقرأ السياق كاملاً ↖</a></p>
-        <details class="more-info"><summary>عن هذا المقطع</summary><p>الموضع: ${esc(s.location)}</p>${s.about_note?`<p>${esc(s.about_note)}</p>`:""}${s.footer?`<p>${esc(s.footer)}</p>`:""}</details>
+        <div class="src"><span class="src-k">المصدر</span>
+          <p class="src-t"><b>${esc(s.source.title)}</b> <span class="src-o">— ${esc(s.source.org)}</span></p>
+          ${s.location ? `<p class="src-l">الموضع: ${esc(s.location)}</p>` : ""}
+          <a class="link" href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener noreferrer">فتح المصدر <span aria-hidden="true">↖</span><span class="sr-only"> (يُفتح في صفحة جديدة)</span></a>
+        </div>
+        ${(s.about_note || s.footer) ? `<details class="more-info"><summary>عن هذا المقطع</summary>${s.about_note?`<p>${esc(s.about_note)}</p>`:""}${s.footer?`<p>${esc(s.footer)}</p>`:""}</details>` : ""}
       </article>`;
     });
-    h += `<div class="panel msg"><p>${esc((r.ask_feedback||"").replace(/\s*\[.*$/,""))}</p><div class="fb">
-      <button class="ghost" data-fb="yes">نعم</button><button class="ghost" data-fb="partial">جزئياً</button><button class="ghost" data-fb="no">لا</button></div><div id="fbOut"></div></div>`;
+    // خطوة واحدة في كل لحظة: «هل أجابت؟» ثم مسار واحد بحسب الاختيار (المنطق والـ payload كما هما)
+    h += `<section class="panel msg fbq" aria-labelledby="fbq-h"><p id="fbq-h" class="fbq-h">هل أجابت هذه المادة عن سؤالك؟</p>
+      <div class="fb" role="group" aria-labelledby="fbq-h">
+      <button type="button" class="ghost choice" data-fb="yes" aria-pressed="false" aria-controls="fbOut">نعم</button><button type="button" class="ghost choice" data-fb="partial" aria-pressed="false" aria-controls="fbOut">جزئياً</button><button type="button" class="ghost choice" data-fb="no" aria-pressed="false" aria-controls="fbOut">لا</button></div><div id="fbOut" aria-live="polite"></div></section>`;
   } else if(r.type === "clarify"){
-    h += `<div class="panel msg accent"><p>${esc(r.message)}</p>${r.options.map(o => optBtn(o, true)).join("")}</div>`;
+    // الاستيضاح خطوة طبيعية قبل الاختيار: عنوان قصير، ثم سؤال الخادم، ثم خياراته فقط (الفعل نفسه لكل خيار)
+    h += `<section class="panel msg state st-clarify" aria-labelledby="st-h"><h3 class="st-h" id="st-h">أريد أن أتأكد أنني فهمت سؤالك جيدًا.</h3>
+      <p class="st-q" id="st-q">${esc(r.message)}</p><div class="opts" role="group" aria-labelledby="st-q">${r.options.map(o => optBtn(o, true)).join("")}</div></section>`;
   } else if(r.type === "verse"){
     h += `<div class="panel msg"><p>${esc(r.message)}</p><div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}] · ${esc(r.source_note)}</p>${tafsirBtn(r.tafsir)}</div>`;
   } else {
-    h += `<div class="panel msg limit"><p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}${tafsirBtn(r.tafsir)}
-      <div class="next"><button type="button" class="ghost" data-go="ask">اكتب سؤالاً آخر</button><button type="button" class="ghost" data-go="menu">الأسئلة المتاحة</button></div></div>`;
+    // REFER بالمعنى المعتمد (الفتوى/الحالة الشخصية وطلب المختص) ← بطاقة إحالة؛ وبقية الامتناع ← بطاقة «غير مغطى»؛
+    // وما ليس قراراً عن المحتوى (سؤال غير مقروء، آية غير موجودة، تعطل الخدمة) يبقى بطاقة محايدة بلا عنوان
+    const kind = REFER_REASONS.has(r.reason) ? "refer" : (r.type === "abstain" && !OTHER_REASONS.has(r.reason) ? "notcov" : "other");
+    let head = {refer:"هذه الحاجة أنسب لمختص", notcov:"خارج ما تغطيه مكتبة «دليل» الحالية"}[kind];
+    if(head && (r.message || "").startsWith(head)) head = "";  // رسالة الخادم تبدأ بالعنوان نفسه (ام-14): لا نكرره
+    h += `<section class="panel msg state st-${kind}"${head ? ' aria-labelledby="st-h"' : ""}>${head ? `<h3 class="st-h" id="st-h">${head}</h3>` : ""}<p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}${tafsirBtn(r.tafsir)}
+      <div class="next"><button type="button" class="ghost" data-go="ask">طرح سؤال آخر</button><button type="button" class="ghost" data-go="menu">الأسئلة المتاحة</button></div></section>`;
+    r._kind = kind;
   }
   $("result").innerHTML = h;
-  $("status").textContent = {answer:"عُرض نص يتعلق بسؤالك", clarify:"نحتاج توضيحاً لسؤالك", verse:"عُرض نص الآية", abstain:"لا يوجد نص يجيب عن سؤالك", invalid:"لم نتمكن من قراءة السؤال"}[r.type] || "";
+  $("status").textContent = r._kind === "refer" ? "هذه الحاجة أنسب لمختص" : r._kind === "notcov" ? "لا تغطي مكتبة «دليل» الحالية هذا السؤال بدقة"
+    : ({answer:"عُرض نص يتعلق بسؤالك", clarify:"نحتاج توضيحاً قصيراً لسؤالك", verse:"عُرض نص الآية", abstain:"لا يوجد نص يجيب عن سؤالك", invalid:"لم نتمكن من قراءة السؤال"}[r.type] || "");
   bind($("result"));
   $("result").querySelectorAll("[data-go]").forEach(b => b.onclick = () => {
     if(b.dataset.go === "ask"){ $("q").focus(); $("q").scrollIntoView({behavior:"smooth", block:"center"}); }
-    else $("menu").scrollIntoView({behavior:"smooth", block:"start"});
+    else { $("menu").scrollIntoView({behavior:"smooth", block:"start"}); const first = $("menu").querySelector("button"); if(first) first.focus({preventScroll:true}); }
   });
   $("result").querySelectorAll("button[data-fb]").forEach(b => b.onclick = () => feedback(b.dataset.fb));
   $("result").querySelectorAll("button[data-more]").forEach(b => b.onclick = () => {
     const card = b.closest("article"), ex = card.querySelector("[data-ex]"), full = card.querySelector("[data-full]");
+    const top0 = b.getBoundingClientRect().top;
     const open = full.hidden; full.hidden = !open; ex.hidden = open;
+    if(open && b.dataset.nolog !== "1" && !b.closest("details.prev")) logOnce("EXPAND");
+    delete b.dataset.nolog;
     b.setAttribute("aria-expanded", open ? "true" : "false");
-    b.textContent = open ? "اعرض المختصر" : "أريد التفصيل";
-    b.previousElementSibling.textContent = open ? "النص المعتمد كاملاً، والمظلَّل هو المتعلق بسؤالك" : "الجزء المتعلق بسؤالك من النص المعتمد";
+    b.textContent = open ? "إخفاء التفصيل" : "أريد التفصيل";
+    card.querySelector("[data-cap]").textContent = open ? "النص المعتمد كاملاً، والمظلَّل هو المتعلق بسؤالك" : "الجزء المتعلق بسؤالك من النص المعتمد";
+    // يبقى الزر في مكانه من الشاشة: لا قفزة عند فتح النص أو طيّه
+    window.scrollBy(0, b.getBoundingClientRect().top - top0);
   });
+  $("result").querySelectorAll("article a.link").forEach(a => { if(!a.closest("details.prev")) a.addEventListener("click", () => logOnce("SOURCE")); });
+  fbChoice = null;
   if(r.needs) menu(r.needs);
   focusResult();
 }
+// تسجيل نوع المتابعة كما كان: POST /api/followup {kind, decision_id, shown}
+const logKind = kind => post("/api/followup", {kind, decision_id:S.lastId, shown:[...S.shown]}).catch(() => {});
+// EXPAND و SOURCE: أول طلب صريح فقط لكل قرار معروض (docs/interaction-data-contract.md)
+let logged = {id:null, kinds:new Set()};
+const logOnce = kind => {
+  if(logged.id !== S.lastId) logged = {id:S.lastId, kinds:new Set()};
+  if(logged.kinds.has(kind)) return;
+  logged.kinds.add(kind); logKind(kind);
+};
 let seq = 0, retry = null;
 function fail(e){
   const msg = String(e && e.message) === "429" ? "أرسلت أسئلة كثيرة في وقت قصير. انتظر دقيقة ثم أعد المحاولة." : "تعذّر الوصول إلى الخادم الآن. قد يستغرق أول فتح للموقع نصف دقيقة.";
@@ -331,66 +413,72 @@ function pickNeed(id, keepShown, seg){
   if(seg) body.segment = seg;
   run("/api/need", body, n ? `اخترت: <b>${esc(n.title)}</b>` : "");
 }
-const T_REM = "ما الذي بقي دون إجابة؟";
+const T_REM = "ما الجزء الذي بقي دون إجابة؟";
+// /api/feedback سجل أحداث يُضاف إليه فقط: كل تغيير فعلي في الاختيار يُرسل فوراً، والقيمة نفسها لا تُرسل مرتين.
+// القيمة النهائية للتحليل = آخر سطر لكل decision_id (docs/interaction-data-contract.md)
+let fbChoice = null;
 async function feedback(v){
-  document.querySelectorAll("button[data-fb]").forEach(b => b.disabled = true);
+  if(fbChoice === v) return;
+  fbChoice = v;
+  document.querySelectorAll("button[data-fb]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.fb === v)));
   const shownNow = [...S.shown];
-  let r; try { r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed, shown:shownNow}); }
+  let r;
+  try { r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed, shown:shownNow}); }
   catch(e){
-    document.querySelectorAll("button[data-fb]").forEach(b => b.disabled = false);
-    $("fbOut").innerHTML = '<p style="margin-top:10px">لم يُرسَل ردّك. أعد المحاولة.</p>';
+    if(fbChoice === v){
+      document.querySelectorAll("button[data-fb]").forEach(b => b.setAttribute("aria-pressed", "false")); fbChoice = null;
+      $("fbOut").innerHTML = '<p style="margin-top:10px">لم يُرسَل ردّك. أعد المحاولة.</p>';
+    }
     return;
   }
-  if(v === "partial") S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join("");
+  if(fbChoice !== v) return;  // اختار المستخدم غيره قبل وصول الرد
+  const keepPrev = () => { S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join(""); };
+  const expand = () => { const m = document.querySelector("#result article [data-more]"); if(!m) return; if(m.getAttribute("aria-expanded") !== "true"){ m.dataset.nolog = "1"; m.click(); } m.closest("article").scrollIntoView({behavior:"smooth", block:"start"}); };
+  const remForm = (label, kind, submitText) => `<form id="remForm" data-kind="${kind}"><label for="rem">${esc(label)}</label><div class="field"><textarea id="rem" maxlength="300" rows="2"></textarea><button class="primary" type="submit">${submitText}</button></div></form>`;
+  const bindRem = () => {
+    const f = $("remForm"); if(!f) return;
+    $("rem").focus();
+    f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t){ keepPrev(); ask(t, true, f.dataset.kind); } };
+  };
   let h = "";
-  if(v === "partial"){
-    h = `<form id="remForm"><label for="rem">${esc(r.message)}</label><div class="field"><textarea id="rem" maxlength="300" rows="2"></textarea><button class="primary" type="submit">أرسل</button></div></form>`;
+  if(v === "yes"){
+    h = `<div class="fbpanel">${r.message ? `<p>${esc(r.message)}</p>` : ""}${(r.next||[]).map(n => optBtn(n, false)).join("")}
+      <div class="next nav"><button type="button" class="ghost" data-go="ask">سؤال جديد</button></div></div>`;
+  } else if(v === "partial"){
+    h = `<div class="fbpanel">${remForm(T_REM, "PART_REMAINING", "متابعة")}</div>`;
   } else {
-    h = `<p style="margin-top:10px">${esc(r.message)}</p>`;
-    if(v === "yes" && r.next && r.next.length) h += r.next.map(n => optBtn(n, false)).join("");
-  }
-  if(v !== "yes"){
-    const card = document.querySelector("#result article");
-    const more = card && card.querySelector("[data-more]");
-    // ستة خيارات لتشخيص ما بقي، ثم زرّا تنقّل مفصولان عنها
-    h += `<div class="next" data-kinds>${v === "no" ? '<button type="button" class="ghost" data-rem>بقي جزء من سؤالي</button>' : ""}<button type="button" class="ghost" data-unclear>المعنى غير واضح</button><button type="button" class="ghost" data-obj>لدي اعتراض</button>${more ? '<button type="button" class="ghost" data-expand>أريد التفصيل</button>' : ""}${card && card.querySelector("a.link") ? '<button type="button" class="ghost" data-src>أريد المصدر</button>' : ""}<button type="button" class="ghost" data-refer>أريد مختصاً</button></div>
-      <div class="nav-sep"><span>أو</span></div>
-      <div class="next nav"><button type="button" class="ghost" data-go="ask">سؤال جديد</button><button type="button" class="ghost" data-go="menu">الأسئلة المتاحة</button></div>`;
+    h = `<div class="fbpanel" role="group" aria-labelledby="fbno-h"><p id="fbno-h" class="fbq-h2">ما المشكلة في الإجابة؟</p>
+      <div class="next" data-kinds><button type="button" class="ghost" data-unclear>المعنى غير واضح</button><button type="button" class="ghost" data-obj>لدي اعتراض</button><button type="button" class="ghost" data-refer>أحتاج مختصًا</button></div></div>`;
   }
   $("fbOut").innerHTML = h;
   bind($("fbOut"));
-  const logKind = kind => post("/api/followup", {kind, decision_id:S.lastId, shown:[...S.shown]}).catch(() => {});
-  const expand = () => { const m = document.querySelector("#result article [data-more]"); if(!m) return; if(m.getAttribute("aria-expanded") !== "true") m.click(); m.closest("article").scrollIntoView({behavior:"smooth", block:"start"}); };
-  const ex = $("fbOut").querySelector("[data-expand]");
-  if(ex) ex.onclick = () => { logKind("EXPAND"); expand(); };
-  const sr = $("fbOut").querySelector("[data-src]");
-  if(sr) sr.onclick = () => { logKind("SOURCE"); window.open(document.querySelector("#result article a.link").href, "_blank", "noopener"); };
-  // «بقي جزء» و«لدي اعتراض»: نص يكتبه المستخدم، ويُرسل متابعةً بسياق السؤال السابق ولا تعيد المقطع المعروض
-  const remForm = (btn, label, kind) => {
-    S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join("");
-    const old = $("remForm"); if(old) old.remove();
-    btn.closest(".next").insertAdjacentHTML("beforebegin", `<form id="remForm"><label for="rem">${esc(label)}</label><div class="field"><textarea id="rem" maxlength="300" rows="2"></textarea><button class="primary" type="submit">أرسل</button></div></form>`);
-    const f = $("remForm"); $("rem").focus();
-    f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true, kind); };
-  };
-  const rb = $("fbOut").querySelector("[data-rem]");
-  if(rb) rb.onclick = () => { remForm(rb, T_REM, "PART_REMAINING"); rb.remove(); };
+  $("fbOut").querySelectorAll("[data-go]").forEach(b => b.onclick = () => { $("q").focus(); $("q").scrollIntoView({behavior:"smooth", block:"center"}); });
+  if(v === "partial") bindRem();
+  // «لدي اعتراض»: نص يكتبه المستخدم، ويُرسل متابعةً بسياق السؤال السابق (OBJECTION) ولا يعيد المقطع المعروض
   const ob = $("fbOut").querySelector("[data-obj]");
-  if(ob) ob.onclick = () => remForm(ob, "اكتب اعتراضك أو ما لم يقنعك:", "OBJECTION");
+  if(ob) ob.onclick = () => {
+    const old = $("remForm"); if(old) old.remove();
+    ob.closest(".next").insertAdjacentHTML("afterend", remForm("اكتب اعتراضك أو ما لم يقنعك:", "OBJECTION", "أرسل"));
+    bindRem();
+  };
   // «المعنى غير واضح»: تفصيل المقطع إن وُجد ← وإلا محتوى مرتبط مسجّل ← وإلا رسالة صادقة. لا شرح مولَّد.
   const ub = $("fbOut").querySelector("[data-unclear]");
   if(ub) ub.onclick = async () => {
     const m = document.querySelector("#result article [data-more]");
     const hasDetail = !!m && m.getAttribute("aria-expanded") !== "true";
     if(hasDetail){ logKind("UNCLEAR"); expand(); return; }
-    S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join("");
+    keepPrev();
     run("/api/followup", {kind:"UNCLEAR", decision_id:S.lastId, shown:[...S.shown], has_detail:false}, "المعنى غير واضح");
   };
   const fb = $("fbOut").querySelector("[data-refer]");
   if(fb) fb.onclick = () => run("/api/followup", {kind:"SPECIALIST", decision_id:S.lastId, shown:[...S.shown]}, "طلبت مختصاً");
-  const f = $("remForm");
-  if(f){ $("rem").focus(); f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true, "PART_REMAINING"); }; }
 }
+$("moreBtn").onclick = () => {
+  const b = $("moreBtn"), open = b.getAttribute("aria-expanded") !== "true";
+  b.setAttribute("aria-expanded", String(open));
+  $("menuMore").hidden = !open;
+  b.textContent = open ? "إخفاء بقية الأسئلة" : "عرض جميع الأسئلة";
+};
 $("q").addEventListener("input", e => $("count").textContent = `${e.target.value.length} من 300`);
 $("q").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); $("askForm").requestSubmit(); } });
 $("askForm").onsubmit = e => { e.preventDefault(); const t = $("q").value.trim(); if(t) ask(t, false); };
