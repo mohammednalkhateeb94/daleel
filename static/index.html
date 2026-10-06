@@ -343,7 +343,7 @@ function render(r, label){
     const card = b.closest("article"), ex = card.querySelector("[data-ex]"), full = card.querySelector("[data-full]");
     const top0 = b.getBoundingClientRect().top;
     const open = full.hidden; full.hidden = !open; ex.hidden = open;
-    if(open && b.dataset.nolog !== "1") logKind("EXPAND");
+    if(open && b.dataset.nolog !== "1" && !b.closest("details.prev")) logOnce("EXPAND");
     delete b.dataset.nolog;
     b.setAttribute("aria-expanded", open ? "true" : "false");
     b.textContent = open ? "إخفاء التفصيل" : "أريد التفصيل";
@@ -351,12 +351,20 @@ function render(r, label){
     // يبقى الزر في مكانه من الشاشة: لا قفزة عند فتح النص أو طيّه
     window.scrollBy(0, b.getBoundingClientRect().top - top0);
   });
-  $("result").querySelectorAll("article a.link").forEach(a => a.addEventListener("click", () => logKind("SOURCE")));
+  $("result").querySelectorAll("article a.link").forEach(a => { if(!a.closest("details.prev")) a.addEventListener("click", () => logOnce("SOURCE")); });
+  fbChoice = null;
   if(r.needs) menu(r.needs);
   focusResult();
 }
 // تسجيل نوع المتابعة كما كان: POST /api/followup {kind, decision_id, shown}
 const logKind = kind => post("/api/followup", {kind, decision_id:S.lastId, shown:[...S.shown]}).catch(() => {});
+// EXPAND و SOURCE: أول طلب صريح فقط لكل قرار معروض (docs/interaction-data-contract.md)
+let logged = {id:null, kinds:new Set()};
+const logOnce = kind => {
+  if(logged.id !== S.lastId) logged = {id:S.lastId, kinds:new Set()};
+  if(logged.kinds.has(kind)) return;
+  logged.kinds.add(kind); logKind(kind);
+};
 let seq = 0, retry = null;
 function fail(e){
   const msg = String(e && e.message) === "429" ? "أرسلت أسئلة كثيرة في وقت قصير. انتظر دقيقة ثم أعد المحاولة." : "تعذّر الوصول إلى الخادم الآن. قد يستغرق أول فتح للموقع نصف دقيقة.";
@@ -385,23 +393,22 @@ function pickNeed(id, keepShown, seg){
   run("/api/need", body, n ? `اخترت: <b>${esc(n.title)}</b>` : "");
 }
 const T_REM = "ما الجزء الذي بقي دون إجابة؟";
-// ردّ /api/feedback يُحفظ لكل اختيار في القرار نفسه: التبديل بين نعم/جزئياً/لا لا يكرر الطلب نفسه
-let fbCache = {id:null, r:{}}, fbChoice = null;
+// /api/feedback سجل أحداث يُضاف إليه فقط: كل تغيير فعلي في الاختيار يُرسل فوراً، والقيمة نفسها لا تُرسل مرتين.
+// القيمة النهائية للتحليل = آخر سطر لكل decision_id (docs/interaction-data-contract.md)
+let fbChoice = null;
 async function feedback(v){
-  if(fbCache.id !== S.lastId) fbCache = {id:S.lastId, r:{}};
+  if(fbChoice === v) return;
   fbChoice = v;
   document.querySelectorAll("button[data-fb]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.fb === v)));
   const shownNow = [...S.shown];
-  let r = fbCache.r[v];
-  if(!r){
-    try { r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed, shown:shownNow}); fbCache.r[v] = r; }
-    catch(e){
-      if(fbChoice === v){
-        document.querySelectorAll("button[data-fb]").forEach(b => b.setAttribute("aria-pressed", "false")); fbChoice = null;
-        $("fbOut").innerHTML = '<p style="margin-top:10px">لم يُرسَل ردّك. أعد المحاولة.</p>';
-      }
-      return;
+  let r;
+  try { r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed, shown:shownNow}); }
+  catch(e){
+    if(fbChoice === v){
+      document.querySelectorAll("button[data-fb]").forEach(b => b.setAttribute("aria-pressed", "false")); fbChoice = null;
+      $("fbOut").innerHTML = '<p style="margin-top:10px">لم يُرسَل ردّك. أعد المحاولة.</p>';
     }
+    return;
   }
   if(fbChoice !== v) return;  // اختار المستخدم غيره قبل وصول الرد
   const keepPrev = () => { S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join(""); };
