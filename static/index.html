@@ -225,7 +225,7 @@ details.soon ul{margin:8px 0 0;padding:0 18px;color:var(--dim);font-size:14px}
 </div>
 <script>
 const S = {lastQuestion:"", shown:[], lastNeed:null, lastId:null};
-const FEATURED = [];  // أربعة رموز حاجات تظهر أولاً؛ فارغة حتى تُعتمد
+const FEATURED = ["ح2", "ح7"];  // الأسئلة الجاهزة الظاهرة أولاً (معتمدة): «كيف نزل القرآن؟» و«لماذا يؤمن المسلمون أن القرآن من الله؟»
 const $ = id => document.getElementById(id);
 const esc = s => (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = s => esc(s).replace(/﴿([^﴾]+)﴾/g, '<span class="ayah">﴿$1﴾</span>');
@@ -247,9 +247,9 @@ function menu(needs){
   S.needs = needs;
   const on = needs.filter(n => n.available), off = needs.filter(n => !n.available);
   const card = (n,i) => `<button class="need" data-need="${n.id}"><span class="n">${i+1}</span><span class="s">${esc(n.section)}</span><span class="t">${esc(n.title)}</span></button>`;
-  // الأسئلة الظاهرة أولاً: قائمة ثابتة تُعتمد بعد اختبارها؛ إن لم تُحدَّد أربعة متاحة تظهر الأسئلة كلها كما كانت
+  // الأسئلة الظاهرة أولاً: قائمة ثابتة معتمدة؛ إن لم تكن كلها متاحة تظهر الأسئلة كلها كما كانت
   const feat = FEATURED.map(id => on.find(n => n.id === id)).filter(Boolean);
-  const split = feat.length === 4;
+  const split = feat.length > 0 && feat.length === FEATURED.length;
   const first = split ? feat : on, rest = split ? on.filter(n => !FEATURED.includes(n.id)) : [];
   $("menu").innerHTML = first.map(card).join("");
   $("menuMore").innerHTML = rest.map((n,i) => card(n, i + first.length)).join("");
