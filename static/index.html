@@ -132,6 +132,14 @@ mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px
 .nav-sep{display:flex;align-items:center;gap:8px;margin:10px 0 2px;color:var(--muted,#8a97ad);font-size:12px}
 .nav-sep::before,.nav-sep::after{content:"";flex:1;border-top:1px solid rgba(255,255,255,.12)}
 .next.nav .ghost{opacity:.85}
+.state{border-inline-start:3px solid var(--line2)}
+.st-h{margin:0 0 6px;font-size:16.5px;line-height:1.5;font-weight:700}
+.st-clarify{border-inline-start-color:var(--mint)}.st-clarify .st-h{color:var(--mint)}
+.st-q{margin:0 0 2px;font-weight:600}
+.st-notcov{border-inline-start-color:var(--gold)}.st-notcov .st-h{color:var(--gold)}
+.st-refer{border-inline-start-color:#8fb3ff}.st-refer .st-h{color:#a9c4ff}
+.state > p{margin:0 0 6px}
+.state .next{margin-top:10px}
 .rnote{border-inline-start:3px solid var(--gold);background:var(--goldBg);border-radius:10px;padding:6px 12px;font-size:14px;margin:8px 0}
 .notice{border-inline-start:3px solid var(--gold);background:var(--goldBg);border-radius:12px;padding:8px 14px;font-size:14px;margin-bottom:12px}
 .verse{font-family:"Amiri Quran","Amiri",serif;font-size:24px;line-height:2.3;color:var(--ayah);background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:10px 0}
@@ -279,6 +287,9 @@ const optBtn = (o, keep) => o.q
   ? `<button class="opt" data-ask="${esc(o.q)}">${esc(o.title)}</button>`
   : `<button class="opt" data-need="${o.id}" data-keep="${keep?1:0}"${o.segment ? ` data-seg="${esc(o.segment)}"` : ""}>${esc(o.title)}</button>`;
 
+// الإحالة بالمعنى المعتمد في المنهجية: الفتوى والحالة الشخصية، وطلب المستخدم مختصاً
+const REFER_REASONS = new Set(["fatwa", "referral_requested"]);
+const OTHER_REASONS = new Set(["verse_not_found", "verse_check", "outage"]);
 const tafsirBtn = t => t ? `<a class="tafsir" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.label)} ↖</a>` : "";
 function quote(s){
   const f = s.focus, u = s.units || [];
@@ -324,15 +335,24 @@ function render(r, label){
       <div class="fb" role="group" aria-labelledby="fbq-h">
       <button type="button" class="ghost choice" data-fb="yes" aria-pressed="false" aria-controls="fbOut">نعم</button><button type="button" class="ghost choice" data-fb="partial" aria-pressed="false" aria-controls="fbOut">جزئياً</button><button type="button" class="ghost choice" data-fb="no" aria-pressed="false" aria-controls="fbOut">لا</button></div><div id="fbOut" aria-live="polite"></div></section>`;
   } else if(r.type === "clarify"){
-    h += `<div class="panel msg accent"><p>${esc(r.message)}</p>${r.options.map(o => optBtn(o, true)).join("")}</div>`;
+    // الاستيضاح خطوة طبيعية قبل الاختيار: عنوان قصير، ثم سؤال الخادم، ثم خياراته فقط (الفعل نفسه لكل خيار)
+    h += `<section class="panel msg state st-clarify" aria-labelledby="st-h"><h3 class="st-h" id="st-h">أريد أن أتأكد أنني فهمت سؤالك جيدًا.</h3>
+      <p class="st-q" id="st-q">${esc(r.message)}</p><div class="opts" role="group" aria-labelledby="st-q">${r.options.map(o => optBtn(o, true)).join("")}</div></section>`;
   } else if(r.type === "verse"){
     h += `<div class="panel msg"><p>${esc(r.message)}</p><div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}] · ${esc(r.source_note)}</p>${tafsirBtn(r.tafsir)}</div>`;
   } else {
-    h += `<div class="panel msg limit"><p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}${tafsirBtn(r.tafsir)}
-      <div class="next"><button type="button" class="ghost" data-go="ask">اكتب سؤالاً آخر</button><button type="button" class="ghost" data-go="menu">الأسئلة المتاحة</button></div></div>`;
+    // REFER بالمعنى المعتمد (الفتوى/الحالة الشخصية وطلب المختص) ← بطاقة إحالة؛ وبقية الامتناع ← بطاقة «غير مغطى»؛
+    // وما ليس قراراً عن المحتوى (سؤال غير مقروء، آية غير موجودة، تعطل الخدمة) يبقى بطاقة محايدة بلا عنوان
+    const kind = REFER_REASONS.has(r.reason) ? "refer" : (r.type === "abstain" && !OTHER_REASONS.has(r.reason) ? "notcov" : "other");
+    let head = {refer:"هذه الحاجة أنسب لمختص", notcov:"خارج ما تغطيه مكتبة «دليل» الحالية"}[kind];
+    if(head && (r.message || "").startsWith(head)) head = "";  // رسالة الخادم تبدأ بالعنوان نفسه (ام-14): لا نكرره
+    h += `<section class="panel msg state st-${kind}"${head ? ' aria-labelledby="st-h"' : ""}>${head ? `<h3 class="st-h" id="st-h">${head}</h3>` : ""}<p>${esc(r.message)}</p>${r.verse?`<div class="verse">﴿${esc(r.verse.text)}﴾</div><p class="src">[${esc(r.verse.ref)}]</p>`:""}${tafsirBtn(r.tafsir)}
+      <div class="next"><button type="button" class="ghost" data-go="ask">طرح سؤال آخر</button><button type="button" class="ghost" data-go="menu">الأسئلة المتاحة</button></div></section>`;
+    r._kind = kind;
   }
   $("result").innerHTML = h;
-  $("status").textContent = {answer:"عُرض نص يتعلق بسؤالك", clarify:"نحتاج توضيحاً لسؤالك", verse:"عُرض نص الآية", abstain:"لا يوجد نص يجيب عن سؤالك", invalid:"لم نتمكن من قراءة السؤال"}[r.type] || "";
+  $("status").textContent = r._kind === "refer" ? "هذه الحاجة أنسب لمختص" : r._kind === "notcov" ? "لا تغطي مكتبة «دليل» الحالية هذا السؤال بدقة"
+    : ({answer:"عُرض نص يتعلق بسؤالك", clarify:"نحتاج توضيحاً قصيراً لسؤالك", verse:"عُرض نص الآية", abstain:"لا يوجد نص يجيب عن سؤالك", invalid:"لم نتمكن من قراءة السؤال"}[r.type] || "");
   bind($("result"));
   $("result").querySelectorAll("[data-go]").forEach(b => b.onclick = () => {
     if(b.dataset.go === "ask"){ $("q").focus(); $("q").scrollIntoView({behavior:"smooth", block:"center"}); }
