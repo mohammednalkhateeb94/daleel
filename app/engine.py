@@ -232,8 +232,7 @@ def ask(question: str, ctx: dict | None = None, use_llm: bool = True) -> dict:
         segs = [library()["by_id"][i] for i in dec["segments"]]
         picks, verdicts = {}, {}
         if source == "llm" and use_llm:
-            m0 = dec.get("_m") or {}
-            picks, verdicts, fmeta = focus.select(question, segs, task=m0.get("task") or "", issue=m0.get("issue") or "")
+            picks, verdicts, fmeta = focus.select(question, segs)
             if fmeta.get("focus_error") or not verdicts:
                 # لم يُفحص نص المقطع (تعطل أو مهلة): لا نقدّمه جواباً مؤكداً
                 verdicts = {sg["id"]: "partial" for sg in segs}
