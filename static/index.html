@@ -74,7 +74,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var
 .primary:hover{filter:brightness(1.07)}
 .meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--dim)}
 .examples{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.tag{background:var(--panel2);border:1px solid var(--line);color:#cfd9e0;border-radius:999px;padding:5px 14px;min-height:36px;font-size:14px}
+.tag{background:var(--panel2);border:1px solid var(--line);color:#cfd9e0;border-radius:999px;padding:5px 14px;min-height:44px;font-size:14px}
 .tag:hover{border-color:var(--mint);color:var(--mint)}
 .disclosure{margin:12px 2px 0;font-size:13px;color:var(--muted)}
 
@@ -105,7 +105,7 @@ mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px
 .src-k{display:block;font-size:12px;font-weight:600;color:var(--dim);margin-bottom:2px}
 .src p{margin:0}
 .src-l{color:var(--dim);font-size:13px}
-.more{background:transparent;border:1px solid var(--line2);color:var(--mint);border-radius:999px;padding:4px 14px;min-height:36px;font-size:13.5px;font-weight:600}
+.more{background:transparent;border:1px solid var(--line2);color:var(--mint);border-radius:999px;padding:4px 16px;min-height:44px;font-size:13.5px;font-weight:600}
 .more:hover{border-color:var(--mint)}
 .card blockquote{margin:10px 0 6px}
 .tafsir{display:inline-flex;align-items:center;gap:6px;margin-top:10px;border:1px solid rgba(94,224,181,.35);background:var(--mintBg);color:var(--mint);border-radius:12px;padding:8px 14px;font-weight:600;font-size:14.5px;text-decoration:none}
@@ -113,7 +113,8 @@ mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px
 .ayah{font-family:"Amiri Quran","Amiri",serif;color:var(--ayah);font-size:1.12em}
 .src{font-size:13.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin:12px 0 0}
 .src b{color:#d6e0e6;font-weight:600}
-.src .link{display:inline-block;margin-top:4px;font-weight:600;text-decoration:none}
+.src .link{display:inline-flex;align-items:center;gap:4px;min-height:44px;margin-top:2px;font-weight:600;text-decoration:none}
+.src-o{white-space:nowrap}
 .src .link:hover{text-decoration:underline}
 .src small{display:block;color:var(--dim);margin-top:4px}
 .msg p{margin:0 0 6px}
@@ -323,7 +324,7 @@ function render(r, label){
         ${quote(s)}
         ${s.note?`<p class="rnote"><b>تنبيه المراجع:</b> ${esc(s.note)}</p>`:""}
         <div class="src"><span class="src-k">المصدر</span>
-          <p class="src-t"><b>${esc(s.source.title)}</b> — ${esc(s.source.org)}</p>
+          <p class="src-t"><b>${esc(s.source.title)}</b> <span class="src-o">— ${esc(s.source.org)}</span></p>
           ${s.location ? `<p class="src-l">الموضع: ${esc(s.location)}</p>` : ""}
           <a class="link" href="${esc(s.link||s.source.url)}" target="_blank" rel="noopener noreferrer">فتح المصدر <span aria-hidden="true">↖</span><span class="sr-only"> (يُفتح في صفحة جديدة)</span></a>
         </div>
@@ -356,7 +357,7 @@ function render(r, label){
   bind($("result"));
   $("result").querySelectorAll("[data-go]").forEach(b => b.onclick = () => {
     if(b.dataset.go === "ask"){ $("q").focus(); $("q").scrollIntoView({behavior:"smooth", block:"center"}); }
-    else $("menu").scrollIntoView({behavior:"smooth", block:"start"});
+    else { $("menu").scrollIntoView({behavior:"smooth", block:"start"}); const first = $("menu").querySelector("button"); if(first) first.focus({preventScroll:true}); }
   });
   $("result").querySelectorAll("button[data-fb]").forEach(b => b.onclick = () => feedback(b.dataset.fb));
   $("result").querySelectorAll("button[data-more]").forEach(b => b.onclick = () => {
