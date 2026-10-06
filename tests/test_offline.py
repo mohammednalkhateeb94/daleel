@@ -22,8 +22,48 @@ CASES = [
 ]
 
 
+
+def test_focus_card_3a():
+    """3A: فحص الملاءمة يرى بطاقة المراجع (ANSWERS / EVIDENCE_LIMITS / DOES_NOT_ANSWER / المطابقة السلبية)."""
+    from app import focus
+    from app.library import library
+    s = library()["by_id"]["ق-08"]
+    card = focus._card(s)
+    assert s["about"] in card and s["method"]["EVIDENCE_LIMITS"] in card and s["method"]["DOES_NOT_ANSWER"] in card
+    assert all(q in card for q in s["not_for"])
+    assert "حدود الدليل" in focus.SYSTEM and "ليس بذاته سبباً للحكم partial" in focus.SYSTEM
+    # 3A-Retry: PARTIAL بلا عنصر مطلوب مسمّى يصير جواباً؛ ومع العنصر يبقى جزئياً؛ وnone لا يتغير
+    import os, httpx
+    calls = []
+
+    class R:
+        def __init__(self, segs): self.segs = segs
+        def raise_for_status(self): pass
+        def json(self): return {"content": [{"type": "tool_use", "input": {"segments": self.segs}}], "usage": {}}
+    seq = [[{"id": "ق-08", "verdict": "partial", "whole": True, "units": [], "missing": ""}],
+           [{"id": "ق-08", "verdict": "partial", "whole": True, "units": [], "missing": "تعريف الوحي"}],
+           [{"id": "ق-08", "verdict": "none", "whole": True, "units": [], "missing": ""}]]
+    old_post, old_key = httpx.post, os.environ.get("ANTHROPIC_API_KEY")
+    httpx.post = lambda *a, **k: (calls.append(k["json"]), R(seq[len(calls) - 1]))[1]
+    os.environ["ANTHROPIC_API_KEY"] = "test"
+    try:
+        _, v1, _ = focus.select("ما هو الوحي؟", [s], task="تعريف", issue="معنى الوحي")
+        _, v2, m2 = focus.select("ما هو الوحي؟", [s])
+        _, v3, _ = focus.select("ما هو الوحي؟", [s])
+    finally:
+        httpx.post = old_post
+        if old_key is None:
+            os.environ.pop("ANTHROPIC_API_KEY", None)
+        else:
+            os.environ["ANTHROPIC_API_KEY"] = old_key
+    assert v1["ق-08"] == "answers" and v2["ق-08"] == "partial" and m2["partial_missing"]["ق-08"] == "تعريف الوحي" and v3["ق-08"] == "none"
+    assert "المسألة الدقيقة (ISSUE): معنى الوحي" in calls[0]["messages"][0]["content"]
+    print("✓ 3A-Retry: بطاقة المراجع، وPARTIAL يحتاج عنصراً مطلوباً مسمّى، وnone لا يتغير")
+
+
 def main():
     fails = 0
+    test_focus_card_3a()
     for q, t, reason in CASES:
         r = engine.ask(q, use_llm=False)
         ok = r["type"] == t and (reason is None or r.get("reason") == reason)
@@ -80,27 +120,27 @@ def main():
     orig_d, orig_s = router.decide, focus.select
     try:
         router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح3", "segment_ids": ["ق-11", "ق-12"], "fit": "high", "_meta": {}}
-        focus.select = lambda q, segs: ({}, {"ق-11": "none", "ق-12": "none"}, {})
+        focus.select = lambda q, segs, **k: ({}, {"ق-11": "none", "ق-12": "none"}, {})
         r = engine.ask("سؤال تجريبي عن الجمع")
         assert r["type"] == "abstain" and r.get("gate") == "verify", r
-        focus.select = lambda q, segs: ({}, {"ق-11": "partial", "ق-12": "answers"}, {})
+        focus.select = lambda q, segs, **k: ({}, {"ق-11": "partial", "ق-12": "answers"}, {})
         r = engine.ask("سؤال تجريبي عن الجمع")
         assert [x["id"] for x in r["segments"]] == ["ق-12", "ق-11"] and r["segments"][1]["relation"] == "partial", r
-        focus.select = lambda q, segs: ({}, {}, {"focus_error": "Timeout"})  # تعطل الفحص: يبقى اختيار الموجِّه
+        focus.select = lambda q, segs, **k: ({}, {}, {"focus_error": "Timeout"})  # تعطل الفحص: يبقى اختيار الموجِّه
         assert engine.ask("سؤال تجريبي عن الجمع")["type"] == "answer"
     finally:
         router.decide, focus.select = orig_d, orig_s
     # ثغرة «جزئي»: مقطع من حاجة أخرى بحكم «جزئي» لا يُعرض، ومن الحاجة نفسها يُعرض
     try:
         router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح2", "segment_ids": ["ق-11"], "fit": "high", "_meta": {}}
-        focus.select = lambda q, segs: ({}, {"ق-11": "partial"}, {})
+        focus.select = lambda q, segs, **k: ({}, {"ق-11": "partial"}, {})
         r = engine.ask("هل نزل القرآن على دفعات؟")
         assert r["type"] == "abstain" and r.get("gate") == "verify", r
         router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح3", "segment_ids": ["ق-11"], "fit": "medium", "_meta": {}}
         assert engine.ask("هل كان الصحابة يحفظون القرآن؟")["type"] == "answer"
         # بوابة «لا يجيب عن»: سؤال يطابق حدود المقطع يُمتنع عنه مهما قال النموذج
         router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح7", "segment_ids": ["ق-23"], "fit": "high", "_meta": {}}
-        focus.select = lambda q, segs: ({}, {"ق-23": "answers"}, {})
+        focus.select = lambda q, segs, **k: ({}, {"ق-23": "answers"}, {})
         r = engine.ask("ليش المسلمين يعظمون القرآن؟")
         assert r["type"] == "abstain" and r.get("gate") == "near_miss", r
     finally:
@@ -140,7 +180,7 @@ def main():
     assert r["type"] != "answer" or all(sg["relation"] == "partial" for sg in r["segments"]), r
     # تعطل الفحص بعد اختيار الموجِّه: «متعلق» لا جواب
     router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح3", "segment_ids": ["ق-12"], "fit": "high", "_meta": {}}
-    focus.select = lambda q, segs: ({}, {}, {"focus_error": "Timeout"})
+    focus.select = lambda q, segs, **k: ({}, {}, {"focus_error": "Timeout"})
     try:
         r = engine.ask("سؤال تجريبي")
         assert r["segments"][0]["relation"] == "partial", r
@@ -191,7 +231,7 @@ def main():
     try:
         router.decide = lambda q, ctx=None: {"decision": "answer", "need_id": "ح4", "segment_ids": ["ق-15"], "fit": "high",
                                               "task": "استدلال", "issue": "x", "sensitivity": "B", "_meta": {}}
-        focus.select = lambda q, segs: ({}, {"ق-15": "answers"}, {})
+        focus.select = lambda q, segs, **k: ({}, {"ق-15": "answers"}, {})
         r = engine.ask("سؤال تجريبي للظل")
         m = r["method"]
         assert r["type"] == "answer" and m["g2"] == {"ق-15": False} and m["proposed"] == "NOT_COVERED" and m["decision"] == "RECOMMEND", m
@@ -243,3 +283,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
