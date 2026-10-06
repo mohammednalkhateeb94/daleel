@@ -50,6 +50,11 @@ a{color:var(--mint)}
 .hero h1{margin:0;font-size:clamp(40px,8vw,64px);line-height:1.1;font-weight:700;letter-spacing:-.5px}
 .hero h2{margin:6px 0 10px;font-size:clamp(22px,4.2vw,32px);line-height:1.35;color:var(--mint);font-weight:700}
 .hero p{margin:0 0 22px;color:#c9d4dc;font-size:17px;max-width:620px}
+.hero .kicker{margin:6px 0 0;color:var(--muted);font-size:clamp(16px,2.6vw,19px);font-weight:600}
+.hero h2{margin-top:2px}
+.hero p:last-child{margin-bottom:16px}
+#askForm{border-color:rgba(94,224,181,.38);box-shadow:0 0 0 1px rgba(94,224,181,.06),0 12px 32px rgba(0,0,0,.28)}
+#askForm label{font-size:17.5px}
 
 /* البطاقات */
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;backdrop-filter:blur(6px)}
@@ -124,7 +129,7 @@ mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px
 .sec{display:flex;align-items:center;justify-content:space-between;margin:34px 0 12px}
 .sec h3{margin:0;font-size:20px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.need{text-align:right;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--text);display:flex;flex-direction:column;gap:6px;min-height:118px;transition:border-color .15s,transform .15s}
+.need{text-align:right;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--text);display:flex;flex-direction:column;gap:6px;min-height:96px;transition:border-color .15s,transform .15s}
 .need.off{opacity:.5;cursor:default}.need.off:hover{transform:none;border-color:var(--line)}
 .asked{font-size:13.5px;color:var(--muted);margin:0 2px 10px}.asked b{color:var(--text);font-weight:600}
 .need:hover{border-color:rgba(94,224,181,.5);transform:translateY(-2px)}
@@ -154,7 +159,11 @@ details.soon{margin-top:12px;background:transparent;border:0;padding:0}
 details.soon summary{color:var(--muted);font-size:14px}
 details.soon ul{margin:8px 0 0;padding:0 18px;color:var(--dim);font-size:14px}
 .next{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.disclosure.top{margin:0 2px 12px}
+.how .disclosure{margin:8px 0 0}
+.more-toggle{display:block;min-width:13em;margin:12px auto 0;background:transparent;border:1px solid var(--line2);color:var(--mint);border-radius:999px;padding:8px 20px;font-weight:600}
+.more-toggle:hover{border-color:var(--mint);background:var(--mintBg)}
+#menuMore{margin-top:12px}
+#menuMore[hidden],#moreBtn[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -167,11 +176,11 @@ details.soon ul{margin:8px 0 0;padding:0 18px;color:var(--dim);font-size:14px}
 
   <section class="hero">
     <h1>دليل</h1>
-    <h2>من سؤالك عن القرآن إلى المقطع المناسب</h2>
-    <p>اسأل بكلماتك، ويختار لك «دليل» نصاً موثوقاً يجيب عن سؤالك، مع مصدره وموضعه.</p>
+    <p class="kicker">الإسلام خطوة بخطوة</p>
+    <h2>من سؤالك عن القرآن إلى المادة المناسبة</h2>
+    <p>اسأل بطريقتك، ويساعدك دليل في الوصول إلى مادة موثقة ومراجعة تجيب عن سؤالك.</p>
   </section>
 
-  <p class="disclosure top" id="disclosure"></p>
   <form id="askForm" class="panel" autocomplete="off">
     <label for="q">اكتب سؤالك عن القرآن</label>
     <div class="field">
@@ -190,13 +199,18 @@ details.soon ul{margin:8px 0 0;padding:0 18px;color:var(--dim);font-size:14px}
   <section id="result" tabindex="-1" aria-label="النتيجة"></section>
 
   <div class="sec"><h3>أو اختر سؤالك</h3></div>
-  <nav class="grid" id="menu" aria-label="الأسئلة المتاحة"></nav>
+  <nav id="menuNav" aria-label="الأسئلة المتاحة">
+    <div class="grid" id="menu"></div>
+    <button type="button" class="more-toggle" id="moreBtn" aria-expanded="false" aria-controls="menuMore" hidden>عرض جميع الأسئلة</button>
+    <div class="grid" id="menuMore" hidden></div>
+  </nav>
   <div id="soon"></div>
 
   <section class="how">
     <div class="panel accent">
       <h4>كيف يعمل؟</h4>
       <p>يفهم سؤالك بالذكاء الاصطناعي، ثم يختار مقطعاً من مكتبة نصوص راجعها مختص، وينقله حرفياً مع مصدره وموضعه.</p>
+      <p class="disclosure" id="disclosure"></p>
     </div>
     <div class="panel limit">
       <h4>حدود واضحة</h4>
@@ -211,6 +225,7 @@ details.soon ul{margin:8px 0 0;padding:0 18px;color:var(--dim);font-size:14px}
 </div>
 <script>
 const S = {lastQuestion:"", shown:[], lastNeed:null, lastId:null};
+const FEATURED = [];  // أربعة رموز حاجات تظهر أولاً؛ فارغة حتى تُعتمد
 const $ = id => document.getElementById(id);
 const esc = s => (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = s => esc(s).replace(/﴿([^﴾]+)﴾/g, '<span class="ayah">﴿$1﴾</span>');
@@ -231,10 +246,16 @@ function bind(root){
 function menu(needs){
   S.needs = needs;
   const on = needs.filter(n => n.available), off = needs.filter(n => !n.available);
-  $("menu").innerHTML = on.map((n,i) =>
-    `<button class="need" data-need="${n.id}"><span class="n">${i+1}</span><span class="s">${esc(n.section)}</span><span class="t">${esc(n.title)}</span></button>`).join("");
+  const card = (n,i) => `<button class="need" data-need="${n.id}"><span class="n">${i+1}</span><span class="s">${esc(n.section)}</span><span class="t">${esc(n.title)}</span></button>`;
+  // الأسئلة الظاهرة أولاً: قائمة ثابتة تُعتمد بعد اختبارها؛ إن لم تُحدَّد أربعة متاحة تظهر الأسئلة كلها كما كانت
+  const feat = FEATURED.map(id => on.find(n => n.id === id)).filter(Boolean);
+  const split = feat.length === 4;
+  const first = split ? feat : on, rest = split ? on.filter(n => !FEATURED.includes(n.id)) : [];
+  $("menu").innerHTML = first.map(card).join("");
+  $("menuMore").innerHTML = rest.map((n,i) => card(n, i + first.length)).join("");
+  $("moreBtn").hidden = !rest.length;
   $("soon").innerHTML = off.length ? `<details class="soon"><summary>قريباً (${off.length}): أسئلة نصوصها قيد المراجعة</summary><ul>${off.map(n => `<li>${esc(n.title)}</li>`).join("")}</ul></details>` : "";
-  bind($("menu"));
+  bind($("menu")); bind($("menuMore"));
 }
 function loading(){ $("result").innerHTML = '<div class="panel spinner">جارٍ البحث في المكتبة…</div>'; }
 function focusResult(){ const r=$("result"); r.focus({preventScroll:true}); r.scrollIntoView({behavior:"smooth",block:"start"}); }
@@ -391,6 +412,12 @@ async function feedback(v){
   const f = $("remForm");
   if(f){ $("rem").focus(); f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true, "PART_REMAINING"); }; }
 }
+$("moreBtn").onclick = () => {
+  const b = $("moreBtn"), open = b.getAttribute("aria-expanded") !== "true";
+  b.setAttribute("aria-expanded", String(open));
+  $("menuMore").hidden = !open;
+  b.textContent = open ? "إخفاء بقية الأسئلة" : "عرض جميع الأسئلة";
+};
 $("q").addEventListener("input", e => $("count").textContent = `${e.target.value.length} من 300`);
 $("q").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); $("askForm").requestSubmit(); } });
 $("askForm").onsubmit = e => { e.preventDefault(); const t = $("q").value.trim(); if(t) ask(t, false); };
