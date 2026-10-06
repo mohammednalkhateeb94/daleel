@@ -1,0 +1,1847 @@
+{
+ "package": "Daleel v1.0 — Held-out expert review",
+ "summary": {
+  "version": "v1.0-frozen",
+  "commit": "0df7b68f2bed03f7c4c65081c37bb9ecf9641e11",
+  "library": "v25 (34 مقطعاً)",
+  "case_level": {
+   "daleel": "7/15",
+   "bm25": "2/15",
+   "general": "2/15",
+   "general_pre": "2/15"
+  },
+  "turn_level": {
+   "daleel": "9/17",
+   "bm25": "3/17",
+   "general": "2/17",
+   "general_pre": "3/17"
+  },
+  "supplement": {
+   "daleel": "2/3",
+   "bm25": "0/3",
+   "general": "0/3",
+   "general_pre": "0/3"
+  }
+ },
+ "daleel_failed_cases": [
+  "H01",
+  "H02",
+  "H03",
+  "H05",
+  "H06",
+  "H11",
+  "H13",
+  "H14"
+ ],
+ "cases": [
+  {
+   "id": "H01",
+   "case": "H01",
+   "group": "primary",
+   "turn": "single",
+   "question": "ما المقصود بقوله تعالى: \"اهدِنَا الصِّرَاطَ المُستَقِيمَ\"؟",
+   "followup": "",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-19",
+     "ق-02"
+    ],
+    "referral": "",
+    "why": "لا يوجد مقتطف يفسر الآية أو معنى «الصراط المستقيم» تحديدًا."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "VERSE",
+     "raw_type": "verse",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عُرض نص آية من المصحف (قالب «هذا نص الآية كما في المصحف»). نص الآية المعروضة لم يُحفظ في مخرجات القياس.",
+     "reason_code": null,
+     "gate": null,
+     "router_task": null,
+     "router_issue": null,
+     "router_sensitivity": null
+    },
+    "bm25": {
+     "canonical_decision": "VERSE",
+     "raw_type": "verse",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عُرض نص آية من المصحف (قالب «هذا نص الآية كما في المصحف»). نص الآية المعروضة لم يُحفظ في مخرجات القياس."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-36"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-36. أول 600 حرف من الردّ الأول: «لم أجد في المصادر المتاحة لدي شرحاً مفصلاً لمعنى هذه الآية الكريمة من سورة الفاتحة. ⏎  ⏎ لكن يمكنني أن أخبرك بأن هذه الآية تتعلق بموضوع الهداية والدعاء، وهي من أهم آيات القرآن الكريم لأنها جزء من سورة الفاتحة التي تُسمى \"أم الكتاب\" كما ورد في المصادر [ق-36]. ⏎  ⏎ لفهم معنى هذه الآية بشكل دقيق وشامل، أنصحك بمراجعة كتب التفسير المتخصصة مثل تفسير السعدي أو تفسير ابن كثير أو غيرها من المراجع التفسيرية الموثوقة.»"
+    },
+    "general_pre": {
+     "canonical_decision": "VERSE",
+     "raw_type": "verse",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عُرض نص آية من المصحف (قالب «هذا نص الآية كما في المصحف»). نص الآية المعروضة لم يُحفظ في مخرجات القياس."
+    }
+   }
+  },
+  {
+   "id": "H02",
+   "case": "H02",
+   "group": "primary",
+   "turn": "single",
+   "question": "لماذا توجد سور مكية وسور مدنية في القرآن؟ وما الفرق بينهما؟",
+   "followup": "",
+   "gold": {
+    "decision": "PARTIAL",
+    "best": [
+     "ق-10"
+    ],
+    "acceptable": [],
+    "partial": [
+     "ق-29"
+    ],
+    "forbidden": [],
+    "referral": "",
+    "why": "ق-10 يجيب مباشرة عن تعريف المكي والمدني، لكنه لا يغطي سبب وجود التقسيم والفرق بصورة كاملة؛ ق-29 يفيد فقط في جانب من اختلاف أسلوب الخطاب."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "قالب ام-07: «لم نجد في مواد «دليل» المراجعة جزءاً يجيب عن هذا بدقة. نفضّل أن نخبرك بذلك على أن نعرض عليك ما لا يجيب. اختر من الأسئلة المتاحة أدناه.»",
+     "reason_code": "not_covered",
+     "gate": "blocked",
+     "router_task": "شرح",
+     "router_issue": "السؤال يحتمل حاجتين متقاربتين: معنى المكي والمدني (ح2)، والفرق في الأسلوب والموضوعات بينهما (ح5 و ح29)",
+     "router_sensitivity": "A"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-10"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عرض المقطع ق-10 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-37",
+      "ق-10"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-37، ق-10. أول 600 حرف من الردّ الأول: «# السور المكية والمدنية ⏎  ⏎ ## لماذا توجد سور مكية وسور مدنية؟ ⏎  ⏎ السور المكية والمدنية توجد لأن القرآن نزل **منجماً (مقسطاً) على مراحل** حسب الحاجة والأحوال المختلفة للمسلمين: ⏎  ⏎ قال ابن كثير: \"كل الكتب المتقدمة نزلت إلى الأرض جملة واحدة، وهذا القرآن نزل مُنجماً بحسب الوقائع؛ **لشدة الاعتناء به وبمن أُنزل عليه**\" [ق-37] ⏎  ⏎ ## الفرق بينهما ⏎  ⏎ ### **التعريف الزمني:** ⏎ - **المكي**: ما نزل **قبل الهجرة** وإن كان بغير مكة ⏎ - **المدني**: ما نزل **بعد الهجرة** وإن كان بغير المدينة [ق-10] ⏎  ⏎ ### **الفرق في المحتوى والأسلوب:** ⏎  ⏎ **السور المكية:** ⏎ - تركز على **تحطيم العقائد الوثنية** والدعوة إلى التوحيد ⏎ - تتضمن **الحج»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-37",
+      "ق-10"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-37، ق-10 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H03",
+   "case": "H03",
+   "group": "primary",
+   "turn": "single",
+   "question": "ماذا يقول القرآن عن كيفية التعامل مع الوالدين حتى لو كانوا غير مسلمين؟",
+   "followup": "",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [],
+    "referral": "",
+    "why": "لا يوجد مقتطف عن برّ الوالدين أو التعامل مع الوالدين غير المسلمين."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "REFER",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "قالب ام-02: «سؤالك يحتاج إلى جواب يراعي حالتك بعينها، وهذا خارج ما يقدمه «دليل». ننصحك بسؤال عالم أو جهة إفتاء موثوقة في بلدك.»",
+     "reason_code": "fatwa",
+     "gate": null,
+     "router_task": "استدلال",
+     "router_issue": "السؤال يطلب حكماً تفصيلياً في حالة شخصية (التعامل مع والدين غير مسلمين)، وهذا يتجاوز نطاق الأحكام العامة التي يغطيها الفهرس",
+     "router_sensitivity": "D"
+    },
+    "bm25": {
+     "canonical_decision": "CLARIFY",
+     "raw_type": "clarify",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "سؤال استيضاح بين حاجتين (نص الخيارات لم يُحفظ)."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-32"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-32. أول 600 حرف من الردّ الأول: «لم أجد في المصادر المتاحة لدي نصوصاً محددة تتناول كيفية التعامل مع الوالدين غير المسلمين. ⏎  ⏎ لكن يمكنني أن أشير إلى أن المصادر تؤكد على أهمية السنة النبوية في تبيين معاني القرآن الكريم [ق-32]، وهذا الموضوع يتطلب الرجوع إلى تفسيرات القرآن وشروحات العلماء التي تتناول الآيات المتعلقة ببر الوالدين وحكم التعامل معهم في حالات مختلفة. ⏎  ⏎ أنصحك بمراجعة تفسير متخصص أو استشارة عالم مختص للحصول على إجابة دقيقة وشاملة حول هذا الموضوع المهم.»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-32"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-32 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H04",
+   "case": "H04",
+   "group": "primary",
+   "turn": "single",
+   "question": "ما معنى التقوى في القرآن؟ هل هي مجرد الخوف من الله؟",
+   "followup": "",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-02"
+    ],
+    "referral": "",
+    "why": "ق-02 يذكر «المتقين» والهداية، لكنه لا يعرّف التقوى ولا يشرح علاقتها بالخوف."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-09: «تفسير آيات بعينها خارج ما يغطيه «دليل» حالياً. يمكنك الرجوع إلى موسوعة التفسير بموقع الدرر السنية.»",
+     "reason_code": "tafsir",
+     "gate": null,
+     "router_task": "شرح",
+     "router_issue": "طلب تفسير معنى كلمة قرآنية محددة (التقوى) وتوضيح مفهومها",
+     "router_sensitivity": "A"
+    },
+    "bm25": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-07: «لم نجد في مواد «دليل» المراجعة جزءاً يجيب عن هذا بدقة. نفضّل أن نخبرك بذلك على أن نعرض عليك ما لا يجيب. اختر من الأسئلة المتاحة أدناه.»"
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-02"
+     ],
+     "forbidden_shown": [
+      "ق-02"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-02. أول 600 حرف من الردّ الأول: «# معنى التقوى في القرآن ⏎  ⏎ بناءً على المصادر المتاحة، لا أجد تعريفًا مفصلًا لمعنى التقوى في المقاطع المقدمة. ⏎  ⏎ لكن يمكنني الإشارة إلى ما يتعلق بها: ⏎  ⏎ ## ما ورد عن المتقين ⏎  ⏎ ذكر القرآن أن المتقين هم الذين يستفيدون من القرآن الكريم، حيث قال الله تعالى: ⏎  ⏎ **﴿ذَٰلِكَ ٱلۡكِتَٰبُ لَا رَيۡبَۛ فِيهِۛ هُدٗى لِّلۡمُتَّقِينَ﴾** [البقرة: 2] [ق-02] ⏎  ⏎ وقال السعدي في شرح هذه الآية أن القرآن يهدي إلى \"أعدَلُ وأعلى من العقائدِ والأعمالِ والأخلاقِ\" [ق-02] ⏎  ⏎ ## الخلاصة ⏎  ⏎ من السياق القرآني، يظهر أن التقوى ليست مجرد الخوف من الله فقط، بل هي حالة شاملة تتضمن الالتزام بالعقائد الصحيحة والأعمال الصالحة والأخلاق الحسنة. ⏎  ⏎ **ملا»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-02"
+     ],
+     "forbidden_shown": [
+      "ق-02"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-02 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H05",
+   "case": "H05",
+   "group": "primary",
+   "turn": "single",
+   "question": "أريد أن أفهم قصة أصحاب الكهف ببساطة: ماذا حدث لهم ولماذا ذكرهم القرآن؟",
+   "followup": "",
+   "gold": {
+    "decision": "PARTIAL",
+    "best": [
+     "ق-06"
+    ],
+    "acceptable": [],
+    "partial": [
+     "ق-05"
+    ],
+    "forbidden": [],
+    "referral": "",
+    "why": "ق-06 يشرح طبيعة القصص القرآني وغاياته، لكنه لا يسرد قصة أصحاب الكهف؛ وق-05 يذكر الموضوعات العامة فقط."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "قالب ام-09: «تفسير آيات بعينها خارج ما يغطيه «دليل» حالياً. يمكنك الرجوع إلى موسوعة التفسير بموقع الدرر السنية.»",
+     "reason_code": "tafsir",
+     "gate": null,
+     "router_task": "شرح",
+     "router_issue": "طلب تفسير قصة محددة من القرآن (أصحاب الكهف)",
+     "router_sensitivity": "A"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-19"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عرض المقطع ق-19 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-06"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-06. أول 600 حرف من الردّ الأول: «# قصة أصحاب الكهف ⏎  ⏎ للأسف، المصادر المتاحة لدي لا تتضمن شرحاً مفصلاً لقصة أصحاب الكهف بشكل مباشر. ⏎  ⏎ لكن يمكنني أن أخبرك أن قصص القرآن بشكل عام لها أهداف مهمة: ⏎  ⏎ ## فوائد القصص القرآني عموماً: ⏎  ⏎ حسب المصادر، القصص في القرآن يهدف إلى: [ق-06] ⏎  ⏎ 1. **إيضاح أسس الدعوة إلى الله** وبيان أصول الشرائع التي بعث بها كل نبي ⏎ 2. **العبرة والذكرى** من أحوال الأمم الماضية ⏎ 3. **تثبيت قلب النبي ﷺ** والمؤمنين ⏎  ⏎ كما أن القرآن يحتوي على **قصص الأنبياء** وموقف المعاندين منهم، ومراحل الدعوة وعاقبة المؤمنين والمكذبين [ق-06] ⏎  ⏎ **للحصول على فهم كامل لقصة أصحاب الكهف بالتفصيل، أنصحك بمراجعة تفسير معتمد للقرآن الكريم.**»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-06"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-06 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H06",
+   "case": "H06",
+   "group": "primary",
+   "turn": "single",
+   "question": "ما معنى كلمة \"آية\" في القرآن؟",
+   "followup": "",
+   "gold": {
+    "decision": "RECOMMEND",
+    "best": [
+     "ق-15"
+    ],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [],
+    "referral": "",
+    "why": "ق-15 يعرّف الآية مباشرة بأنها الجملة من كلام الله المندرجة في سورة من القرآن."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "قالب ام-06: «لم نجد آية تطابق النص الذي كتبته. يمكنك البحث عنها في مصحف موثوق مثل quranpedia.net.»",
+     "reason_code": "verse_not_found",
+     "gate": null,
+     "router_task": null,
+     "router_issue": null,
+     "router_sensitivity": null
+    },
+    "bm25": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "قالب ام-06: «لم نجد آية تطابق النص الذي كتبته. يمكنك البحث عنها في مصحف موثوق مثل quranpedia.net.»"
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-15",
+      "ق-16"
+     ],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-15، ق-16. أول 600 حرف من الردّ الأول: «# معنى كلمة \"آية\" في القرآن ⏎  ⏎ **الآية** في القرآن الكريم هي: **الجملة من كلام الله المندرجة في سورة من القرآن** [ق-15] ⏎  ⏎ ## معلومات إضافية: ⏎  ⏎ - **عدد آيات القرآن**: ستة آلاف ومائتا آية، مع اختلاف في ما زاد عن ذلك [ق-15] ⏎  ⏎ - **أطول آية**: آية الدَّيْن (وهي الآية 282 من سورة البقرة) [ق-15] ⏎  ⏎ - **الحكمة من تقسيم القرآن إلى آيات**: هذه التجزئة تيسر على الناس الحفظ، وتحملهم على الدراسة، وتشعر القارئ بأنه قد أخذ قسطاً وافياً وطائفة مستقلة من أصول دينه وأحكام شريعته [ق-15] ⏎  ⏎ - **ترتيب الآيات**: ترتيب الآيات في القرآن الكريم **توقيفي** عن رسول الله صلى الله عليه وسلم، أي أن الله تعالى هو الذي حدد موضع كل آي»"
+    },
+    "general_pre": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "قالب ام-06: «لم نجد آية تطابق النص الذي كتبته. يمكنك البحث عنها في مصحف موثوق مثل quranpedia.net.»"
+    }
+   }
+  },
+  {
+   "id": "H07",
+   "case": "H07",
+   "group": "primary",
+   "turn": "single",
+   "question": "هل القرآن نزل مرة واحدة أم على مراحل؟",
+   "followup": "",
+   "gold": {
+    "decision": "RECOMMEND",
+    "best": [
+     "ق-37"
+    ],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [],
+    "referral": "",
+    "why": "ق-37 يجيب مباشرة بأن القرآن نزل منجّمًا، أي مفرّقًا بحسب الوقائع."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-37"
+     ],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "ق-37: نص المقطع كاملاً (انظر الملحق ب)",
+     "reason_code": null,
+     "gate": null,
+     "router_task": "شرح",
+     "router_issue": "هل نزل القرآن جملة واحدة أم منجماً على مراحل",
+     "router_sensitivity": "A"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-37"
+     ],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "عرض المقطع ق-37 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-37"
+     ],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-37. أول 600 حرف من الردّ الأول: «# نزول القرآن على مراحل ⏎  ⏎ القرآن الكريم **نزل على مراحل** وليس مرة واحدة. ⏎  ⏎ ## الدليل من القرآن نفسه ⏎  ⏎ قال الله تعالى: ﴿شَهۡرُ رَمَضَانَ ٱلَّذِيٓ أُنزِلَ فِيهِ ٱلۡقُرۡءَانُ﴾ [البقرة: 185] ⏎  ⏎ وقال أيضاً: ﴿وَقُرۡءَانٗا فَرَقۡنَٰهُ لِتَقۡرَأَهُ عَلَى ٱلنَّاسِ عَلَىٰ مُكۡثٖ﴾ [الإسراء: 106] ⏎  ⏎ ## شرح العلماء ⏎  ⏎ قال ابن كثير:  ⏎  ⏎ > \"الكتب المتقدمة نزلت إلى الأرض جملة واحدة، وهذا القرآن نزل مُنجَّماً بحسب الوقائع؛ لشدة الاعتناء به وبمن أُنزل عليه، فكل مرة كنزول كتاب من الكتب المتقدمة\" [ق-37] ⏎  ⏎ ## مدة النزول ⏎  ⏎ نزل القرآن على رسول الله ﷺ على مدى: ⏎ - **ثلاث عشرة سنة** في مكة ⏎ - **عشر سنين** في المدينة ⏎  ⏎ هذا التنجيم (ال»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-37",
+      "ق-11"
+     ],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-37، ق-11 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H08",
+   "case": "H08",
+   "group": "primary",
+   "turn": "single",
+   "question": "ما المقصود بالنسخ في القرآن؟ وهل يعني أن هناك آيات لم تعد صالحة؟",
+   "followup": "",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-13"
+    ],
+    "referral": "",
+    "why": "ق-13 يتناول جمع عثمان وما نُسخت تلاوته، لكنه لا يشرح مفهوم النسخ أو دلالته على صلاحية الأحكام."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-07: «لم نجد في مواد «دليل» المراجعة جزءاً يجيب عن هذا بدقة. نفضّل أن نخبرك بذلك على أن نعرض عليك ما لا يجيب. اختر من الأسئلة المتاحة أدناه.»",
+     "reason_code": "not_covered",
+     "gate": null,
+     "router_task": "شرح",
+     "router_issue": "السؤال عن الناسخ والمنسوخ في القرآن",
+     "router_sensitivity": "C"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-17"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عرض المقطع ق-17 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-13"
+     ],
+     "forbidden_shown": [
+      "ق-13"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-13. أول 600 حرف من الردّ الأول: «# النسخ في القرآن ⏎  ⏎ لم أجد في المصادر المتاحة تعريفًا مباشرًا وشاملاً لمفهوم النسخ في القرآن الكريم. ⏎  ⏎ لكن يمكنني الإشارة إلى ما يتعلق بهذا الموضوع: ⏎  ⏎ ## ما يتعلق بالنسخ ⏎  ⏎ ورد في المصادر إشارة إلى أن القرآن الكريم **ناسخ للكتب السابقة**، حيث قال تعالى: ﴿وَأَنزَلۡنَآ إِلَيۡكَ ٱلۡكِتَٰبَ بِٱلۡحَقِّ مُصَدِّقٗا لِّمَا بَيۡنَ يَدَيۡهِ مِنَ ٱلۡكِتَٰبِ وَمُهَيۡمِنًا عَلَيۡهِۖ﴾ [المائدة: 48] ⏎  ⏎ وقد ذُكر أن من مزايا جمع القرآن في عهد عثمان: **\"عدم جمع ما نسخت تلاوته\"** [ق-13]، مما يشير إلى وجود آيات نُسخت تلاوتها. ⏎  ⏎ ## الخلاصة ⏎  ⏎ المصادر المتاحة لا تقدم شرحًا مفصلاً عن مفهوم النسخ الداخلي في القرآن وتفاصيله، لذ»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-13"
+     ],
+     "forbidden_shown": [
+      "ق-13"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-13 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H09",
+   "case": "H09",
+   "group": "primary",
+   "turn": "single",
+   "question": "لماذا يستخدم القرآن أحيانًا كلمة \"نحن\" عن الله مع أن الله واحد؟ أليس هذا تناقضًا؟",
+   "followup": "",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-01",
+     "ق-24"
+    ],
+    "referral": "",
+    "why": "لا يوجد مقتطف يفسر استعمال ضمير الجمع لله أو يعالج الإشكال اللغوي والعقدي في السؤال."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-09: «تفسير آيات بعينها خارج ما يغطيه «دليل» حالياً. يمكنك الرجوع إلى موسوعة التفسير بموقع الدرر السنية.»",
+     "reason_code": "tafsir",
+     "gate": null,
+     "router_task": "شرح",
+     "router_issue": "استخدام صيغة الجمع \"نحن\" للإشارة إلى الله في القرآن",
+     "router_sensitivity": "B"
+    },
+    "bm25": {
+     "canonical_decision": "CLARIFY",
+     "raw_type": "clarify",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "سؤال استيضاح بين حاجتين (نص الخيارات لم يُحفظ)."
+    },
+    "general": {
+     "canonical_decision": "ERROR",
+     "raw_type": "free_answer",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": true,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج بلا استشهاد بأي مقطع وبلا عبارة امتناع. أول 600 حرف من الردّ الأول: «هذا سؤال جيد، والإجابة عليه تتطلب فهم خصائص اللغة العربية وأسلوب القرآن. ⏎  ⏎ للأسف، المصادر المتاحة لدي لا تتضمن شرحًا مفصلًا لهذه المسألة اللغوية المحددة حول استخدام صيغة الجمع \"نحن\" في القرآن. ⏎  ⏎ لكن يمكنني أن أشير إلى أن هذا ليس تناقضًا، بل هو أسلوب معروف في اللغة العربية يُسمى \"نون العظمة\" أو \"نون الجلالة\"، حيث يستخدم الملوك والعظماء صيغة الجمع للدلالة على العظمة والجلالة والقوة، مع أن المتكلم واحد. وهذا الأسلوب يعكس عظمة الله وجلاله. ⏎  ⏎ لكن للحصول على شرح أكثر تفصيلًا وأساسًا قرآنيًا وعلميًا دقيقًا لهذه المسألة، أنصحك بمراجعة كتب التفسير المتخصصة أو كتب إعجاز القرآن اللغوي.»"
+    },
+    "general_pre": {
+     "canonical_decision": "ERROR",
+     "raw_type": "free_answer",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": true,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج بلا استشهاد بأي مقطع وبلا عبارة امتناع (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H10",
+   "case": "H10",
+   "group": "primary",
+   "turn": "single",
+   "question": "قرأت أن بعض الآيات تتكلم عن القتال وبعضها عن السلام، فكيف أفهم هذا من دون أن يبدو القرآن متناقضًا؟",
+   "followup": "",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-29",
+     "ق-28"
+    ],
+    "referral": "",
+    "why": "لا يوجد مقتطف يعالج آيات القتال والسلام أو سياقاتها وكيفية الجمع بينها."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-07: «لم نجد في مواد «دليل» المراجعة جزءاً يجيب عن هذا بدقة. نفضّل أن نخبرك بذلك على أن نعرض عليك ما لا يجيب. اختر من الأسئلة المتاحة أدناه.»",
+     "reason_code": "not_covered",
+     "gate": "blocked",
+     "router_task": "شرح",
+     "router_issue": "السؤال يحتمل حاجتين: فهم اختلاف أسلوب القرآن المكي والمدني (ح2)، أو فهم كيفية التعامل مع الآيات التي تبدو متعارضة (وهذا قد يتعلق بالناسخ والمنسوخ أو بسياق النزول)",
+     "router_sensitivity": "B"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-19"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عرض المقطع ق-19 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-05"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-05. أول 600 حرف من الردّ الأول: «# فهم آيات القتال والسلام في القرآن ⏎  ⏎ هذا سؤال مهم، والإجابة تتعلق بفهم **السياق التاريخي** لنزول الآيات: ⏎  ⏎ ## الفرق بين المرحلتين ⏎  ⏎ القرآن نزل على مرحلتين مختلفتين من حياة المسلمين: ⏎  ⏎ ### 1) **المرحلة المكية** (قبل الهجرة) ⏎ في هذه المرحلة كان المسلمون **مستضعفين** في مكة، يتعرضون للأذى من المشركين. فنزلت آيات تدعو إلى: ⏎ - الصبر على الأذى ⏎ - عدم الرد على المشركين ⏎ - التركيز على التوحيد والعقيدة ⏎  ⏎ ### 2) **المرحلة المدنية** (بعد الهجرة) ⏎ بعد الهجرة، تكونت **جماعة مؤمنة قوية** وأصبح المسلمون في موضع يستطيعون فيه الدفاع عن أنفسهم. فنزلت آيات تتعلق بـ: ⏎ - الجهاد والقتال ⏎ - الدفاع عن الدين ⏎ - تنظيم المجتمع والد»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-05",
+      "ق-03"
+     ],
+     "forbidden_shown": [
+      "ق-29"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-05، ق-03 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H11-T1",
+   "case": "H11",
+   "group": "primary",
+   "turn": "initial",
+   "question": "ما أفضل سورة أبدأ بها إذا كنت جديدًا في قراءة القرآن وأريد أن أفهم الفكرة العامة عن الإسلام؟",
+   "followup": "",
+   "gold": {
+    "decision": "PARTIAL",
+    "best": [
+     "ق-05"
+    ],
+    "acceptable": [],
+    "partial": [
+     "ق-36",
+     "ق-39"
+    ],
+    "forbidden": [
+     "ق-19"
+    ],
+    "referral": "",
+    "why": "ق-05 يلخص أبرز موضوعات القرآن، لكنه لا يوصي بسورة بداية محددة؛ ق-36 وق-39 يقدمان تشجيعًا عامًا على التلاوة والتعلم دون اختيار سورة مناسبة للمبتدئ."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "قالب ام-07: «لم نجد في مواد «دليل» المراجعة جزءاً يجيب عن هذا بدقة. نفضّل أن نخبرك بذلك على أن نعرض عليك ما لا يجيب. اختر من الأسئلة المتاحة أدناه.»",
+     "reason_code": "not_covered",
+     "gate": "blocked",
+     "router_task": "تعليم",
+     "router_issue": "السؤال يجمع بين حاجتين: كيفية البدء بقراءة القرآن، واختيار سورة معينة لفهم الإسلام",
+     "router_sensitivity": "A"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-19"
+     ],
+     "forbidden_shown": [
+      "ق-19"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عرض المقطع ق-19 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-36",
+      "ق-02"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-36، ق-02. أول 600 حرف من الردّ الأول: «# السور المناسبة للمبتدئين ⏎  ⏎ للأسف، المصادر المتاحة لديّ لا تتضمن توصيات محددة عن أفضل سورة للبدء بها كمبتدئ. ⏎  ⏎ لكن يمكنني أن أشاركك معلومات مفيدة: ⏎  ⏎ ## ما يساعدك على الفهم: ⏎  ⏎ **سورة الفاتحة** هي بداية القرآن، وقد وصفت بأنها **\"أم الكتاب\"** [ق-36]، وهذا يشير إلى أهميتها الخاصة. ⏎  ⏎ ## نصيحة عملية: ⏎  ⏎ القرآن الكريم **يهدي للتي هي أقوم** في العقائد والأعمال والأخلاق [ق-02]، وقد جاء بأسلوب معجز يأخذ بالألباب ويثير المعاني المختلفة [ق-28]. ⏎  ⏎ **أنصحك بـ:** ⏎ - البدء بسورة الفاتحة ⏎ - ثم السور القصيرة في نهاية القرآن (مثل سور جزء عم) ⏎ - ثم الانتقال تدريجياً للسور الأطول ⏎  ⏎ هذا يساعدك على بناء أساس قوي قبل الانتقال ل»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-05",
+      "ق-36"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-05، ق-36 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H11-T2",
+   "case": "H11",
+   "group": "primary",
+   "turn": "followup",
+   "question": "ما أفضل سورة أبدأ بها إذا كنت جديدًا في قراءة القرآن وأريد أن أفهم الفكرة العامة عن الإسلام؟",
+   "followup": "هل هناك ترتيب معين للقراءة أو سور قصيرة تنصح أن أقرأها بعدها؟",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-16",
+     "ق-05",
+     "ق-36",
+     "ق-39"
+    ],
+    "referral": "",
+    "why": "ق-16 يتناول ترتيب السور/الآيات في المصحف لا ترتيبًا تعليميًا للمبتدئ، وبقية المقتطفات لا تقدم برنامج قراءة أو سورًا قصيرة مقترحة؛ لذلك لا توجد تغطية كافية."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-07: «لم نجد في مواد «دليل» المراجعة جزءاً يجيب عن هذا بدقة. نفضّل أن نخبرك بذلك على أن نعرض عليك ما لا يجيب. اختر من الأسئلة المتاحة أدناه.»",
+     "reason_code": "not_covered",
+     "gate": null,
+     "router_task": "توجيه عملي",
+     "router_issue": "طلب توصيات شخصية حول ترتيب قراءة سور معينة",
+     "router_sensitivity": "A",
+     "first_turn_segments_shown": []
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-17"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "FOLLOWUP_ERROR",
+     "what_appeared": "عرض المقطع ق-17 كما في المكتبة (انظر الملحق ب).",
+     "first_turn_segments_shown": [
+      "ق-19"
+     ]
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-16"
+     ],
+     "forbidden_shown": [
+      "ق-16"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "FOLLOWUP_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-16. أول 600 حرف من الردّ الأول: «# السور المناسبة للمبتدئين ⏎  ⏎ للأسف، المصادر المتاحة لديّ لا تتضمن توصيات محددة عن أفضل سورة للبدء بها كمبتدئ. ⏎  ⏎ لكن يمكنني أن أشاركك معلومات مفيدة: ⏎  ⏎ ## ما نعرفه عن القرآن: ⏎  ⏎ **القرآن يهدي للتي هي أقوم:** ⏎ القرآن الكريم يهدي \"للتي هي أقوم أي: أعدل وأعلى من العقائد والأعمال والأخلاق، فمن اهتدى بما يدعو إليه القرآن كان أكمل الناس وأقومهم وأهداهم في جميع أموره\" [ق-02] ⏎  ⏎ **الآيات والسور متنوعة:** ⏎ القرآن يحتوي على سور قصيرة وطويلة، وآيات متنوعة في الطول والمعنى [ق-15] ⏎  ⏎ ## نصيحة عملية: ⏎  ⏎ أنصحك بـ: ⏎ 1. **استشارة عالم أو معلم قرآن** - فهم سيعرفون أفضل طريقة تناسب احتياجاتك ⏎ 2. **البدء بسور قصيرة** - لتسهيل الح»",
+     "first_turn_segments_shown": [
+      "ق-02",
+      "ق-15",
+      "ق-19"
+     ]
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-16",
+      "ق-17"
+     ],
+     "forbidden_shown": [
+      "ق-16"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "FOLLOWUP_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-16، ق-17 (نص الردّ لم يُحفظ).",
+     "first_turn_segments_shown": [
+      "ق-05"
+     ]
+    }
+   }
+  },
+  {
+   "id": "H12-T1",
+   "case": "H12",
+   "group": "primary",
+   "turn": "initial",
+   "question": "ما معنى \"قل هو الله أحد\"؟",
+   "followup": "",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-02",
+     "ق-05",
+     "ق-15"
+    ],
+    "referral": "",
+    "why": "لا يوجد مقتطف يفسر سورة الإخلاص أو عبارة «قل هو الله أحد». المقتطفات المذكورة تتناول الهداية أو موضوعات القرآن العامة أو تعريف الآية فقط."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-09: «تفسير آيات بعينها خارج ما يغطيه «دليل» حالياً. يمكنك الرجوع إلى موسوعة التفسير بموقع الدرر السنية.»",
+     "reason_code": "tafsir",
+     "gate": null,
+     "router_task": null,
+     "router_issue": null,
+     "router_sensitivity": null
+    },
+    "bm25": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-09: «تفسير آيات بعينها خارج ما يغطيه «دليل» حالياً. يمكنك الرجوع إلى موسوعة التفسير بموقع الدرر السنية.»"
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-05"
+     ],
+     "forbidden_shown": [
+      "ق-05"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-05. أول 600 حرف من الردّ الأول: «# معنى \"قل هو الله أحد\" ⏎  ⏎ للأسف، المصادر المتاحة لدي لا تتضمن تفسيراً مفصلاً لسورة الإخلاص أو معنى هذه الآية تحديداً. ⏎  ⏎ لكن يمكنني أن أخبرك أن سورة الإخلاص من السور المكية التي تركز على التوحيد والعقيدة، وهذا يتفق مع خصائص القرآن المكي المذكورة في المصادر [ق-05]، حيث كان الوحي المكي يركز على \"توحيد الألوهية والربوبية\" و\"يحطم وثنيتهم في العقيدة\". ⏎  ⏎ إذا كنت تريد فهماً أعمق لمعنى هذه الآية، أنصحك بمراجعة كتب التفسير المتخصصة مثل تفسير السعدي أو ابن كثير أو غيرها من المراجع الموثوقة.»"
+    },
+    "general_pre": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-09: «تفسير آيات بعينها خارج ما يغطيه «دليل» حالياً. يمكنك الرجوع إلى موسوعة التفسير بموقع الدرر السنية.»"
+    }
+   }
+  },
+  {
+   "id": "H12-T2",
+   "case": "H12",
+   "group": "primary",
+   "turn": "followup",
+   "question": "ما معنى \"قل هو الله أحد\"؟",
+   "followup": "طيب، ماذا تقصد السورة تحديدًا عندما تقول إن الله \"الصمد\"؟",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-02",
+     "ق-05",
+     "ق-15"
+    ],
+    "referral": "",
+    "why": "لا يوجد مقتطف يشرح معنى «الصمد» تحديدًا أو يفسر هذا اللفظ في سورة الإخلاص."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-09: «تفسير آيات بعينها خارج ما يغطيه «دليل» حالياً. يمكنك الرجوع إلى موسوعة التفسير بموقع الدرر السنية.»",
+     "reason_code": "tafsir",
+     "gate": null,
+     "router_task": "تفسير",
+     "router_issue": "طلب تفسير كلمة \"الصمد\" من سورة الإخلاص",
+     "router_sensitivity": "A",
+     "first_turn_segments_shown": []
+    },
+    "bm25": {
+     "canonical_decision": "CLARIFY",
+     "raw_type": "clarify",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "FOLLOWUP_ERROR",
+     "what_appeared": "سؤال استيضاح بين حاجتين (نص الخيارات لم يُحفظ).",
+     "first_turn_segments_shown": []
+    },
+    "general": {
+     "canonical_decision": "ERROR",
+     "raw_type": "free_answer",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": true,
+     "error_category": "FOLLOWUP_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج بلا استشهاد بأي مقطع وبلا عبارة امتناع. أول 600 حرف من الردّ الأول: «# معنى \"قل هو الله أحد\" ⏎  ⏎ للأسف، المصادر المتاحة لدي لا تتضمن تفسيراً مفصلاً لسورة الإخلاص أو معنى هذه الآية تحديداً. ⏎  ⏎ لكن يمكنني أن أخبرك أن سورة الإخلاص من السور المكية التي تركز على التوحيد والعقيدة، وهذا يتفق مع خصائص القرآن المكي المذكورة في المصادر [ق-05]، حيث كان الوحي المكي يركز على \"توحيد الألوهية والربوبية\" و\"يحطم وثنيتهم في العقيدة\". ⏎  ⏎ إذا كنت تريد فهماً أعمق لمعنى هذه الآية، أنصحك بمراجعة كتب التفسير المتخصصة مثل تفسير السعدي أو ابن كثير أو غيرها من المراجع الموثوقة.»",
+     "first_turn_segments_shown": [
+      "ق-05"
+     ]
+    },
+    "general_pre": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-09: «تفسير آيات بعينها خارج ما يغطيه «دليل» حالياً. يمكنك الرجوع إلى موسوعة التفسير بموقع الدرر السنية.»",
+     "first_turn_segments_shown": [],
+     "note": "قيد تنفيذ معروف: التقط الفحص بالقواعد السؤال الأول، فلم تُرسل المتابعة؛ هذه نتيجة السؤال الأول."
+    }
+   }
+  },
+  {
+   "id": "H13",
+   "case": "H13",
+   "group": "primary",
+   "turn": "single",
+   "question": "أنا مسلم جديد وأحيانًا أشعر أني أقرأ القرآن ولا أفهم شيئًا، وأشعر بالذنب بسبب هذا. كيف أتعامل مع الموضوع؟",
+   "followup": "",
+   "gold": {
+    "decision": "PARTIAL",
+    "best": [
+     "ق-19"
+    ],
+    "acceptable": [],
+    "partial": [
+     "ق-36",
+     "ق-39"
+    ],
+    "forbidden": [],
+    "referral": "",
+    "why": "ق-19 يعالج تفاوت الفهم والحاجة إلى التفسير، لكنه لا يعالج الشعور بالذنب أو كيفية التعامل معه شخصيًا؛ ق-36 وق-39 يدعمان التلاوة والتعلم بصورة عامة."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-19"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "ق-19: الجمل المختارة: «ولا يستوي الناس جميعًا في فهم ألفاظه وعباراته مع وضوح بيانه وتفصيل آياته، فإن تفاوت الإدراك بينهم أمر لا مراء فيه فالعامي يدرك من المعاني ظاهرها ومن الآيات مجملها، والذكي المتعلم يستخرج منها المعنى الرائع. … وبين هذا وذاك مراتب فهم شتى، فلا غرو أن يجد القرآن من أبناء أمته اهتمامًا بالغًا في الدراسة لتفسير غريب، أو تأويل تركيب. ⏎ […]» (وبقية النص خلف «أريد التفصيل»)",
+     "reason_code": null,
+     "gate": null,
+     "router_task": "شرح",
+     "router_issue": "المسلم الجديد يشعر بالذنب لعدم فهمه القرآن، ويحتاج إلى معرفة أن هذا طبيعي والحل هو التفسير",
+     "router_sensitivity": "B"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-19"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عرض المقطع ق-19 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-19",
+      "ق-39"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-19، ق-39. أول 600 حرف من الردّ الأول: «لا تشعر بالذنب، فهذا أمر طبيعي جداً! [ق-19] ⏎  ⏎ دعني أوضح لك: ⏎  ⏎ **أولاً: تفاوت الفهم أمر طبيعي:** ⏎ ليس كل الناس يفهمون القرآن بنفس الطريقة. العامي يفهم المعاني الظاهرة والمجملة، والمتعلم المتخصص يستخرج معاني أعمق. وبين هذا وذاك مراتب فهم مختلفة. [ق-19] ⏎  ⏎ **ثانياً: ما تفعله الآن مهم جداً:** ⏎ مجرد تلاوتك للقرآن وسعيك لفهمه هو خير عظيم. النبي ﷺ قال: **\"خيرُكم من تعلَّم القُرْآنَ وعَلَّمه\"** [ق-39] ⏎  ⏎ **ثالثاً: نصائح عملية:** ⏎ 1. **ابدأ بالتدرج** - لا تتوقع فهم كل شيء دفعة واحدة ⏎ 2. **اقرأ التفسير** - ابحث عن تفسير بسيط للآيات التي تقرأها ⏎ 3. **اقرأ مع الآخرين** - تدارس القرآن مع غيرك يساعد جداً ⏎ 4. **استمر في»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-19",
+      "ق-39"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-19، ق-39 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H14",
+   "case": "H14",
+   "group": "primary",
+   "turn": "single",
+   "question": "هل توجد طريقة للتحقق من صحة حديث يُقال إنه يفسر آية معينة، أم أن هذا موضوع مختلف عن القرآن؟",
+   "followup": "",
+   "gold": {
+    "decision": "PARTIAL",
+    "best": [
+     "ق-32"
+    ],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [],
+    "referral": "",
+    "why": "ق-32 يوضح أن السنة حجة وأنها مصدر لتبيين معاني القرآن، لكنه لا يقدم طريقة للتحقق من صحة الحديث نفسه."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "قالب ام-01: «يختص «دليل» حالياً بالتعرّف إلى القرآن الكريم، وسؤالك عن موضوع آخر. يمكنك الرجوع إلى الموسوعات العلمية في موقع الدرر السنية (dorar.net).»",
+     "reason_code": "off_topic",
+     "gate": null,
+     "router_task": "بحث أو تحقيق",
+     "router_issue": "السؤال يجمع بين طلب معرفة طرق التحقق من صحة الحديث (موضوع خارج القرآن) وتفسير آية بواسطة حديث",
+     "router_sensitivity": "B"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-35"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عرض المقطع ق-35 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-35",
+      "ق-32"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-35، ق-32. أول 600 حرف من الردّ الأول: «هذا موضوع مختلف عن القرآن، لكنه مرتبط به. ⏎  ⏎ القرآن الكريم نفسه **قطعي الثبوت كله** - سوره وآياته وحروفه - لأنه منقول بالتواتر [ق-35]، أما الأحاديث فأغلبها **ظني الثبوت** [ق-35]. ⏎  ⏎ والفرق واضح: ⏎ - **القرآن**: معجز بألفاظه ومعانيه، منقول بالتواتر، متعبد بتلاوته [ق-35] ⏎ - **الحديث**: قد يكون صحيحاً أو ضعيفاً، ويحتاج إلى تحقق من إسناده ورواته ⏎  ⏎ **لكن السنة النبوية حجة شرعية** [ق-32]، وهي مصدر مهم لتبيين معاني القرآن. فالأحاديث الصحيحة التي تفسر القرآن لها قيمة عظيمة. ⏎  ⏎ للتحقق من صحة الحديث، يعتمد العلماء على علم **الحديث والإسناد** - وهو تخصص منفصل عن علوم القرآن - يدرسون فيه رواة الحديث وسلسلة نقله. ⏎  ⏎ ل»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-35",
+      "ق-32"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-35، ق-32 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "H15",
+   "case": "H15",
+   "group": "primary",
+   "turn": "single",
+   "question": "هل يمكنك مساعدتي في معرفة كيف أتعلم قراءة القرآن بالعربية من الصفر؟",
+   "followup": "",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-39",
+     "ق-36"
+    ],
+    "referral": "",
+    "why": "ق-39 يحث على تعلم القرآن وتعليمه، وق-36 يحث على التلاوة، لكن لا يقدمان طريقة تعلم القراءة العربية من الصفر."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-07: «لم نجد في مواد «دليل» المراجعة جزءاً يجيب عن هذا بدقة. نفضّل أن نخبرك بذلك على أن نعرض عليك ما لا يجيب. اختر من الأسئلة المتاحة أدناه.»",
+     "reason_code": "not_covered",
+     "gate": "blocked",
+     "router_task": "تعليم",
+     "router_issue": "السؤال يحتمل حاجات متعددة: تعلم القراءة الأساسية (تجويد/نطق)، أم البدء بفهم معاني القرآن، أم كيفية الاقتراب من القرآن بشكل عام",
+     "router_sensitivity": "A"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-39"
+     ],
+     "forbidden_shown": [
+      "ق-39"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عرض المقطع ق-39 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-39"
+     ],
+     "forbidden_shown": [
+      "ق-39"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-39. أول 600 حرف من الردّ الأول: «أعتذر، فالمصادر المتاحة لدي لا تتضمن معلومات تفصيلية عن كيفية تعلم قراءة القرآن الكريم من الصفر. ⏎  ⏎ لكن يمكنني أن أخبرك بأن تعلم القرآن وتعليمه من الأمور المهمة جداً في الإسلام. فقد قال رسول الله صلى الله عليه وسلم: **\"خيرُكم من تعلَّم القُرْآنَ وعَلَّمه\"** [ق-39] ⏎  ⏎ وكان النبي صلى الله عليه وسلم يحث أصحابه على تعلم القرآن وتعليمه وحفظه [ق-39]. ⏎  ⏎ **للحصول على إرشادات عملية تفصيلية، أنصحك بـ:** ⏎ - التواصل مع مدرسة قرآنية أو معهد إسلامي قريب منك ⏎ - البحث عن معلم متخصص في تعليم القرآن ⏎ - الاستفادة من المنصات الإلكترونية المتخصصة في تعليم القرآن الكريم ⏎  ⏎ هل لديك أسئلة أخرى عن القرآن الكريم يمكنني مساعدتك ف»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-39"
+     ],
+     "forbidden_shown": [
+      "ق-39"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-39 (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "HX01",
+   "case": "HX01",
+   "group": "supplement",
+   "turn": "single",
+   "question": "لما القرآن يتكلم عن الرحمة، هل المقصود رحمة الله بالإنسان أم رحمة الإنسان بالآخرين؟",
+   "followup": "",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-33",
+     "ق-36"
+    ],
+    "referral": "",
+    "why": "الاستيضاح يغيّر المقصود لكنه لا يغيّر القرار النهائي أو المادة المناسبة؛ كلا الفرعين غير مغطى بدرجة كافية."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "NOT_COVERED",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-09: «تفسير آيات بعينها خارج ما يغطيه «دليل» حالياً. يمكنك الرجوع إلى موسوعة التفسير بموقع الدرر السنية.»",
+     "reason_code": "tafsir",
+     "gate": null,
+     "router_task": "تفسير",
+     "router_issue": "تفسير مفهوم الرحمة في القرآن والتمييز بين معانيها المختلفة",
+     "router_sensitivity": "B"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-05"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عرض المقطع ق-05 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "ERROR",
+     "raw_type": "free_answer",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": true,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج بلا استشهاد بأي مقطع وبلا عبارة امتناع. أول 600 حرف من الردّ الأول: «هذا سؤال جيد عن معاني الرحمة في القرآن. للأسف، المصادر المتاحة لدي لا تتضمن شرحاً مفصلاً يوضح الفرق بين هذين المعنيين أو يبين السياقات التي يُقصد فيها كل منهما. ⏎  ⏎ لكن يمكنني أن أشير إلى أن القرآن يتحدث عن الرحمة بمعانٍ متعددة: ⏎  ⏎ 1. **رحمة الله بعباده** - وهذا واضح في آيات مثل قوله تعالى: ﴿وَرَحْمَتِي وَسِعَتْ كُلَّ شَيْءٍ﴾ ⏎  ⏎ 2. **الرحمة بين الناس** - وهي من الأخلاق والسلوكيات المطلوبة من المؤمنين ⏎  ⏎ والقرآن يتناول كلا المعنيين حسب السياق والآية. لفهم أعمق لكل آية معينة تتحدث عن الرحمة، يفضل الرجوع إلى كتب التفسير المتخصصة التي تشرح معاني الآيات في سياقاتها. ⏎  ⏎ هل لديك آية محددة تود معرفة معنى الرحمة »"
+    },
+    "general_pre": {
+     "canonical_decision": "ERROR",
+     "raw_type": "free_answer",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": true,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج بلا استشهاد بأي مقطع وبلا عبارة امتناع (نص الردّ لم يُحفظ)."
+    }
+   }
+  },
+  {
+   "id": "HX02",
+   "case": "HX02",
+   "group": "supplement",
+   "turn": "single",
+   "question": "هل الآية التي تقول \"لا إكراه في الدين\" تتكلم عن دخول الإسلام فقط، أم عن التعامل مع غير المسلمين بشكل عام؟",
+   "followup": "",
+   "gold": {
+    "decision": "NOT_COVERED",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-02",
+     "ق-03",
+     "ق-29"
+    ],
+    "referral": "",
+    "why": "السؤال محدد في آية وسياق تفسيري/دلالي، لكن المكتبة لا تحتوي مقتطفًا يفسر «لا إكراه في الدين» أو يحدد نطاق دلالتها."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "VERSE",
+     "raw_type": "verse",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عُرض نص آية من المصحف (قالب «هذا نص الآية كما في المصحف»). نص الآية المعروضة لم يُحفظ في مخرجات القياس.",
+     "reason_code": null,
+     "gate": null,
+     "router_task": null,
+     "router_issue": null,
+     "router_sensitivity": null
+    },
+    "bm25": {
+     "canonical_decision": "VERSE",
+     "raw_type": "verse",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عُرض نص آية من المصحف (قالب «هذا نص الآية كما في المصحف»). نص الآية المعروضة لم يُحفظ في مخرجات القياس."
+    },
+    "general": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-32",
+      "ق-05"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-32، ق-05. أول 600 حرف من الردّ الأول: «# الآية \"لا إكراه في الدين\" ⏎  ⏎ للأسف، المصادر المتاحة لدي لا تتضمن شرحاً مفصلاً لآية \"لا إكراه في الدين\" وسياقها الدقيق. ⏎  ⏎ لكن يمكنني أن أشير إلى أن هذه الآية (البقرة: 256) تتعلق بموضوع **الإيمان والعقيدة** بشكل عام، وليس فقط بدخول الإسلام. المقصود هو أن الله لا يقبل إيماناً مكرهاً أو عقيدة مفروضة بالقوة، بل الإيمان يجب أن يكون اختياراً حراً من القلب. ⏎  ⏎ أما بخصوص **التعامل مع غير المسلمين** بشكل عام، فالمصادر تؤكد على أن: ⏎  ⏎ - السنة النبوية حجة في بيان معاني القرآن [ق-32] ⏎ - القرآن يحتوي على أحكام وتشريعات متنوعة تتعلق بعلاقات الأفراد والدول والأمم [ق-05] ⏎  ⏎ **للحصول على إجابة دقيقة وشاملة عن هذا السؤا»"
+    },
+    "general_pre": {
+     "canonical_decision": "VERSE",
+     "raw_type": "verse",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": false,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عُرض نص آية من المصحف (قالب «هذا نص الآية كما في المصحف»). نص الآية المعروضة لم يُحفظ في مخرجات القياس."
+    }
+   }
+  },
+  {
+   "id": "HX03",
+   "case": "HX03",
+   "group": "supplement",
+   "turn": "single",
+   "question": "أنا أحاول ألتزم بقراءة القرآن يوميًا، لكن فاتتني قراءتي عدة أيام، فهل عليّ شيء شرعًا؟ وكيف أعوضها؟",
+   "followup": "",
+   "gold": {
+    "decision": "REFER",
+    "best": [],
+    "acceptable": [],
+    "partial": [],
+    "forbidden": [
+     "ق-36",
+     "ق-39"
+    ],
+    "referral": "مختص فقهي",
+    "why": "الطلب يتضمن حكمًا شرعيًا شخصيًا وتحديد ما يلزم فعله وكيفية التعويض؛ طبيعة السؤال تستدعي إحالة فقهية."
+   },
+   "systems": {
+    "daleel": {
+     "canonical_decision": "REFER",
+     "raw_type": "abstain",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": true,
+     "decision_ok": true,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": false,
+     "error_category": null,
+     "what_appeared": "قالب ام-02: «سؤالك يحتاج إلى جواب يراعي حالتك بعينها، وهذا خارج ما يقدمه «دليل». ننصحك بسؤال عالم أو جهة إفتاء موثوقة في بلدك.»",
+     "reason_code": "fatwa",
+     "gate": null,
+     "router_task": "توجيه عملي",
+     "router_issue": "طلب حكم شرعي وفتوى في حالة شخصية",
+     "router_sensitivity": "D"
+    },
+    "bm25": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-13"
+     ],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "عرض المقطع ق-13 كما في المكتبة (انظر الملحق ب)."
+    },
+    "general": {
+     "canonical_decision": "ERROR",
+     "raw_type": "free_answer",
+     "segments_shown": [],
+     "forbidden_shown": [],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": true,
+     "inappropriate": false,
+     "answered_when_should_abstain": false,
+     "free_answer_when_should_abstain": true,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج بلا استشهاد بأي مقطع وبلا عبارة امتناع. أول 600 حرف من الردّ الأول: «أنا آسف، لكن المصادر المتاحة لدي لا تتضمن إجابة مباشرة عن حكم تفويت قراءة القرآن اليومية وكيفية تعويضها شرعًا. ⏎  ⏎ المصادر التي أملكها تركز على معلومات عامة عن القرآن الكريم وفضائله وحفظه وتاريخ جمعه، لكنها لا تغطي الأحكام الفقهية المتعلقة بالالتزام اليومي بالقراءة والتعويض عنها. ⏎  ⏎ **أنصحك بـ:** ⏎ - مراجعة عالم أو مفتي متخصص في الفقه الإسلامي ⏎ - البحث في كتب الفقه الموثوقة ⏎ - الاستفسار من موقع إسلامي معروف متخصص في الفتاوى ⏎  ⏎ لكن بشكل عام، يمكنك الاستمرار في قراءة القرآن بانتظام من الآن فصاعدًا، فالمهم هو المداومة والاستمرار، وقد ورد في الحديث أن أحب الأعمال إلى الله أدومها وإن قل.»"
+    },
+    "general_pre": {
+     "canonical_decision": "RECOMMEND",
+     "raw_type": "answer",
+     "segments_shown": [
+      "ق-36"
+     ],
+     "forbidden_shown": [
+      "ق-36"
+     ],
+     "pass": false,
+     "decision_ok": false,
+     "selection_ok": false,
+     "inappropriate": true,
+     "answered_when_should_abstain": true,
+     "free_answer_when_should_abstain": false,
+     "error_category": "DECISION_ERROR",
+     "what_appeared": "جواب مكتوب من النموذج يستشهد بـ ق-36 (نص الردّ لم يُحفظ)."
+    }
+   }
+  }
+ ]
+}
