@@ -118,6 +118,12 @@ mark{background:rgba(94,224,181,.16);color:inherit;border-radius:6px;padding:1px
 .src small{display:block;color:var(--dim);margin-top:4px}
 .msg p{margin:0 0 6px}
 .fb{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.fbq-h{margin:0;font-weight:600}
+.fbq-h2{margin:12px 0 4px;font-weight:600;font-size:15.5px}
+.choice[aria-pressed="true"]{border-color:var(--mint);color:var(--mint);background:var(--mintBg);font-weight:700}
+.choice[aria-pressed="true"]::before{content:"✓ ";}
+.fbpanel{margin-top:10px}
+.fbpanel > p{margin:0 0 6px}
 .ghost{background:var(--panel2);border:1px solid var(--line2);color:var(--text);padding:6px 18px}
 .ghost:hover:not([disabled]){border-color:var(--mint);color:var(--mint)}
 .ghost[disabled]{opacity:.45;cursor:default}
@@ -314,8 +320,10 @@ function render(r, label){
         ${(s.about_note || s.footer) ? `<details class="more-info"><summary>عن هذا المقطع</summary>${s.about_note?`<p>${esc(s.about_note)}</p>`:""}${s.footer?`<p>${esc(s.footer)}</p>`:""}</details>` : ""}
       </article>`;
     });
-    h += `<div class="panel msg"><p>${esc((r.ask_feedback||"").replace(/\s*\[.*$/,""))}</p><div class="fb">
-      <button class="ghost" data-fb="yes">نعم</button><button class="ghost" data-fb="partial">جزئياً</button><button class="ghost" data-fb="no">لا</button></div><div id="fbOut"></div></div>`;
+    // خطوة واحدة في كل لحظة: «هل أجابت؟» ثم مسار واحد بحسب الاختيار (المنطق والـ payload كما هما)
+    h += `<section class="panel msg fbq" aria-labelledby="fbq-h"><p id="fbq-h" class="fbq-h">هل أجابت هذه المادة عن سؤالك؟</p>
+      <div class="fb" role="group" aria-labelledby="fbq-h">
+      <button type="button" class="ghost choice" data-fb="yes" aria-pressed="false" aria-controls="fbOut">نعم</button><button type="button" class="ghost choice" data-fb="partial" aria-pressed="false" aria-controls="fbOut">جزئياً</button><button type="button" class="ghost choice" data-fb="no" aria-pressed="false" aria-controls="fbOut">لا</button></div><div id="fbOut" aria-live="polite"></div></section>`;
   } else if(r.type === "clarify"){
     h += `<div class="panel msg accent"><p>${esc(r.message)}</p>${r.options.map(o => optBtn(o, true)).join("")}</div>`;
   } else if(r.type === "verse"){
@@ -372,65 +380,67 @@ function pickNeed(id, keepShown, seg){
   if(seg) body.segment = seg;
   run("/api/need", body, n ? `اخترت: <b>${esc(n.title)}</b>` : "");
 }
-const T_REM = "ما الذي بقي دون إجابة؟";
+const T_REM = "ما الجزء الذي بقي دون إجابة؟";
+// ردّ /api/feedback يُحفظ لكل اختيار في القرار نفسه: التبديل بين نعم/جزئياً/لا لا يكرر الطلب نفسه
+let fbCache = {id:null, r:{}}, fbChoice = null;
 async function feedback(v){
-  document.querySelectorAll("button[data-fb]").forEach(b => b.disabled = true);
+  if(fbCache.id !== S.lastId) fbCache = {id:S.lastId, r:{}};
+  fbChoice = v;
+  document.querySelectorAll("button[data-fb]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.fb === v)));
   const shownNow = [...S.shown];
-  let r; try { r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed, shown:shownNow}); }
-  catch(e){
-    document.querySelectorAll("button[data-fb]").forEach(b => b.disabled = false);
-    $("fbOut").innerHTML = '<p style="margin-top:10px">لم يُرسَل ردّك. أعد المحاولة.</p>';
-    return;
+  let r = fbCache.r[v];
+  if(!r){
+    try { r = await post("/api/feedback", {decision_id:S.lastId, value:v, need:S.lastNeed, shown:shownNow}); fbCache.r[v] = r; }
+    catch(e){
+      if(fbChoice === v){
+        document.querySelectorAll("button[data-fb]").forEach(b => b.setAttribute("aria-pressed", "false")); fbChoice = null;
+        $("fbOut").innerHTML = '<p style="margin-top:10px">لم يُرسَل ردّك. أعد المحاولة.</p>';
+      }
+      return;
+    }
   }
-  if(v === "partial") S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join("");
+  if(fbChoice !== v) return;  // اختار المستخدم غيره قبل وصول الرد
+  const keepPrev = () => { S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join(""); };
+  const logKind = kind => post("/api/followup", {kind, decision_id:S.lastId, shown:[...S.shown]}).catch(() => {});
+  const expand = () => { const m = document.querySelector("#result article [data-more]"); if(!m) return; if(m.getAttribute("aria-expanded") !== "true") m.click(); m.closest("article").scrollIntoView({behavior:"smooth", block:"start"}); };
+  const remForm = (label, kind, submitText) => `<form id="remForm" data-kind="${kind}"><label for="rem">${esc(label)}</label><div class="field"><textarea id="rem" maxlength="300" rows="2"></textarea><button class="primary" type="submit">${submitText}</button></div></form>`;
+  const bindRem = () => {
+    const f = $("remForm"); if(!f) return;
+    $("rem").focus();
+    f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t){ keepPrev(); ask(t, true, f.dataset.kind); } };
+  };
   let h = "";
-  if(v === "partial"){
-    h = `<form id="remForm"><label for="rem">${esc(r.message)}</label><div class="field"><textarea id="rem" maxlength="300" rows="2"></textarea><button class="primary" type="submit">أرسل</button></div></form>`;
+  if(v === "yes"){
+    h = `<div class="fbpanel">${r.message ? `<p>${esc(r.message)}</p>` : ""}${(r.next||[]).map(n => optBtn(n, false)).join("")}
+      <div class="next nav"><button type="button" class="ghost" data-go="ask">سؤال جديد</button></div></div>`;
+  } else if(v === "partial"){
+    h = `<div class="fbpanel">${remForm(T_REM, "PART_REMAINING", "متابعة")}</div>`;
   } else {
-    h = `<p style="margin-top:10px">${esc(r.message)}</p>`;
-    if(v === "yes" && r.next && r.next.length) h += r.next.map(n => optBtn(n, false)).join("");
-  }
-  if(v !== "yes"){
-    const card = document.querySelector("#result article");
-    const more = card && card.querySelector("[data-more]");
-    // ستة خيارات لتشخيص ما بقي، ثم زرّا تنقّل مفصولان عنها
-    h += `<div class="next" data-kinds>${v === "no" ? '<button type="button" class="ghost" data-rem>بقي جزء من سؤالي</button>' : ""}<button type="button" class="ghost" data-unclear>المعنى غير واضح</button><button type="button" class="ghost" data-obj>لدي اعتراض</button>${more ? '<button type="button" class="ghost" data-expand>أريد التفصيل</button>' : ""}${card && card.querySelector("a.link") ? '<button type="button" class="ghost" data-src>أريد المصدر</button>' : ""}<button type="button" class="ghost" data-refer>أريد مختصاً</button></div>
-      <div class="nav-sep"><span>أو</span></div>
-      <div class="next nav"><button type="button" class="ghost" data-go="ask">سؤال جديد</button><button type="button" class="ghost" data-go="menu">الأسئلة المتاحة</button></div>`;
+    h = `<div class="fbpanel" role="group" aria-labelledby="fbno-h"><p id="fbno-h" class="fbq-h2">ما المشكلة في الإجابة؟</p>
+      <div class="next" data-kinds><button type="button" class="ghost" data-unclear>المعنى غير واضح</button><button type="button" class="ghost" data-obj>لدي اعتراض</button><button type="button" class="ghost" data-refer>أحتاج مختصًا</button></div></div>`;
   }
   $("fbOut").innerHTML = h;
   bind($("fbOut"));
-  const logKind = kind => post("/api/followup", {kind, decision_id:S.lastId, shown:[...S.shown]}).catch(() => {});
-  const expand = () => { const m = document.querySelector("#result article [data-more]"); if(!m) return; if(m.getAttribute("aria-expanded") !== "true") m.click(); m.closest("article").scrollIntoView({behavior:"smooth", block:"start"}); };
-  const ex = $("fbOut").querySelector("[data-expand]");
-  if(ex) ex.onclick = () => { logKind("EXPAND"); expand(); };
-  const sr = $("fbOut").querySelector("[data-src]");
-  if(sr) sr.onclick = () => { logKind("SOURCE"); window.open(document.querySelector("#result article a.link").href, "_blank", "noopener"); };
-  // «بقي جزء» و«لدي اعتراض»: نص يكتبه المستخدم، ويُرسل متابعةً بسياق السؤال السابق ولا تعيد المقطع المعروض
-  const remForm = (btn, label, kind) => {
-    S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join("");
-    const old = $("remForm"); if(old) old.remove();
-    btn.closest(".next").insertAdjacentHTML("beforebegin", `<form id="remForm"><label for="rem">${esc(label)}</label><div class="field"><textarea id="rem" maxlength="300" rows="2"></textarea><button class="primary" type="submit">أرسل</button></div></form>`);
-    const f = $("remForm"); $("rem").focus();
-    f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true, kind); };
-  };
-  const rb = $("fbOut").querySelector("[data-rem]");
-  if(rb) rb.onclick = () => { remForm(rb, T_REM, "PART_REMAINING"); rb.remove(); };
+  $("fbOut").querySelectorAll("[data-go]").forEach(b => b.onclick = () => { $("q").focus(); $("q").scrollIntoView({behavior:"smooth", block:"center"}); });
+  if(v === "partial") bindRem();
+  // «لدي اعتراض»: نص يكتبه المستخدم، ويُرسل متابعةً بسياق السؤال السابق (OBJECTION) ولا يعيد المقطع المعروض
   const ob = $("fbOut").querySelector("[data-obj]");
-  if(ob) ob.onclick = () => remForm(ob, "اكتب اعتراضك أو ما لم يقنعك:", "OBJECTION");
+  if(ob) ob.onclick = () => {
+    const old = $("remForm"); if(old) old.remove();
+    ob.closest(".next").insertAdjacentHTML("afterend", remForm("اكتب اعتراضك أو ما لم يقنعك:", "OBJECTION", "أرسل"));
+    bindRem();
+  };
   // «المعنى غير واضح»: تفصيل المقطع إن وُجد ← وإلا محتوى مرتبط مسجّل ← وإلا رسالة صادقة. لا شرح مولَّد.
   const ub = $("fbOut").querySelector("[data-unclear]");
   if(ub) ub.onclick = async () => {
     const m = document.querySelector("#result article [data-more]");
     const hasDetail = !!m && m.getAttribute("aria-expanded") !== "true";
     if(hasDetail){ logKind("UNCLEAR"); expand(); return; }
-    S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join("");
+    keepPrev();
     run("/api/followup", {kind:"UNCLEAR", decision_id:S.lastId, shown:[...S.shown], has_detail:false}, "المعنى غير واضح");
   };
   const fb = $("fbOut").querySelector("[data-refer]");
   if(fb) fb.onclick = () => run("/api/followup", {kind:"SPECIALIST", decision_id:S.lastId, shown:[...S.shown]}, "طلبت مختصاً");
-  const f = $("remForm");
-  if(f){ $("rem").focus(); f.onsubmit = e => { e.preventDefault(); const t=$("rem").value.trim(); if(t) ask(t, true, "PART_REMAINING"); }; }
 }
 $("moreBtn").onclick = () => {
   const b = $("moreBtn"), open = b.getAttribute("aria-expanded") !== "true";
