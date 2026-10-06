@@ -310,7 +310,6 @@ function render(r, label){
         ${part ? `<p class="rpart">هذه المادة مفيدة لسؤالك، لكنها لا تغطيه كاملًا.</p>` : ""}
         <p class="about">${esc((s.about||"").replace(ABOUT,""))}</p>
         ${quote(s)}
-        ${part && s.partial_note ? `<p class="rnote">${esc(s.partial_note)}</p>` : ""}
         ${s.note?`<p class="rnote"><b>تنبيه المراجع:</b> ${esc(s.note)}</p>`:""}
         <div class="src"><span class="src-k">المصدر</span>
           <p class="src-t"><b>${esc(s.source.title)}</b> — ${esc(s.source.org)}</p>
@@ -344,15 +343,20 @@ function render(r, label){
     const card = b.closest("article"), ex = card.querySelector("[data-ex]"), full = card.querySelector("[data-full]");
     const top0 = b.getBoundingClientRect().top;
     const open = full.hidden; full.hidden = !open; ex.hidden = open;
+    if(open && b.dataset.nolog !== "1") logKind("EXPAND");
+    delete b.dataset.nolog;
     b.setAttribute("aria-expanded", open ? "true" : "false");
     b.textContent = open ? "إخفاء التفصيل" : "أريد التفصيل";
     card.querySelector("[data-cap]").textContent = open ? "النص المعتمد كاملاً، والمظلَّل هو المتعلق بسؤالك" : "الجزء المتعلق بسؤالك من النص المعتمد";
     // يبقى الزر في مكانه من الشاشة: لا قفزة عند فتح النص أو طيّه
     window.scrollBy(0, b.getBoundingClientRect().top - top0);
   });
+  $("result").querySelectorAll("article a.link").forEach(a => a.addEventListener("click", () => logKind("SOURCE")));
   if(r.needs) menu(r.needs);
   focusResult();
 }
+// تسجيل نوع المتابعة كما كان: POST /api/followup {kind, decision_id, shown}
+const logKind = kind => post("/api/followup", {kind, decision_id:S.lastId, shown:[...S.shown]}).catch(() => {});
 let seq = 0, retry = null;
 function fail(e){
   const msg = String(e && e.message) === "429" ? "أرسلت أسئلة كثيرة في وقت قصير. انتظر دقيقة ثم أعد المحاولة." : "تعذّر الوصول إلى الخادم الآن. قد يستغرق أول فتح للموقع نصف دقيقة.";
@@ -401,8 +405,7 @@ async function feedback(v){
   }
   if(fbChoice !== v) return;  // اختار المستخدم غيره قبل وصول الرد
   const keepPrev = () => { S.prevHTML = [...document.querySelectorAll("#result article")].map(a => a.outerHTML).join(""); };
-  const logKind = kind => post("/api/followup", {kind, decision_id:S.lastId, shown:[...S.shown]}).catch(() => {});
-  const expand = () => { const m = document.querySelector("#result article [data-more]"); if(!m) return; if(m.getAttribute("aria-expanded") !== "true") m.click(); m.closest("article").scrollIntoView({behavior:"smooth", block:"start"}); };
+  const expand = () => { const m = document.querySelector("#result article [data-more]"); if(!m) return; if(m.getAttribute("aria-expanded") !== "true"){ m.dataset.nolog = "1"; m.click(); } m.closest("article").scrollIntoView({behavior:"smooth", block:"start"}); };
   const remForm = (label, kind, submitText) => `<form id="remForm" data-kind="${kind}"><label for="rem">${esc(label)}</label><div class="field"><textarea id="rem" maxlength="300" rows="2"></textarea><button class="primary" type="submit">${submitText}</button></div></form>`;
   const bindRem = () => {
     const f = $("remForm"); if(!f) return;
